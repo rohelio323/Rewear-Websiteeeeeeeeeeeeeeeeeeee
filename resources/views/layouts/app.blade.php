@@ -85,19 +85,17 @@
 
     <!-- Material Symbols + body styles -->
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9f9f6;
-        }
-        h1, h2, h3, .headline {
-            font-family: 'Manrope', sans-serif;
-        }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #f9f9f6;
+        color: #1a1c1b;
+        font-family: 'Inter', sans-serif;
+      }
     </style>
 </head>
-<body style="background-color:#F5F5F2;color:#1A2820;">
+<body>
 
     {{-- Navigation --}}
     @include('layouts.navigation')

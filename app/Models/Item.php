@@ -13,7 +13,7 @@ class Item extends Model
         'size',
         'condition',
         'price',
-        'photo_path', //nanti di store pake array biar bisa banyak 
+        'photo_path',
         'status',
         'users_id',
         'category_id',

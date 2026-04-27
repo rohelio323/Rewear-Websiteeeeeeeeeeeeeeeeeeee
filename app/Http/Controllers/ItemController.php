@@ -16,6 +16,16 @@ class ItemController extends Controller
         return view('marketplace.index', compact('items', 'categories'));
     }
 
+    public function show(Item $item) {
+        $similarItems = Item::where('category_id', $item->category_id)
+            ->where('id', '!=', $item->id)
+            ->where('status', 'available')
+            ->limit(4)
+            ->get();
+
+        return view('items.show', compact('item', 'similarItems'));
+    }
+
     public function create() {
         $categories = Category::all();
         return view('items.create', compact('categories'));
