@@ -33,7 +33,12 @@ class Item extends Model
     public function category()  {
         return $this->belongsTo(Category::class);
     }
-
+// ===== WISHLIST RELATIONSHIP =====
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'item_user')
+                    ->withTimestamps();
+    }
 
 
 }

@@ -15,6 +15,13 @@
                     <a href="#" class="text-[10px] font-bold text-secondary uppercase border border-secondary/30 px-2 py-0.5 rounded tracking-widest hover:bg-secondary hover:text-white transition-all">Admin</a>
                 @endif
 
+                {{-- Wishlist Icon --}}
+                <a href="{{ route('favorites.index') }}"
+                   class="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-stone-100 transition-all {{ request()->is('favorites') ? 'text-red-500' : 'text-stone-500' }}"
+                   title="Wishlist">
+                    <span class="material-symbols-outlined text-xl" style="{{ request()->is('favorites') ? 'font-variation-settings: FILL 1' : '' }}">favorite</span>
+                </a>
+
                 <div class="flex items-center gap-3 pl-4 border-l border-stone-200">
                     <div class="flex flex-col items-end hidden sm:flex">
                         <span class="text-xs font-bold text-primary leading-none">Hi, {{ explode(' ', Auth::user()->name)[0] }}</span>
