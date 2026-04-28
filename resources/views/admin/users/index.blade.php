@@ -8,7 +8,7 @@
         <span class="section-header-overline">Admin</span>
         <h1 class="section-title">Active Community Members</h1>
         <p style="color:var(--color-text-muted);font-size:0.875rem;margin-top:0.25rem;">
-            Manage and review the {{ number_format($users->total() ?? 4281) }} storytellers on The Living Archive.
+            Manage and review users on the platform.
         </p>
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
@@ -30,27 +30,27 @@
     <div class="card" style="padding:1.5rem;">
         <div class="card-accent-bar"></div>
         <p style="font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:0.5rem;">Total Users</p>
-        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($users->total() ?? 4281) }}</h3>
+        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($users->total()) }}</h3>
         <div style="display:flex;align-items:center;gap:0.25rem;color:var(--color-text-muted);font-size:0.75rem;">
-            <span class="material-symbols-outlined" style="font-size:0.875rem;">trending_up</span>
-            <span>12% this month</span>
+            <span class="material-symbols-outlined" style="font-size:0.875rem;">group</span>
+            <span>All registered members</span>
         </div>
     </div>
 
     <div class="card" style="padding:1.5rem;">
         <div class="card-accent-bar"></div>
-        <p style="font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:0.5rem;">Active Sellers</p>
-        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($users->where('is_verified_seller', true)->count() ?? 1892) }}</h3>
+        <p style="font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:0.5rem;">Verified Sellers</p>
+        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($stats['is_verified_seller'] ?? 0) }}</h3>
         <div style="display:flex;align-items:center;gap:0.25rem;color:var(--color-text-muted);font-size:0.75rem;">
             <span class="material-symbols-outlined" style="font-size:0.875rem;">sell</span>
-            <span>High engagement</span>
+            <span>Approved to sell</span>
         </div>
     </div>
 
     <div class="card" style="padding:1.5rem;">
         <div class="card-accent-bar"></div>
         <p style="font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:0.5rem;">Flagged</p>
-        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($stats['flagged'] ?? 24) }}</h3>
+        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($stats['flagged'] ?? 0) }}</h3>
         <div style="display:flex;align-items:center;gap:0.25rem;color:var(--color-text-muted);font-size:0.75rem;">
             <span class="material-symbols-outlined" style="font-size:0.875rem;">priority_high</span>
             <span>Requires attention</span>
@@ -60,10 +60,10 @@
     <div class="card" style="padding:1.5rem;">
         <div class="card-accent-bar"></div>
         <p style="font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:0.5rem;">New Today</p>
-        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($stats['new_today'] ?? 42) }}</h3>
+        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($stats['new_today'] ?? 0) }}</h3>
         <div style="display:flex;align-items:center;gap:0.25rem;color:var(--color-text-muted);font-size:0.75rem;">
-            <span class="material-symbols-outlined" style="font-size:0.875rem;">celebration</span>
-            <span>Jakarta &amp; Bali spikes</span>
+            <span class="material-symbols-outlined" style="font-size:0.875rem;">person_add</span>
+            <span>Registered today</span>
         </div>
     </div>
 </div>
@@ -74,7 +74,7 @@
     <table style="width:100%;border-collapse:collapse;">
         <thead>
             <tr style="border-bottom:1px solid var(--color-border);">
-                @foreach(['#','Member Archive','Email','Community Role','Verified','CO₂ Saved','Status','Legacy Join Date','Actions'] as $h)
+                @foreach(['#','Name','Email','Role','Verified','CO₂ Saved','Status','Joined','Actions'] as $h)
                     <th style="padding:0.875rem 1rem;text-align:left;font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">{{ $h }}</th>
                 @endforeach
             </tr>
@@ -155,7 +155,7 @@
             @empty
             <tr>
                 <td colspan="9" style="padding:2rem 1rem;text-align:center;color:var(--color-text-muted);">
-                    No members found in the archive.
+                    No users found.
                 </td>
             </tr>
             @endforelse
@@ -165,7 +165,7 @@
     {{-- Pagination --}}
     <div style="padding:1rem;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--color-border);flex-wrap:wrap;gap:1rem;">
         <p style="font-size:0.75rem;color:var(--color-text-muted);font-family:'JetBrains Mono',monospace;">
-            Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ number_format($users->total() ?? 0) }} storytellers
+            Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ number_format($users->total()) }} users
         </p>
         <div>{{ $users->links() }}</div>
     </div>

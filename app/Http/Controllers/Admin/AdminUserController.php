@@ -18,8 +18,15 @@ class AdminUserController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.users.index', compact('users', 'search'));
+        $stats = [
+            'total_users'       => User::count(),
+            'is_verified_seller' => User::where('is_verified_seller', 1)->count(),
+            'deactivated_users' => User::onlyTrashed()->count(),
+        ];
+
+        return view('admin.users.index', compact('users', 'search', 'stats'));
     }
+
 
     public function show(User $user)
     {
