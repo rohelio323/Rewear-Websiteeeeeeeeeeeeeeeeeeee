@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,7 +11,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
@@ -39,6 +37,13 @@ class User extends Authenticatable
         ];
     }
 
+    public function favorites()
+    {
+        return $this->belongsToMany(Item::class, 'item_user')
+                    ->withTimestamps();
+    }
+
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
@@ -62,3 +67,4 @@ class User extends Authenticatable
 
 
 }
+

@@ -12,6 +12,25 @@
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
             SAVED {{ (float) $item->category?->co2_constant ?? '0' }}KG CO2
         </div>
+        @auth
+            <form action="{{ route('favorites.toggle', $item->id) }}" method="POST" class="absolute top-2.5 right-2.5 z-10">
+                @csrf
+                <button type="submit" 
+                    class="wishlist-btn flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm transition-transform active:scale-90"
+                    title="{{ auth()->user()->favorites->contains($item->id) ? 'Hapus' : 'Tambah' }}">
+                    
+                    <span class="material-symbols-outlined text-base {{ auth()->user()->favorites->contains($item->id) ? 'text-red-500' : 'text-stone-400' }}" 
+                        style="font-variation-settings:'FILL' {{ auth()->user()->favorites->contains($item->id) ? 1 : 0 }};">
+                        favorite
+                    </span>
+                </button>
+            </form>
+        @else
+            {{-- For guests, just a link to login --}}
+            <a href="{{ route('login') }}" class="absolute top-2.5 right-2.5 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm">
+                <span class="material-symbols-outlined text-base text-stone-400">favorite</span>
+            </a>
+        @endauth
     </div>
 
     {{-- Body --}}

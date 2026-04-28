@@ -34,12 +34,17 @@ class Item extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'item_user')
+                    ->withTimestamps();
+    }
+
     public function getFirstPhotoAttribute(): ?string
     {
         $photos = $this->photo_path;
         return $photos && count($photos) > 0 ? $photos[0] : null;
     }
-
 
 
 }

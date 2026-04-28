@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\WishlistController;
 
 
 Route::get('/', function () {
@@ -41,6 +42,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/create', [PostController::class, 'store'])->name('community.store');
     Route::put('/community/update/{id}', [PostController::class, 'update'])->name('community.update');
     Route::delete('/community/delete/{id}', [PostController::class, 'destroy'])->name('community.destroy');
+
+    Route::get('/favorites', [WishlistController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites/{item}/toggle', [WishlistController::class, 'toggle'])->name('favorites.toggle');
 });
 
 Route::middleware(['auth', 'seller'])->group(function () {

@@ -9,12 +9,17 @@ use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
-    //
     public function index() {
         $items = Item::with(['category', 'user'])->where('status', 'available')->get();
         $categories = Category::all();
+        
+        if (auth()->check()) {
+            auth()->user()->load('favorites');
+        }
+
         return view('marketplace.index', compact('items', 'categories'));
     }
+
 
     public function show(Item $item) {
         $similarItems = Item::where('category_id', $item->category_id)
@@ -62,3 +67,4 @@ class ItemController extends Controller
         return redirect()->route('marketplace.index', $item)->with('success', 'Listing created successfully!');
     }
 }
+
