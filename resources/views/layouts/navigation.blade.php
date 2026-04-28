@@ -12,7 +12,7 @@
         <div class="flex items-center gap-4">
             @auth
                 @if(Auth::user()->role === 'admin')
-                    <a href="{{ route('admin.dashboard') }}" class="text-[10px] font-bold text-secondary uppercase border border-secondary/30 px-2 py-0.5 rounded tracking-widest hover:bg-secondary hover:text-white transition-all">Admin</a>
+                    <a href="{{ route('admin.dashboard') }}" class="text-[10px] font-bold text-secondary uppercase border border-secondary/30 px-2 py-2 rounded tracking-widest hover:bg-secondary hover:text-white transition-all">Admin Dashboard</a>
                 @endif
 
                 <div class="flex items-center gap-3 pl-4 border-l border-stone-200">
@@ -23,7 +23,7 @@
                             <button type="submit" class="text-[10px] text-stone-400 hover:text-red-600 transition-all font-medium mt-1">Logout</button>
                         </form>
                     </div>
-                    
+
                     <a href="{{ route('profile.edit') }}" class="w-9 h-9 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-primary hover:bg-stone-200 transition-all group overflow-hidden">
                         @if(Auth::user()->profile_photo_path)
                             <img src="{{ Auth::user()->profile_photo_path }}" alt="Profile" class="w-full h-full object-cover">
