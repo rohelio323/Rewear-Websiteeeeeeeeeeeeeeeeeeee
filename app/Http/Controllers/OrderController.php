@@ -95,7 +95,7 @@ class OrderController extends Controller
         return view('orders.confirmed', compact('order'));
     }
 
-    public function ship(Order $order) // ← NEW
+    public function ship(Order $order)
     {
         abort_unless($order->users_id === Auth::id(), 403);
         abort_unless($order->status === 'payment_confirmed', 403);
@@ -105,7 +105,7 @@ class OrderController extends Controller
         return redirect()->route('orders.show', $order)->with('success', 'Shipment confirmed! Waiting for buyer to confirm received.');
     }
 
-    public function receive(Order $order) // ← NEW
+    public function receive(Order $order)
     {
         abort_unless($order->buyer_id === Auth::id(), 403);
         abort_unless($order->status === 'shipped', 403);
@@ -131,6 +131,21 @@ class OrderController extends Controller
         });
 
         return redirect()->route('marketplace.index')->with('success', 'Order cancelled. Item is back on the marketplace.');
+    }
+
+    public function transactions()
+    {
+        $buying = Order::with(['item.category', 'seller'])
+            ->where('buyer_id', Auth::id())
+            ->latest()
+            ->get();
+
+        $selling = Order::with(['item.category', 'buyer'])
+            ->where('users_id', Auth::id())
+            ->latest()
+            ->get();
+
+        return view('orders.transactions', compact('buying', 'selling'));
     }
 
     private function authorizeOrder(Order $order): void
