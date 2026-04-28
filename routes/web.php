@@ -20,6 +20,7 @@ Route::delete('/admin/categories/{id}', [CO2Controller::class, 'deleteCategory']
 
 // Marketplace
 Route::get('/marketplace', [ItemController::class, 'index'])->name('marketplace.index');
+Route::get('/item/detail/{item}', [ItemController::class, 'show'])->name('items.show');
 Route::get('/community', [PostController::class, 'index'])->name('community.index');
 
 Route::middleware('auth')->group(function () {
