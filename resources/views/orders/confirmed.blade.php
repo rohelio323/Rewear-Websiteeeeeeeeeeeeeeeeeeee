@@ -84,7 +84,7 @@
             </div>
             <div class="flex justify-between text-sm text-stone-500">
                 <span>Shipping</span>
-                <span class="text-emerald-700 font-medium">Gratis (Carbon Neutral)</span>
+                <span class="text-emerald-700 font-medium">Free Shipping</span>
             </div>
             <div class="flex justify-between text-base font-bold text-stone-900 pt-3 border-t border-stone-100 mt-1">
                 <span>Total</span>
