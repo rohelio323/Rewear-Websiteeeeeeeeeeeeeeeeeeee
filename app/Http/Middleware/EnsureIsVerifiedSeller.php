@@ -15,7 +15,7 @@ class EnsureIsVerifiedSeller
      */
     public function handle($request, Closure $next)
     {
-        if (auth()->check() && auth()->user()->is_verified_seller) {
+        if (auth()->check() && auth()->user()->isVerifiedSeller()) {
             return $next($request);
         }
 

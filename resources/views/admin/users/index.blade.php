@@ -47,6 +47,17 @@
         </div>
     </div>
 
+    {{-- NEW: Pending Seller Requests --}}
+    <div class="card" style="padding:1.5rem;">
+        <div class="card-accent-bar" style="background:var(--color-warning,#d97706);"></div>
+        <p style="font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:0.5rem;">Pending Sellers</p>
+        <h3 style="font-size:2rem;font-weight:800;color:var(--color-primary-900);margin-bottom:0.5rem;">{{ number_format($stats['pending_sellers'] ?? 0) }}</h3>
+        <div style="display:flex;align-items:center;gap:0.25rem;color:var(--color-text-muted);font-size:0.75rem;">
+            <span class="material-symbols-outlined" style="font-size:0.875rem;">schedule</span>
+            <span>Awaiting review</span>
+        </div>
+    </div>
+
     <div class="card" style="padding:1.5rem;">
         <div class="card-accent-bar"></div>
         <p style="font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);margin-bottom:0.5rem;">Flagged</p>
@@ -74,7 +85,7 @@
     <table style="width:100%;border-collapse:collapse;">
         <thead>
             <tr style="border-bottom:1px solid var(--color-border);">
-                @foreach(['#','Name','Email','Role','Verified','CO₂ Saved','Status','Joined','Actions'] as $h)
+                @foreach(['#','Name','Email','Role','Verified','CO₂ Saved','Status','Seller Request','Joined','Actions'] as $h)
                     <th style="padding:0.875rem 1rem;text-align:left;font-size:0.5625rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-muted);">{{ $h }}</th>
                 @endforeach
             </tr>
@@ -126,6 +137,56 @@
                         <span class="badge badge-available">Active</span>
                     @endif
                 </td>
+
+                {{-- Seller Request Column --}}
+                <td style="padding:0.875rem 1rem;">
+                    @if($user->seller_request_status === 'pending')
+                        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;">
+                            <span class="badge badge-pending">Pending</span>
+                            <div style="display:flex;gap:4px;">
+                                <form method="POST" action="{{ route('admin.seller-requests.approve', $user->id) }}">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary" style="padding:0.2rem 0.5rem;font-size:0.7rem;">Approve</button>
+                                </form>
+                                <button type="button" class="btn btn-danger" style="padding:0.2rem 0.5rem;font-size:0.7rem;"
+                                    onclick="document.getElementById('reject-modal-{{ $user->id }}').style.display='flex'">
+                                    Reject
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Reject Modal --}}
+                        <div id="reject-modal-{{ $user->id }}"
+                             style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:50;align-items:center;justify-content:center;">
+                            <div style="background:var(--color-surface,#fff);border-radius:1rem;padding:1.5rem;width:100%;max-width:400px;">
+                                <h3 style="margin:0 0 0.5rem;font-size:1rem;font-weight:700;color:var(--color-primary-900);">Reject Seller Request</h3>
+                                <p style="font-size:0.8125rem;color:var(--color-text-muted);margin:0 0 1rem;">
+                                    Provide a reason for <strong>{{ $user->name }}</strong>. They will see this note.
+                                </p>
+                                <form method="POST" action="{{ route('admin.seller-requests.reject', $user->id) }}">
+                                    @csrf
+                                    <textarea name="note" required placeholder="e.g. Incomplete profile information..."
+                                        style="width:100%;border:1px solid var(--color-border);border-radius:0.5rem;padding:0.625rem;font-size:0.8125rem;resize:vertical;min-height:80px;margin-bottom:1rem;box-sizing:border-box;background:var(--color-surface);color:var(--color-text-primary);"></textarea>
+                                    <div style="display:flex;gap:8px;justify-content:flex-end;">
+                                        <button type="button" class="btn btn-secondary"
+                                            onclick="document.getElementById('reject-modal-{{ $user->id }}').style.display='none'">
+                                            Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-danger">Confirm Reject</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    @elseif($user->seller_request_status === 'approved')
+                        <span class="badge badge-verified">Approved</span>
+                    @elseif($user->seller_request_status === 'rejected')
+                        <span class="badge badge-cancelled">Rejected</span>
+                    @else
+                        <span style="color:var(--color-text-subtle);">—</span>
+                    @endif
+                </td>
+
                 <td style="padding:0.875rem 1rem;font-size:0.8125rem;color:var(--color-text-muted);">
                     {{ $user->created_at->format('M d, Y') }}
                 </td>
@@ -137,16 +198,12 @@
                         @if($user->trashed())
                             <form method="POST" action="{{ route('admin.users.restore', $user->id) }}">
                                 @csrf
-                                <button type="submit" class="btn btn-secondary" style="padding:0.25rem 0.625rem;font-size:0.75rem;" title="Restore">
-                                    Restore
-                                </button>
+                                <button type="submit" class="btn btn-secondary" style="padding:0.25rem 0.625rem;font-size:0.75rem;">Restore</button>
                             </form>
                         @elseif($user->role !== 'admin')
                             <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" onsubmit="return confirm('Suspend this user?')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-danger" style="padding:0.25rem 0.625rem;font-size:0.75rem;" title="Suspend">
-                                    Suspend
-                                </button>
+                                <button type="submit" class="btn btn-danger" style="padding:0.25rem 0.625rem;font-size:0.75rem;">Suspend</button>
                             </form>
                         @endif
                     </div>
@@ -154,7 +211,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="9" style="padding:2rem 1rem;text-align:center;color:var(--color-text-muted);">
+                <td colspan="10" style="padding:2rem 1rem;text-align:center;color:var(--color-text-muted);">
                     No users found.
                 </td>
             </tr>
@@ -162,7 +219,6 @@
         </tbody>
     </table>
 
-    {{-- Pagination --}}
     <div style="padding:1rem;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--color-border);flex-wrap:wrap;gap:1rem;">
         <p style="font-size:0.75rem;color:var(--color-text-muted);font-family:'JetBrains Mono',monospace;">
             Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ number_format($users->total()) }} users

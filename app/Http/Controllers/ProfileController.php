@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Models\Order; 
+use App\Models\Order;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,13 +17,13 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-    
+
         $totalCo2Saved = Order::where('buyer_id', $request->user()->id)
                               ->sum('co2_saved_amount');
 
         return view('profile.edit', [
             'user' => $request->user(),
-            'totalCo2Saved' => $totalCo2Saved, 
+            'totalCo2Saved' => $totalCo2Saved,
         ]);
     }
 
@@ -41,6 +41,19 @@ class ProfileController extends Controller
         $request->user()->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    public function applyAsSeller(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (!$user->canApplyAsSeller()) {
+            return Redirect::route('profile.edit')->with('error', 'You cannot apply at this time.');
+        }
+
+        $user->submitSellerRequest('');
+
+        return Redirect::route('profile.edit')->with('status', 'seller-applied');
     }
 
     /**

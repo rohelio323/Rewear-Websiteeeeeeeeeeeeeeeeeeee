@@ -29,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/profile/seller-apply', [ProfileController::class, 'applyAsSeller'])->name('seller.apply.submit');
+
 
     // Orders
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
@@ -62,6 +64,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore');
     Route::get('/co2-categories', [CO2CategoryController::class, 'index'])->name('co2.index');
+    Route::post('/seller-requests/{user}/approve', [AdminUserController::class, 'approveSeller'])->name('seller-requests.approve');
+    Route::post('/seller-requests/{user}/reject', [AdminUserController::class, 'rejectSeller'])->name('seller-requests.reject');
 });
 
 require __DIR__.'/auth.php';
