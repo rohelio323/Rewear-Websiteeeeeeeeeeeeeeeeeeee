@@ -111,10 +111,27 @@
                 </div>
             </div>
             @auth
-            <div class="pt-2">
-                <a href="#" class="block w-full bg-primary text-white py-4 rounded-full font-bold shadow-lg shadow-primary/10 transition-all hover:brightness-110 active:scale-95 text-center text-sm uppercase tracking-widest">
-                    Buy Now
-                </a>
+            <div class="relative z-10 mt-auto">
+                @php
+                    $existingOrder = \App\Models\Order::where('buyer_id', auth()->id())
+                        ->where('item_id', $item->id)
+                        ->where('status', 'pending')
+                        ->first();
+                @endphp
+
+                @if($existingOrder)
+                    <a href="{{ route('orders.show', $existingOrder) }}" class="mt-3 flex items-center justify-center w-full bg-stone-700 hover:bg-stone-600 text-white text-xs font-medium py-2 rounded-full transition-colors duration-200">
+                        View Order →
+                    </a>
+                @else
+                    <form action="{{ route('orders.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="item_id" value="{{ $item->id }}">
+                        <button type="submit" class="mt-3 flex items-center justify-center w-full bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-medium py-2 rounded-full transition-colors duration-200">
+                            Buy Now
+                        </button>
+                    </form>
+                @endif
             </div>
             @endauth
         </div>

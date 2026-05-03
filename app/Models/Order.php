@@ -15,6 +15,8 @@ class Order extends Model
         'payment_reference',
         'users_id',
         'payment_proof',
+        'tracking_number',
+        'shipping_proof',
     ];
 
     protected function casts(): array
