@@ -67,8 +67,8 @@
 
     {{-- Brand --}}
     <div style="padding:0 1.25rem 1.5rem;border-bottom:1px solid #F0F0EC;margin-bottom:0.75rem;">
-        <a href="{{ route('home') }}" style="text-decoration:none;display:inline-block;margin-bottom:6px;">
-            <span style="font-family:'Manrope',sans-serif;font-size:1.375rem;font-weight:800;color:#173124;letter-spacing:-0.02em;">Re</span><span style="font-family:'Manrope',sans-serif;font-size:1.375rem;font-weight:800;color:#D98364;letter-spacing:-0.02em;">Wear</span>
+        <a href="{{ url('/') }}" class="text-2xl font-bold tracking-tighter text-emerald-900 font-headline inline-block mb-1.5 no-underline">
+            ReWear
         </a>
         <p style="font-size:0.6875rem;color:#8A9E94;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;margin:0;">Admin Console</p>
         <p style="font-size:0.625rem;color:#AABAB0;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;margin:2px 0 0;">Platform Management</p>
@@ -96,8 +96,6 @@
         @endforeach
 
         <p style="font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#AABAB0;padding:1rem 0.875rem 0.375rem;">Content</p>
-
-
 
     </div>
 
