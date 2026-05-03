@@ -14,9 +14,6 @@
                 <x-item-card :item="$item" />
             @endforeach
         </div>
-
-<<<<<<< HEAD
-=======
        @auth
         @if(auth()->user()->is_verified_seller)
             <a href="{{ route('items.create') }}" 
@@ -35,7 +32,6 @@
         @endif
     @endauth
         
->>>>>>> 781d495a3a9e2acb413905fad4c3c4c0ab55c644
     @endif
     
 </section>

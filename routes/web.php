@@ -36,8 +36,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{order}/confirm-payment', [OrderController::class, 'confirmPayment'])->name('orders.confirmPayment');
     Route::get('/orders/{order}/confirmed', [OrderController::class, 'confirmed'])->name('orders.confirmed');
     Route::delete('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-    Route::post('/orders/{order}/ship', [OrderController::class, 'ship'])->name('orders.ship');       // ← NEW
-    Route::post('/orders/{order}/receive', [OrderController::class, 'receive'])->name('orders.receive'); // ← NEW
+    Route::post('/orders/{order}/ship', [OrderController::class, 'ship'])->name('orders.ship');
+    Route::post('/orders/{order}/receive', [OrderController::class, 'receive'])->name('orders.receive');
+    Route::get('/transactions', [OrderController::class, 'transactions'])->name('transactions.index');
 
     Route::post('/community/create', [PostController::class, 'store'])->name('community.store');
     Route::put('/community/update/{id}', [PostController::class, 'update'])->name('community.update');
