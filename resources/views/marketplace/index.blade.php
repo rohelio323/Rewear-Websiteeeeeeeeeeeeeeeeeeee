@@ -14,7 +14,6 @@
                 <x-item-card :item="$item" />
             @endforeach
         </div>
-
        @auth
         @if(auth()->user()->is_verified_seller)
             <a href="{{ route('items.create') }}" 
