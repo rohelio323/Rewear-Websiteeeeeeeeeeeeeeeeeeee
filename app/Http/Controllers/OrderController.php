@@ -95,12 +95,32 @@ class OrderController extends Controller
         return view('orders.confirmed', compact('order'));
     }
 
-    public function ship(Order $order)
+    public function shipForm(Order $order)
+    {
+        abort_unless($order->users_id === Auth::id(), 403);
+        abort_unless($order->status === 'payment_confirmed', 403);
+        $order->load(['item']);
+        return view('orders.ship', compact('order'));
+    }
+
+    public function ship(Request $request, Order $order)
     {
         abort_unless($order->users_id === Auth::id(), 403);
         abort_unless($order->status === 'payment_confirmed', 403);
 
-        $order->update(['status' => 'shipped']);
+        $request->validate([
+            'courier_name'   => 'required|string|max:100',
+            'tracking_number' => 'required|string|max:100',
+            'shipping_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $path = $request->file('shipping_proof')->store('shipping_proofs', 'public');
+
+        $order->update([
+            'status'          => 'shipped',
+            'tracking_number' => $request->courier_name . ' — ' . $request->tracking_number,
+            'shipping_proof'  => $path,
+        ]);
 
         return redirect()->route('orders.show', $order)->with('success', 'Shipment confirmed! Waiting for buyer to confirm received.');
     }
