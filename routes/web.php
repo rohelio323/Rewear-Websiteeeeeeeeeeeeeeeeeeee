@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\Admin\CO2CategoryController;
 
 
 Route::get('/', function () {
@@ -60,6 +61,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore');
+    Route::get('/co2-categories', [CO2CategoryController::class, 'index'])->name('co2.index');
 });
 
 require __DIR__.'/auth.php';
