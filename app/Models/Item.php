@@ -13,7 +13,7 @@ class Item extends Model
         'size',
         'condition',
         'price',
-        'photo_path', //nanti di store pake array biar bisa banyak 
+        'photo_path',
         'status',
         'users_id',
         'category_id',
@@ -33,11 +33,17 @@ class Item extends Model
     public function category()  {
         return $this->belongsTo(Category::class);
     }
-// ===== WISHLIST RELATIONSHIP =====
+
     public function favoritedBy()
     {
         return $this->belongsToMany(User::class, 'item_user')
                     ->withTimestamps();
+    }
+
+    public function getFirstPhotoAttribute(): ?string
+    {
+        $photos = $this->photo_path;
+        return $photos && count($photos) > 0 ? $photos[0] : null;
     }
 
 

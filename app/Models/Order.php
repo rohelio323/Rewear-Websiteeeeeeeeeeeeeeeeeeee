@@ -14,6 +14,7 @@ class Order extends Model
         'co2_saved_amount',
         'payment_reference',
         'users_id',
+        'payment_proof',
     ];
 
     protected function casts(): array
