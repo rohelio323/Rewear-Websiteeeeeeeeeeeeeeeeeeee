@@ -2,12 +2,31 @@
 
 @section('content')
 <main class="pt-5 pb-20 px-28 max-w-screen-2xl mx-auto">
-    <div class="mb-6">
+    <div class="mb-6 flex justify-between">
         <a href="{{ route('marketplace.index') }}" 
             class="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">
             <span class="material-symbols-outlined transition-transform group-hover:-translate-x-1">arrow_back</span>
             Back to Marketplace
         </a>
+
+        @auth
+            @if(auth()->id() === $item->user->id)
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('items.edit', $item) }}" 
+                        class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-surface-container-high text-on-surface-variant font-bold text-xs uppercase tracking-wider hover:brightness-95 transition">
+                        <span class="material-symbols-outlined text-sm">edit</span> Edit
+                    </a>
+                    
+                    <form action="{{ route('items.destroy', $item) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-error-container text-on-error-container font-bold text-xs uppercase tracking-wider hover:brightness-95 transition">
+                            <span class="material-symbols-outlined text-sm">delete</span> Delete
+                        </button>
+                    </form>
+                </div>
+            @endif
+        @endauth
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         <div class="lg:col-span-6 space-y-6">

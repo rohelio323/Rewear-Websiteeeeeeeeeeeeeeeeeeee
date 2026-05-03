@@ -278,12 +278,13 @@
         slot.onclick       = null;
         slot.className     = 'photo-slot aspect-square rounded-lg overflow-hidden relative group';
         slot.innerHTML     = `
-            <img src="${url}" class="w-full h-full object-cover" alt="Photo ${index + 1}" />
-            <div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <img src="${url}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Photo ${index + 1}" />
+            <div class="absolute inset-0 bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-white text-2xl">edit</span>
                 <button type="button"
                     onclick="event.stopPropagation(); removeSlot(${index})"
-                    class="bg-surface-container-lowest p-2 rounded-full text-error flex items-center justify-center shadow">
-                    <span class="material-symbols-outlined text-base leading-none">delete</span>
+                    class="bg-surface-container-lowest/90 px-2 py-1 rounded-full text-error flex items-center gap-1 text-xs font-bold shadow">
+                    <span class="material-symbols-outlined text-sm leading-none">delete</span> Remove
                 </button>
             </div>`;
 
@@ -358,7 +359,6 @@
             });
 
             if (res.ok || res.redirected) {
-                // Success — follow the redirect Laravel sends back
                 window.location.href = res.redirected ? res.url : '{{ route("marketplace.index") }}';
                 return;
             }
