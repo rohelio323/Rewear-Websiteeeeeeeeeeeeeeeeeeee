@@ -2,25 +2,27 @@
 @section('title', 'CO2 Categories')
 
 @section('content')
-{{-- We wrap everything in an Alpine component to manage the modal states --}}
+{{-- Wrap everything in Alpine to manage modal states --}}
 <div x-data="{ 
         showAddModal: false, 
         showEditModal: false, 
         editId: '', 
         editName: '', 
         editCo2: '' 
-    }">
+    }" class="font-body max-w-5xl mx-auto">
 
     {{-- Header --}}
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap;">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
-            <h1 style="font-family:'Manrope',sans-serif;font-size:2rem;font-weight:800;color:#1A2820;letter-spacing:-0.03em;margin-bottom:0.25rem;">CO2 Categories</h1>
-            <p style="font-size:0.9375rem;color:#5A6B60;line-height:1.5;max-width:480px;">Manage clothing categories and their associated environmental impact values.</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-1 font-label">Administration</p>
+            <h1 class="text-3xl font-extrabold text-emerald-950 tracking-tight font-headline">CO₂ Categories</h1>
+            <p class="text-sm text-stone-500 mt-1">Manage clothing categories and their associated environmental impact values.</p>
         </div>
-        <div style="display:flex;gap:10px;flex-shrink:0;">
+        
+        <div class="flex-shrink-0">
             {{-- Add Button triggers the Add Modal --}}
-            <button @click="showAddModal = true" style="display:flex;align-items:center;gap:7px;background:#1A2820;border:none;color:#fff;padding:0.5rem 1.125rem;border-radius:10px;font-size:0.875rem;font-weight:600;cursor:pointer;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <button @click="showAddModal = true" class="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-950 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow active:scale-95">
+                <span class="material-symbols-outlined text-[18px]">add</span>
                 Add Category
             </button>
         </div>
@@ -28,86 +30,109 @@
 
     {{-- Validation Errors --}}
     @if ($errors->any())
-        <div style="background:#FEE2E2;border:1px solid #F87171;color:#B91C1C;padding:1rem;border-radius:8px;margin-bottom:1.5rem;">
-            <ul style="margin:0;padding-left:1.5rem;font-size:0.875rem;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+            <span class="material-symbols-outlined text-red-500 shrink-0">error</span>
+            <div>
+                <h3 class="text-sm font-bold text-red-800 mb-1 font-headline">Please fix the following errors:</h3>
+                <ul class="list-disc list-inside text-xs text-red-700 space-y-0.5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         </div>
     @endif
 
     {{-- Data Table --}}
-    <div style="background:#fff;border:1.5px solid #E2E2DE;border-radius:14px;overflow:hidden;">
-        <table style="width:100%;border-collapse:collapse;text-align:left;">
-            <thead style="background:#F0F5F2;border-bottom:1.5px solid #E2E2DE;">
-                <tr>
-                    <th style="padding:1rem 1.5rem;font-size:0.8125rem;font-weight:700;color:#5A6B60;text-transform:uppercase;letter-spacing:0.05em;">Category Name</th>
-                    <th style="padding:1rem 1.5rem;font-size:0.8125rem;font-weight:700;color:#5A6B60;text-transform:uppercase;letter-spacing:0.05em;">CO2 Saved (per item)</th>
-                    <th style="padding:1rem 1.5rem;font-size:0.8125rem;font-weight:700;color:#5A6B60;text-transform:uppercase;letter-spacing:0.05em;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($categories as $category)
-                <tr style="border-bottom:1px solid #E2E2DE;">
-                    <td style="padding:1rem 1.5rem;font-size:0.875rem;font-weight:600;color:#1A2820;">
-                        {{ $category->category_name }}
-                    </td>
-                    <td style="padding:1rem 1.5rem;">
-                        <span style="background:#EBF8F2;color:#059669;padding:4px 10px;border-radius:6px;font-size:0.8125rem;font-weight:700;">
-                            {{ $category->co2_constant ?? 0 }} kg
-                        </span>
-                    </td>
-                    <td style="padding:1rem 1.5rem;display:flex;align-items:center;gap:12px;">
-                        {{-- Edit Button triggers Edit Modal and passes data to it --}}
-                        <button type="button" 
-                                @click="showEditModal = true; editId = '{{ $category->id }}'; editName = '{{ $category->category_name }}'; editCo2 = '{{ $category->co2_constant }}'" 
-                                style="background:none;border:none;color:#5A6B60;font-weight:600;font-size:0.875rem;cursor:pointer;">
-                            Edit
-                        </button>
+    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead>
+                    <tr class="border-b border-stone-200 bg-stone-50/50">
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label">Category Name</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label">CO₂ Saved (per item)</th>
+                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100">
+                    @forelse($categories as $category)
+                    <tr class="hover:bg-stone-50/80 transition-colors group">
+                        <td class="px-6 py-4 font-bold text-stone-900 font-headline">
+                            {{ $category->category_name }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-100/50 font-mono text-xs font-bold">
+                                <span class="material-symbols-outlined text-[14px]">eco</span>
+                                {{ number_format($category->co2_constant ?? 0, 2) }} kg
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                {{-- Edit Button --}}
+                                <button type="button" 
+                                        @click="showEditModal = true; editId = '{{ $category->id }}'; editName = '{{ addslashes($category->category_name) }}'; editCo2 = '{{ $category->co2_constant }}'" 
+                                        class="p-1.5 rounded-lg text-stone-400 hover:bg-emerald-50 hover:text-emerald-600 transition-colors" title="Edit CO2 Value">
+                                    <span class="material-symbols-outlined text-[20px]">edit</span>
+                                </button>
 
-                        {{-- Delete Form --}}
-                        <form action="{{ url('/admin/categories/' . $category->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this category?');" style="margin:0;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" style="background:none;border:none;color:#DC2626;font-weight:600;font-size:0.875rem;cursor:pointer;">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="3" style="padding:2rem 1.5rem;text-align:center;color:#8A9E94;font-size:0.875rem;">
-                        No CO2 categories found in the database.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+                                {{-- Delete Form --}}
+                                <form action="{{ url('/admin/categories/' . $category->id) }}" method="POST" onsubmit="return confirm('Delete {{ addslashes($category->category_name) }}? This action cannot be undone.');" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="p-1.5 rounded-lg text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors" title="Delete Category">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="px-6 py-20 text-center text-stone-400 text-sm font-body">
+                            <div class="w-16 h-16 mx-auto bg-stone-50 rounded-full flex items-center justify-center mb-3">
+                                <span class="material-symbols-outlined text-3xl text-stone-300">category</span>
+                            </div>
+                            <p class="font-medium text-stone-500">No categories found.</p>
+                            <p class="text-xs mt-1">Click "Add Category" to create your first one.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     {{-- ================= Add Category Modal ================= --}}
     <div x-show="showAddModal" style="display:none;" x-transition.opacity>
         {{-- Modal Backdrop --}}
-        <div style="position:fixed;inset:0;background:rgba(26,40,32,0.4);backdrop-filter:blur(2px);z-index:50;display:flex;align-items:center;justify-content:center;">
+        <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             {{-- Modal Box --}}
-            <div @click.away="showAddModal = false" style="background:#fff;width:100%;max-width:400px;border-radius:14px;padding:1.5rem;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-                <h2 style="font-family:'Manrope',sans-serif;font-size:1.25rem;font-weight:800;color:#1A2820;margin-bottom:1rem;">Add New Category</h2>
+            <div @click.away="showAddModal = false" class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-stone-200 transform transition-all">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-emerald-600">add_circle</span>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-stone-900 text-lg font-headline leading-tight">Add New Category</h2>
+                        <p class="text-xs text-stone-500">Define the environmental impact.</p>
+                    </div>
+                </div>
                 
                 <form action="{{ url('/admin/categories') }}" method="POST">
                     @csrf
-                    <div style="margin-bottom:1rem;">
-                        <label style="display:block;font-size:0.8125rem;font-weight:700;color:#5A6B60;margin-bottom:0.5rem;">Category Name</label>
-                        <input type="text" name="category_name" required placeholder="e.g., Winter Coats" style="width:100%;padding:0.75rem;border:1.5px solid #E2E2DE;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+                    <div class="mb-4">
+                        <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Category Name</label>
+                        <input type="text" name="category_name" required placeholder="e.g., Winter Coats" class="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-stone-800 placeholder-stone-400">
                     </div>
                     
-                    <div style="margin-bottom:1.5rem;">
-                        <label style="display:block;font-size:0.8125rem;font-weight:700;color:#5A6B60;margin-bottom:0.5rem;">CO2 Saved (kg)</label>
-                        <input type="number" step="0.01" name="co2_constant" required placeholder="e.g., 15.50" style="width:100%;padding:0.75rem;border:1.5px solid #E2E2DE;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+                    <div class="mb-8">
+                        <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">CO₂ Saved (kg)</label>
+                        <input type="number" step="0.01" name="co2_constant" required placeholder="e.g., 15.50" class="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-stone-800 placeholder-stone-400">
                     </div>
 
-                    <div style="display:flex;gap:10px;justify-content:flex-end;">
-                        <button type="button" @click="showAddModal = false" style="padding:0.625rem 1rem;background:#F0F5F2;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;color:#5A6B60;cursor:pointer;">Cancel</button>
-                        <button type="submit" style="padding:0.625rem 1rem;background:#1A2820;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;color:#fff;cursor:pointer;">Save Category</button>
+                    <div class="flex gap-3 justify-end">
+                        <button type="button" @click="showAddModal = false" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-stone-500 hover:bg-stone-100 transition-colors">Cancel</button>
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition shadow-sm shadow-emerald-200">Save Category</button>
                     </div>
                 </form>
             </div>
@@ -117,30 +142,37 @@
     {{-- ================= Edit Category Modal ================= --}}
     <div x-show="showEditModal" style="display:none;" x-transition.opacity>
         {{-- Modal Backdrop --}}
-        <div style="position:fixed;inset:0;background:rgba(26,40,32,0.4);backdrop-filter:blur(2px);z-index:50;display:flex;align-items:center;justify-content:center;">
+        <div class="fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             {{-- Modal Box --}}
-            <div @click.away="showEditModal = false" style="background:#fff;width:100%;max-width:400px;border-radius:14px;padding:1.5rem;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-                <h2 style="font-family:'Manrope',sans-serif;font-size:1.25rem;font-weight:800;color:#1A2820;margin-bottom:1rem;">Edit CO2 Value</h2>
+            <div @click.away="showEditModal = false" class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-stone-200 transform transition-all">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined text-amber-600">edit</span>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-stone-900 text-lg font-headline leading-tight">Edit CO₂ Value</h2>
+                        <p class="text-xs text-stone-500">Update the impact constant for <span x-text="editName" class="font-bold text-stone-700"></span>.</p>
+                    </div>
+                </div>
                 
                 {{-- Alpine binds the form action dynamically to the correct ID --}}
                 <form :action="'{{ url('/admin/categories') }}/' + editId + '/co2-constant'" method="POST">
                     @csrf
                     @method('PUT')
                     
-                    <div style="margin-bottom:1rem;">
-                        <label style="display:block;font-size:0.8125rem;font-weight:700;color:#5A6B60;margin-bottom:0.5rem;">Category Name</label>
-                        {{-- Assuming you only update the CO2 constant based on your routing, we make this readonly --}}
-                        <input type="text" x-model="editName" name="category_name" readonly style="width:100%;padding:0.75rem;background:#F7F8F6;border:1.5px solid #E2E2DE;border-radius:8px;font-size:0.875rem;box-sizing:border-box;color:#8A9E94;">
+                    <div class="mb-4">
+                        <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Category Name</label>
+                        <input type="text" x-model="editName" name="category_name" readonly class="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-sm text-stone-500 cursor-not-allowed">
                     </div>
                     
-                    <div style="margin-bottom:1.5rem;">
-                        <label style="display:block;font-size:0.8125rem;font-weight:700;color:#5A6B60;margin-bottom:0.5rem;">CO2 Saved (kg)</label>
-                        <input type="number" step="0.01" x-model="editCo2" name="co2_constant" required style="width:100%;padding:0.75rem;border:1.5px solid #E2E2DE;border-radius:8px;font-size:0.875rem;box-sizing:border-box;">
+                    <div class="mb-8">
+                        <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">CO₂ Saved (kg)</label>
+                        <input type="number" step="0.01" x-model="editCo2" name="co2_constant" required class="w-full px-4 py-2.5 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-colors text-stone-800">
                     </div>
 
-                    <div style="display:flex;gap:10px;justify-content:flex-end;">
-                        <button type="button" @click="showEditModal = false" style="padding:0.625rem 1rem;background:#F0F5F2;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;color:#5A6B60;cursor:pointer;">Cancel</button>
-                        <button type="submit" style="padding:0.625rem 1rem;background:#1A2820;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;color:#fff;cursor:pointer;">Update Value</button>
+                    <div class="flex gap-3 justify-end">
+                        <button type="button" @click="showEditModal = false" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-stone-500 hover:bg-stone-100 transition-colors">Cancel</button>
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold transition shadow-sm shadow-emerald-200">Update Value</button>
                     </div>
                 </form>
             </div>
