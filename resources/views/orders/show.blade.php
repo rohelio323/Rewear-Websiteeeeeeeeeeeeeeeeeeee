@@ -11,6 +11,7 @@
     </div>
 
     <div class="flex flex-col gap-8">
+        {{-- Status Tracker --}}
         <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <h3 class="text-xl font-bold text-emerald-900 mb-6">Order Status</h3>
             <div class="flex items-center gap-2">
@@ -35,6 +36,7 @@
             </div>
         </div>
 
+        {{-- Review Items --}}
         <section class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <div class="flex items-center gap-3 mb-6">
                 <span class="material-symbols-outlined text-emerald-900">inventory_2</span>
@@ -70,7 +72,38 @@
                 </div>
             </div>
         </section>
+
+        {{-- Tracking info for buyer when shipped --}}
+        @if(in_array($order->status, ['shipped', 'completed']))
+            <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
+                <div class="flex items-center gap-3 mb-5">
+                    <span class="material-symbols-outlined text-emerald-900">local_shipping</span>
+                    <h2 class="text-xl font-bold text-emerald-900">Shipment Details</h2>
+                </div>
+                <div class="bg-stone-50 rounded-xl border border-stone-100 p-5 flex flex-col gap-3">
+                    <div class="flex justify-between items-center border-b border-stone-200 pb-3 mb-1">
+                        <span class="text-xs font-medium text-stone-500 uppercase tracking-widest">Courier</span>
+                        <span class="font-bold text-stone-900 text-sm">{{ $order->courier_name ?? 'Standard Delivery' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-medium text-stone-500 uppercase tracking-widest">Tracking Number</span>
+                        <span class="font-bold text-emerald-900 text-sm">{{ $order->tracking_number ?? 'Not provided yet' }}</span>
+                    </div>
+                    @if($order->shipping_proof)
+                        <div class="pt-4 mt-2 border-t border-stone-200">
+                            <p class="text-xs font-medium text-stone-500 uppercase tracking-widest mb-3">Shipping Proof</p>
+                            <div class="rounded-xl overflow-hidden border border-stone-200 shadow-inner bg-white">
+                                <img src="{{ asset('storage/' . $order->shipping_proof) }}"
+                                     alt="Shipping Proof"
+                                     class="w-full object-cover max-h-64">
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
         
+        {{-- Environmental Impact Card --}}
         <div class="bg-emerald-950 text-emerald-50 p-8 rounded-2xl shadow-lg relative overflow-hidden">
             <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
                 <span class="material-symbols-outlined text-[160px] text-emerald-300">eco</span>
@@ -89,11 +122,12 @@
             </div>
         </div>
 
+        {{-- Summary & Actions --}}
         <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <h3 class="text-xl font-bold text-emerald-900 mb-6">Summary</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-                {{-- Left: price breakdown + payment proof for seller --}}
+                {{-- Left: Price Breakdown & Payment Proof --}}
                 <div class="space-y-4">
                     <div class="flex justify-between text-stone-600">
                         <span>Subtotal</span>
@@ -109,7 +143,6 @@
                         <span class="text-2xl font-black text-emerald-900">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
                     </div>
 
-                    {{-- Payment proof shown to seller --}}
                     @if(Auth::id() === $order->users_id && $order->payment_proof)
                         <div class="pt-2">
                             <p class="text-xs font-medium text-stone-600 uppercase tracking-widest mb-2">Buyer's Payment Proof</p>
@@ -125,7 +158,7 @@
                     @endif
                 </div>
                 
-                {{-- Right: action buttons --}}
+                {{-- Right: Action Buttons --}}
                 <div class="flex flex-col gap-3 justify-center">
                     @if(Auth::id() === $order->buyer_id && $order->status === 'pending')
                         <a href="{{ route('orders.payment', $order) }}"
@@ -141,7 +174,7 @@
                         </form>
                     @endif
 
-                    @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
+                     @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
                         {{-- Toggle button --}}
                         <button type="button" onclick="document.getElementById('ship-form').classList.toggle('hidden')"
                             class="w-full py-3.5 bg-emerald-900 text-white font-bold rounded-full text-sm hover:bg-emerald-800 transition-colors">
@@ -222,6 +255,7 @@
                             </form>
                         </div>
                     @endif
+
 
                     @if(Auth::id() === $order->buyer_id && $order->status === 'shipped')
                         <form method="POST" action="{{ route('orders.receive', $order) }}" class="w-full">
