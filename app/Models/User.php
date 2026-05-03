@@ -19,6 +19,11 @@ class User extends Authenticatable
         'password',
         'role',
         'is_verified_seller',
+        'seller_request_status',
+        'seller_request_reason',
+        'seller_rejection_note',
+        'seller_requested_at',
+        'seller_reviewed_at',
         'total_co2_saved',
     ];
 
@@ -34,6 +39,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_verified_seller' => 'boolean',
             'total_co2_saved' => 'decimal:2',
+            'seller_requested_at' => 'datetime',
+            'seller_reviewed_at' => 'datetime',
         ];
     }
 
@@ -47,6 +54,54 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    public function isVerifiedSeller(): bool
+    {
+        return (bool) $this->is_verified_seller;
+    }
+
+    public function hasPendingSellerRequest(): bool
+    {
+        return $this->seller_request_status === 'pending';
+    }
+
+    public function wasRejectedAsSeller(): bool
+    {
+        return $this->seller_request_status === 'rejected';
+    }
+
+    public function canApplyAsSeller(): bool
+    {
+        return in_array($this->seller_request_status, ['none', 'rejected']);
+    }
+
+    public function submitSellerRequest(string $reason): void
+    {
+        $this->update([
+            'seller_request_status' => 'pending',
+            'seller_request_reason' => $reason,
+            'seller_requested_at' => now(),
+            'seller_rejection_note' => null,
+        ]);
+    }
+
+    public function approveAsSeller(): void
+    {
+        $this->update([
+            'is_verified_seller' => true,
+            'seller_request_status' => 'approved',
+            'seller_reviewed_at' => now(),
+        ]);
+    }
+
+    public function rejectAsSeller(string $note): void
+    {
+        $this->update([
+            'seller_request_status' => 'rejected',
+            'seller_rejection_note' => $note,
+            'seller_reviewed_at' => now(),
+        ]);
     }
 
     // Relationships

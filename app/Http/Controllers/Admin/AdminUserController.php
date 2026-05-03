@@ -22,6 +22,7 @@ class AdminUserController extends Controller
             'total_users'       => User::count(),
             'is_verified_seller' => User::where('is_verified_seller', 1)->count(),
             'deactivated_users' => User::onlyTrashed()->count(),
+            'pending_sellers'    => User::where('seller_request_status', 'pending')->count(),
         ];
 
         return view('admin.users.index', compact('users', 'search', 'stats'));
@@ -45,5 +46,18 @@ class AdminUserController extends Controller
         $user = User::withTrashed()->findOrFail($id);
         $user->restore();
         return redirect()->route('admin.users.index')->with('success', 'User restored.');
+    }
+
+    public function approveSeller(User $user): \Illuminate\Http\RedirectResponse
+    {
+        $user->approveAsSeller();
+        return redirect()->route('admin.users.index')->with('success', "{$user->name} has been approved as a seller.");
+    }
+
+    public function rejectSeller(Request $request, User $user): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate(['note' => 'required|string|max:500']);
+        $user->rejectAsSeller($request->note);
+        return redirect()->route('admin.users.index')->with('success', "{$user->name}'s seller request has been rejected.");
     }
 }
