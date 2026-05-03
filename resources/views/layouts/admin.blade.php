@@ -81,6 +81,7 @@
             $mainLinks = [
                 ['route' => 'admin.dashboard',          'label' => 'Dashboard', 'icon' => 'dashboard'],
                 ['route' => 'admin.users.index',         'label' => 'Users',     'icon' => 'group'],
+                ['route' => 'admin.co2.index',          'label' => 'CO2 Categories', 'icon' => 'eco'],
 
             ];
         @endphp
