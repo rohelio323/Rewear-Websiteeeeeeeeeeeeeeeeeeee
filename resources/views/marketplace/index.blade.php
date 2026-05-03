@@ -3,8 +3,8 @@
 <section>
     @if($items->isEmpty())
         <div style="text-align:center;padding:4rem;color:var(--color-text-muted);">
-            <p style="font-size:3rem;">🧺</p>
-            <p style="font-size:1.0625rem;margin-top:1rem;">No items match your filters.</p>
+            <span class="material-symbols-outlined pt-0.5 text-5xl">shopping_basket</span>
+            <p style="font-size:1.0625rem;margin-top:0.5rem;">No items match your filters.</p>
             <a href="{{ route('marketplace.index') }}" class="btn btn-secondary" style="margin-top:1rem;">Clear filters</a>
         </div>
         
@@ -14,7 +14,8 @@
                 <x-item-card :item="$item" />
             @endforeach
         </div>
-       @auth
+    @endif
+    @auth
         @if(auth()->user()->is_verified_seller)
             <a href="{{ route('items.create') }}" 
             class="group fixed bottom-8 right-8 flex h-14 min-w-[3.5rem] items-center justify-center rounded-2xl bg-[#173124] px-4 text-[#ffffff] shadow-lg transition-all duration-300 ease-out hover:w-auto hover:rounded-xl hover:bg-[#324c3e] hover:shadow-2xl active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#173124] focus:ring-offset-2 z-50">
@@ -31,8 +32,6 @@
             </a>
         @endif
     @endauth
-        
-    @endif
     
 </section>
 @endsection

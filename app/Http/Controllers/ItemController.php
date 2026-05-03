@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -65,6 +66,78 @@ class ItemController extends Controller
         ]);
 
         return redirect()->route('marketplace.index', $item)->with('success', 'Listing created successfully!');
+    }
+
+    public function edit(Item $item) {
+        if (auth()->id() != $item->users_id) {
+            abort(403, 'Unauthorized action.');
+            
+        }
+
+        $categories = Category::all();
+
+        return view('items.edit', compact('item', 'categories'));
+    }
+
+    public function update(Request $request, Item $item) {
+        if (auth()->id() != $item->users_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'item_name'       => 'required|string|max:255',
+            'category_id'     => 'required|exists:categories,id',
+            'size'            => 'required|string|max:50',
+            'condition'       => 'required|in:new_with_tags,like_new,good,fair',
+            'description'     => 'required|string',
+            'price'           => 'required|numeric|min:0',
+            'existing_photos' => 'nullable|array',
+            'photos'          => 'nullable|array|max:4',
+            'photos.*'        => 'file|image|max:5120',
+        ]);
+
+        $item->update([
+            'item_name'   => $validated['item_name'],
+            'category_id' => $validated['category_id'],
+            'size'        => $validated['size'],
+            'condition'   => $validated['condition'],
+            'description' => $validated['description'],
+            'price'       => $validated['price'],
+        ]);
+
+        $existingKept = $request->input('existing_photos', []);  // paths still wanted
+        $newPaths     = [];
+
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $file) {
+                $newPaths[] = $file->store('items', 'public');
+            }
+        }
+
+        $merged = array_values(array_slice(array_merge($existingKept, $newPaths), 0, 4));
+
+        $removed = array_diff($item->photo_path ?? [], $existingKept);
+        foreach ($removed as $path) {
+            Storage::disk('public')->delete($path);
+        }
+
+        $item->update(['photo_path' => $merged]);
+
+        return redirect()->route('items.show', $item)->with('success', 'Listing updated successfully!');
+    }
+
+    public function destroy(Item $item) {
+        if (auth()->id() != $item->users_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        foreach ($item->photo_path ?? [] as $path) {
+            Storage::disk('public')->delete($path);
+        }
+
+        $item->delete();
+
+        return redirect()->route('marketplace.index')->with('success', 'Listing deleted successfully.');
     }
 }
 
