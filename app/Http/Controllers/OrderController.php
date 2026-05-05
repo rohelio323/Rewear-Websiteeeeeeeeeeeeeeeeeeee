@@ -14,20 +14,16 @@ class OrderController extends Controller
     {
         $request->validate(['item_id' => 'required|exists:items,id']);
 
-        // Load the item and its category to get the CO2 constant
         $item = Item::with('category')->findOrFail($request->item_id);
 
-        // Cannot buy own item
         if ($item->users_id === Auth::id()) {
             return back()->with('error', 'You cannot buy your own listing.');
         }
 
-        // Must be available
         if ($item->status !== 'available') {
             return back()->with('error', 'This item is no longer available.');
         }
 
-        // Prevent duplicate pending orders
         $existing = Order::where('buyer_id', Auth::id())
             ->where('item_id', $item->id)
             ->where('status', 'pending')
@@ -37,17 +33,14 @@ class OrderController extends Controller
             return redirect()->route('orders.show', $existing)->with('info', 'You already have a pending order for this item.');
         }
 
-        // Grab the CO2 constant from the category
-        $co2Saved = $item->category->co2_constant ?? 0;
-
-        $order = DB::transaction(function () use ($item, $co2Saved) {
+        $order = DB::transaction(function () use ($item) {
             $order = Order::create([
                 'buyer_id'         => Auth::id(),
                 'item_id'          => $item->id,
                 'status'           => 'pending',
                 'total_price'      => $item->price,
                 'users_id'         => $item->users_id,
-                'co2_saved_amount' => $co2Saved, 
+                'co2_saved_amount' => $item->category->co2_constant ?? 0,
             ]);
             $item->update(['status' => 'reserved']);
             return $order;
@@ -61,6 +54,118 @@ class OrderController extends Controller
         $this->authorizeOrder($order);
         $order->load(['item.category', 'buyer', 'seller']);
         return view('orders.show', compact('order'));
+    }
+
+    public function paymentForm(Order $order)
+    {
+        abort_unless($order->buyer_id === Auth::id(), 403);
+        abort_unless($order->status === 'pending', 403);
+        $order->load(['item']);
+        return view('orders.payment', compact('order'));
+    }
+
+    public function confirmPayment(Request $request, Order $order)
+    {
+        abort_unless($order->buyer_id === Auth::id(), 403);
+        abort_unless($order->status === 'pending', 403);
+
+        $request->validate([
+            'bank_name'         => 'required|string|max:100',
+            'payment_reference' => 'required|string|max:100',
+            'payment_proof'     => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $path = $request->file('payment_proof')->store('payment_proofs', 'public');
+
+        $order->update([
+            'status'            => 'payment_confirmed',
+            'payment_reference' => $request->bank_name . ' — ' . $request->payment_reference,
+            'payment_proof'     => $path,
+        ]);
+
+        $order->item->update(['status' => 'sold']);
+
+        return redirect()->route('orders.confirmed', $order);
+    }
+
+    public function confirmed(Order $order)
+    {
+        $this->authorizeOrder($order);
+        $order->load(['item.category', 'buyer', 'seller']);
+        return view('orders.confirmed', compact('order'));
+    }
+
+    public function shipForm(Order $order)
+    {
+        abort_unless($order->users_id === Auth::id(), 403);
+        abort_unless($order->status === 'payment_confirmed', 403);
+        $order->load(['item']);
+        return view('orders.ship', compact('order'));
+    }
+
+    public function ship(Request $request, Order $order)
+    {
+        abort_unless($order->users_id === Auth::id(), 403);
+        abort_unless($order->status === 'payment_confirmed', 403);
+
+        $request->validate([
+            'courier_name'   => 'required|string|max:100',
+            'tracking_number' => 'required|string|max:100',
+            'shipping_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $path = $request->file('shipping_proof')->store('shipping_proofs', 'public');
+
+        $order->update([
+            'status'          => 'shipped',
+            'tracking_number' => $request->courier_name . ' — ' . $request->tracking_number,
+            'shipping_proof'  => $path,
+        ]);
+
+        return redirect()->route('orders.show', $order)->with('success', 'Shipment confirmed! Waiting for buyer to confirm received.');
+    }
+
+    public function receive(Order $order)
+    {
+        abort_unless($order->buyer_id === Auth::id(), 403);
+        abort_unless($order->status === 'shipped', 403);
+
+        DB::transaction(function () use ($order) {
+            $order->update(['status' => 'completed']);
+        });
+
+        return redirect()->route('orders.confirmed', $order)->with('success', 'Order completed!');
+    }
+
+    public function cancel(Order $order)
+    {
+        $this->authorizeOrder($order);
+
+        if ($order->status !== 'pending') {
+            return back()->with('error', 'This order cannot be cancelled.');
+        }
+
+        DB::transaction(function () use ($order) {
+            $order->item->update(['status' => 'available']);
+            $order->update(['status' => 'cancelled']);
+        });
+
+        return redirect()->route('marketplace.index')->with('success', 'Order cancelled. Item is back on the marketplace.');
+    }
+
+    public function transactions()
+    {
+        $buying = Order::with(['item.category', 'seller'])
+            ->where('buyer_id', Auth::id())
+            ->latest()
+            ->get();
+
+        $selling = Order::with(['item.category', 'buyer'])
+            ->where('users_id', Auth::id())
+            ->latest()
+            ->get();
+
+        return view('orders.transactions', compact('buying', 'selling'));
     }
 
     private function authorizeOrder(Order $order): void

@@ -3,6 +3,7 @@
 
 @section('content')
 <main class="pt-10 pb-24 px-4 max-w-[900px] mx-auto min-h-screen">
+    {{-- Header --}}
     <div class="mb-8">
         <p class="text-[11px] font-medium uppercase tracking-widest text-stone-400 mb-1">Order #{{ $order->id }}</p>
         <h1 class="text-3xl font-extrabold tracking-tight text-stone-900 mb-2">Order Review</h1>
@@ -10,60 +11,99 @@
     </div>
 
     <div class="flex flex-col gap-8">
-        
+        {{-- Status Tracker --}}
         <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <h3 class="text-xl font-bold text-emerald-900 mb-6">Order Status</h3>
             <div class="flex items-center gap-2">
                 @foreach(['pending', 'payment_confirmed', 'shipped', 'completed'] as $step)
+                    @php
+                        $currentIndex = array_search($order->status, ['pending','payment_confirmed','shipped','completed']);
+                        $stepIndex = array_search($step, ['pending','payment_confirmed','shipped','completed']);
+                        $isActive = $currentIndex >= $stepIndex;
+                    @endphp
                     <div class="flex items-center gap-2 flex-1">
                         <div class="flex flex-col items-center">
-                            <div class="w-3 h-3 rounded-full {{ $order->status === $step || (array_search($order->status, ['pending','payment_confirmed','shipped','completed']) >= array_search($step, ['pending','payment_confirmed','shipped','completed'])) ? 'bg-emerald-900' : 'bg-stone-200' }}"></div>
-                            <p class="text-[9px] font-bold uppercase tracking-wide mt-2 {{ $order->status === $step || (array_search($order->status, ['pending','payment_confirmed','shipped','completed']) >= array_search($step, ['pending','payment_confirmed','shipped','completed'])) ? 'text-emerald-900' : 'text-stone-400' }}">
+                            <div class="w-3 h-3 rounded-full {{ $isActive ? 'bg-emerald-900' : 'bg-stone-200' }}"></div>
+                            <p class="text-[9px] font-bold uppercase tracking-wide mt-2 {{ $isActive ? 'text-emerald-900' : 'text-stone-400' }}">
                                 {{ str_replace('_', ' ', $step) }}
                             </p>
                         </div>
                         @if(!$loop->last)
-                            <div class="h-px flex-1 mb-4 {{ array_search($order->status, ['pending','payment_confirmed','shipped','completed']) > array_search($step, ['pending','payment_confirmed','shipped','completed']) ? 'bg-emerald-900' : 'bg-stone-200' }}"></div>
+                            <div class="h-px flex-1 mb-4 {{ $currentIndex > $stepIndex ? 'bg-emerald-900' : 'bg-stone-200' }}"></div>
                         @endif
                     </div>
                 @endforeach
             </div>
         </div>
 
+        {{-- Review Items --}}
         <section class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <div class="flex items-center gap-3 mb-6">
                 <span class="material-symbols-outlined text-emerald-900">inventory_2</span>
                 <h2 class="text-xl font-bold text-emerald-900">Review Items</h2>
             </div>
-            
             <div class="bg-stone-50 p-4 rounded-xl flex gap-6 items-center border border-stone-100">
                 <div class="w-24 h-32 rounded-lg overflow-hidden bg-stone-200 flex-shrink-0">
                     @if($order->item->first_photo)
                         <img src="{{ asset('storage/'.$order->item->first_photo) }}" alt="{{ $order->item->item_name }}" class="w-full h-full object-cover">
                     @else
-                        <div class="w-full h-full flex items-center justify-center text-stone-400">
-                            <span class="material-symbols-outlined">image</span>
-                        </div>
+                        <img src="/placeholder.jpg" alt="{{ $order->item->item_name }}" class="w-full h-full object-cover">
                     @endif
                 </div>
                 <div class="flex-grow">
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="font-bold text-lg text-stone-900">{{ $order->item->item_name }}</h3>
-                            <p class="text-sm text-stone-500 capitalize">Condition: {{ str_replace('_', ' ', $order->item->condition) }}</p>
-                            <div class="mt-2 flex items-center gap-2">
-                                <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-full uppercase tracking-wider">Living Archive</span>
+                            <div class="mt-1">
+                                @if($order->item->condition === 'new_with_tags')
+                                    <span class="text-[10px] font-medium uppercase tracking-widest px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">New With Tags</span>
+                                @elseif($order->item->condition === 'like_new')
+                                    <span class="text-[10px] font-medium uppercase tracking-widest px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Like New</span>
+                                @else
+                                    <span class="text-[10px] font-medium uppercase tracking-widest px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">{{ str_replace('_', ' ', $order->item->condition) }}</span>
+                                @endif
                             </div>
                         </div>
                         <p class="font-bold text-emerald-900">Rp {{ number_format($order->item->price, 0, ',', '.') }}</p>
                     </div>
-                    <div class="mt-4 flex items-center justify-between">
-                        <p class="text-xs text-stone-500">Seller: {{ $order->seller?->name }}</p>
+                    <div class="mt-4">
+                        <p class="text-xs text-stone-500">Seller: {{ $order->seller?->name ?? 'Unknown' }}</p>
                     </div>
                 </div>
             </div>
         </section>
 
+        {{-- Tracking info for buyer when shipped --}}
+        @if(in_array($order->status, ['shipped', 'completed']))
+            <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
+                <div class="flex items-center gap-3 mb-5">
+                    <span class="material-symbols-outlined text-emerald-900">local_shipping</span>
+                    <h2 class="text-xl font-bold text-emerald-900">Shipment Details</h2>
+                </div>
+                <div class="bg-stone-50 rounded-xl border border-stone-100 p-5 flex flex-col gap-3">
+                    <div class="flex justify-between items-center border-b border-stone-200 pb-3 mb-1">
+                        <span class="text-xs font-medium text-stone-500 uppercase tracking-widest">Courier</span>
+                        <span class="font-bold text-stone-900 text-sm">{{ $order->courier_name ?? 'Standard Delivery' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-medium text-stone-500 uppercase tracking-widest">Tracking Number</span>
+                        <span class="font-bold text-emerald-900 text-sm">{{ $order->tracking_number ?? 'Not provided yet' }}</span>
+                    </div>
+                    @if($order->shipping_proof)
+                        <div class="pt-4 mt-2 border-t border-stone-200">
+                            <p class="text-xs font-medium text-stone-500 uppercase tracking-widest mb-3">Shipping Proof</p>
+                            <div class="rounded-xl overflow-hidden border border-stone-200 shadow-inner bg-white">
+                                <img src="{{ asset('storage/' . $order->shipping_proof) }}"
+                                     alt="Shipping Proof"
+                                     class="w-full object-cover max-h-64">
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+        
+        {{-- Environmental Impact Card --}}
         <div class="bg-emerald-950 text-emerald-50 p-8 rounded-2xl shadow-lg relative overflow-hidden">
             <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
                 <span class="material-symbols-outlined text-[160px] text-emerald-300">eco</span>
@@ -73,7 +113,7 @@
                     <h3 class="font-bold text-sm uppercase tracking-widest text-emerald-300">Environmental Impact</h3>
                 </div>
                 <div class="mb-6">
-                    <p class="text-5xl font-black text-white mb-2">{{ $order->co2_saved_amount }} kg</p>
+                    <p class="text-5xl font-black text-white mb-2">{{ number_format($order->co2_saved_amount, 1) }} kg</p>
                     <p class="text-emerald-300 text-lg font-bold">CO2 Saved</p>
                 </div>
                 <p class="text-sm leading-relaxed text-emerald-200/80 max-w-2xl">
@@ -82,9 +122,12 @@
             </div>
         </div>
 
+        {{-- Summary & Actions --}}
         <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <h3 class="text-xl font-bold text-emerald-900 mb-6">Summary</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                {{-- Left: Price Breakdown & Payment Proof --}}
                 <div class="space-y-4">
                     <div class="flex justify-between text-stone-600">
                         <span>Subtotal</span>
@@ -99,17 +142,135 @@
                         <span class="font-bold text-stone-900 text-lg">Total</span>
                         <span class="text-2xl font-black text-emerald-900">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
                     </div>
+
+                    @if(Auth::id() === $order->users_id && $order->payment_proof)
+                        <div class="pt-2">
+                            <p class="text-xs font-medium text-stone-600 uppercase tracking-widest mb-2">Buyer's Payment Proof</p>
+                            <div class="rounded-xl overflow-hidden border border-stone-200">
+                                <img src="{{ asset('storage/' . $order->payment_proof) }}"
+                                     alt="Payment Proof"
+                                     class="w-full object-cover max-h-56">
+                            </div>
+                            @if($order->payment_reference)
+                                <p class="text-xs text-stone-400 mt-2">Ref: {{ $order->payment_reference }}</p>
+                            @endif
+                        </div>
+                    @endif
                 </div>
                 
-                <div class="space-y-4 flex flex-col justify-center">
+                {{-- Right: Action Buttons --}}
+                <div class="flex flex-col gap-3 justify-center">
                     @if(Auth::id() === $order->buyer_id && $order->status === 'pending')
-                        <button class="w-full py-3.5 bg-emerald-900 text-white font-bold rounded-full text-sm shadow-md hover:bg-emerald-800 transition-colors">
-                            Complete Purchase
-                        </button>
+                        <a href="{{ route('orders.payment', $order) }}"
+                           class="w-full py-3.5 bg-emerald-900 text-white font-bold rounded-full text-sm shadow-md hover:bg-emerald-800 transition-colors text-center">
+                            Confirm Payment →
+                        </a>
+                        <form method="POST" action="{{ route('orders.cancel', $order) }}" class="w-full">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="w-full py-3.5 border-2 border-red-100 text-red-500 font-bold rounded-full text-sm hover:bg-red-50 transition-colors">
+                                Cancel Order
+                            </button>
+                        </form>
                     @endif
-                    <a href="/" class="w-full py-3.5 bg-transparent border-2 border-stone-200 text-stone-600 font-bold rounded-full text-sm hover:bg-stone-50 transition-colors text-center block">
-                        Back to Marketplace
-                    </a>
+
+                     @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
+                        {{-- Toggle button --}}
+                        <button type="button" onclick="document.getElementById('ship-form').classList.toggle('hidden')"
+                            class="w-full py-3.5 bg-emerald-900 text-white font-bold rounded-full text-sm hover:bg-emerald-800 transition-colors">
+                            Mark as Shipped →
+                        </button>
+
+                        {{-- Inline ship form (hidden by default) --}}
+                        <div id="ship-form" class="hidden mt-2 rounded-2xl border border-stone-200 bg-stone-50 p-5">
+                            <p class="text-sm text-stone-400 mb-4">Enter shipment details and upload proof. The buyer will be notified.</p>
+                            <form method="POST" action="{{ route('orders.ship', $order) }}" enctype="multipart/form-data" class="flex flex-col gap-4">
+                                @csrf
+
+                                {{-- Courier Name --}}
+                                <div>
+                                    <label class="block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-widest">Courier Name *</label>
+                                    <input type="text" name="courier_name" value="{{ old('courier_name') }}"
+                                           placeholder="e.g., JNE, SiCepat, J&T" required
+                                           class="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 bg-white">
+                                    @error('courier_name')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Tracking Number --}}
+                                <div>
+                                    <label class="block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-widest">Tracking Number *</label>
+                                    <input type="text" name="tracking_number" value="{{ old('tracking_number') }}"
+                                           placeholder="e.g., JNE1234567890" required
+                                           class="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-900 bg-white">
+                                    @error('tracking_number')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Shipping Proof --}}
+                                <div>
+                                    <label class="block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-widest">Shipping Proof *</label>
+                                    <label for="shipping_proof"
+                                        class="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-stone-200 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-colors duration-200 bg-white">
+                                        <div id="ship-upload-placeholder" class="flex flex-col items-center">
+                                            <svg class="w-8 h-8 text-stone-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                            </svg>
+                                            <p class="text-xs text-stone-400">Click to upload <span class="text-emerald-700 font-medium">JPG, PNG</span></p>
+                                            <p class="text-[10px] text-stone-300 mt-1">Max 2MB</p>
+                                        </div>
+                                        <img id="ship-preview-img" src="" alt="preview" class="hidden h-32 object-contain rounded-lg">
+                                        <input id="shipping_proof" type="file" name="shipping_proof" accept="image/*" class="hidden"
+                                            onchange="
+                                                const file = this.files[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onload = e => {
+                                                        document.getElementById('ship-preview-img').src = e.target.result;
+                                                        document.getElementById('ship-preview-img').classList.remove('hidden');
+                                                        document.getElementById('ship-upload-placeholder').classList.add('hidden');
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            ">
+                                    </label>
+                                    @error('shipping_proof')
+                                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+
+                                {{-- Buttons --}}
+                                <div class="flex gap-3 justify-end mt-1">
+                                    <button type="button" onclick="document.getElementById('ship-form').classList.add('hidden')"
+                                        class="border border-stone-200 text-stone-600 hover:bg-stone-100 text-sm font-medium px-6 py-2.5 rounded-full transition-colors">
+                                        Cancel
+                                    </button>
+                                    <button type="submit"
+                                        class="bg-emerald-900 hover:bg-emerald-800 text-white text-sm font-medium px-6 py-2.5 rounded-full transition-colors">
+                                        Confirm Shipment
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    @endif
+
+
+                    @if(Auth::id() === $order->buyer_id && $order->status === 'shipped')
+                        <form method="POST" action="{{ route('orders.receive', $order) }}" class="w-full">
+                            @csrf
+                            <button type="submit" class="w-full py-3.5 bg-emerald-900 text-white font-bold rounded-full text-sm hover:bg-emerald-800 transition-colors">
+                                Confirm Received
+                            </button>
+                        </form>
+                    @endif
+
+                    @if($order->status !== 'pending')
+                        <a href="{{ route('marketplace.index') }}" class="w-full py-3.5 bg-transparent border-2 border-stone-200 text-stone-600 font-bold rounded-full text-sm hover:bg-stone-50 transition-colors text-center block">
+                            Back to Marketplace
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

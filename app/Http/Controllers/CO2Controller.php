@@ -17,16 +17,13 @@ class CO2Controller extends Controller
             'co2_constant' => 'required|numeric|min:0'
         ]);
 
-        $category = Category::create([
+        Category::create([
             'category_name' => $request->category_name,
             'co2_constant' => $request->co2_constant
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category and CO2 constant defined successfully!',
-            'data' => $category
-        ], 201);
+        // Redirect back to the dashboard with a success message
+        return redirect()->back()->with('success', 'Category and CO2 constant defined successfully!');
     }
 
     /**
@@ -41,20 +38,13 @@ class CO2Controller extends Controller
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Category not found.'
-            ], 404);
+            return redirect()->back()->with('error', 'Category not found.');
         }
 
         $category->co2_constant = $request->co2_constant;
         $category->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'CO2 constant updated successfully!',
-            'data' => $category
-        ]);
+        return redirect()->back()->with('success', 'CO2 constant updated successfully!');
     }
 
     /**
@@ -65,17 +55,11 @@ class CO2Controller extends Controller
         $category = Category::find($id);
 
         if (!$category) {
-            return response()->json([
-                'success' => false, 
-                'message' => 'Category not found.'
-            ], 404);
+            return redirect()->back()->with('error', 'Category not found.');
         }
 
         $category->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Category deleted successfully!'
-        ]);
+        return redirect()->back()->with('success', 'Category deleted successfully!');
     }
 }

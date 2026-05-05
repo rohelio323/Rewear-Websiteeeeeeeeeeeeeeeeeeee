@@ -18,6 +18,11 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['admin', 'user'])->default('user');
             $table->boolean('is_verified_seller')->default(false);
+            $table->timestamp('seller_requested_at')->nullable();
+            $table->timestamp('seller_reviewed_at')->nullable();
+            $table->enum('seller_request_status', ['none', 'pending', 'approved', 'rejected'])->default('none');
+            $table->text('seller_request_reason')->nullable();
+            $table->text('seller_rejection_note')->nullable();
             $table->decimal('total_co2_saved', 10, 2)->default(0.00);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
