@@ -45,8 +45,8 @@ class ItemController extends Controller
             'condition'   => 'required|in:new_with_tags,like_new,good,fair',
             'price'       => 'required|numeric|min:0.01',
             'category_id' => 'required|exists:categories,id',
-            'photos'      => 'required|array|min:1|max:5',
-            'photos.*'    => 'image|max:2048',
+            'photos'      => 'required|array|min:1|max:4',
+            'photos.*'    => 'image|max:5120',
         ]);
 
         $photoPaths = [];
