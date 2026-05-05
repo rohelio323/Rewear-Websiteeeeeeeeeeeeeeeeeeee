@@ -7,10 +7,10 @@
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 font-body">
     <div>
         <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-1 font-label">Administration</p>
-        <h1 class="text-3xl font-extrabold text-emerald-950 tracking-tight font-headline">Community Members</h1>
+        <h1 class="text-3xl font-extrabold text-emerald-950 tracking-tight font-headline">Active Community Members</h1>
         <p class="text-sm text-stone-500 mt-1">Manage platform users, verify sellers, and oversee community health.</p>
     </div>
-    
+
     <form method="GET" class="flex items-center gap-2">
         <div class="relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-[20px]">search</span>
@@ -34,8 +34,8 @@
         $statCards = [
             ['label' => 'Total Users',      'value' => number_format($users->total()),                   'icon' => 'group',         'theme' => 'emerald'],
             ['label' => 'Verified Sellers', 'value' => number_format($stats['is_verified_seller'] ?? 0), 'icon' => 'verified',      'theme' => 'emerald'],
-            ['label' => 'Pending Requests', 'value' => number_format($stats['pending_sellers'] ?? 0),    'icon' => 'hourglass_top', 'theme' => 'amber'],
-            ['label' => 'Flagged / Suspended', 'value' => number_format($stats['flagged'] ?? 0),         'icon' => 'warning',       'theme' => 'red'],
+            ['label' => 'Pending Sellers',  'value' => number_format($stats['pending_sellers'] ?? 0),    'icon' => 'hourglass_top', 'theme' => 'amber'],
+            ['label' => 'Flagged / Suspended', 'value' => number_format($stats['deactivated_users'] ?? 0),         'icon' => 'warning',       'theme' => 'red'],
         ];
         $colorMap = [
             'emerald' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'hover:border-emerald-200'],
@@ -75,7 +75,7 @@
             </thead>
             <tbody class="divide-y divide-stone-100">
                 @forelse($users as $user)
-                <tr class="hover:bg-stone-50/80 transition-colors {{ $user->trashed() ? 'opacity-60 bg-stone-50' : '' }} group">
+                <tr data-user-id="{{ $user->id }}" class="hover:bg-stone-50/80 transition-colors {{ $user->trashed() ? 'opacity-60 bg-stone-50' : '' }} group">
 
                     {{-- Column 1: Consolidated Avatar, Name, Email, ID --}}
                     <td class="px-6 py-4">
@@ -184,7 +184,7 @@
                             <a href="{{ route('admin.users.show', $user->id) }}" class="p-1.5 rounded-lg text-stone-400 hover:bg-emerald-50 hover:text-emerald-700 transition-colors" title="View Profile">
                                 <span class="material-symbols-outlined text-[20px]">visibility</span>
                             </a>
-                            
+
                             @if($user->trashed())
                                 <form method="POST" action="{{ route('admin.users.restore', $user->id) }}" class="inline">
                                     @csrf

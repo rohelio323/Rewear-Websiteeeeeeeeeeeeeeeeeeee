@@ -8,8 +8,8 @@
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
             <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-1 font-label">Overview</p>
-            <h1 class="text-3xl font-extrabold text-emerald-950 tracking-tight font-headline">System Dashboard</h1>
-            <p class="text-sm text-stone-500 mt-1">Real-time health and impact of the ReWear ecosystem.</p>
+            <h1 class="text-3xl font-extrabold text-emerald-950 tracking-tight font-headline">System Overview</h1>
+            <p class="text-sm text-stone-500 mt-1">Real-time health of the ReWear ecosystem</p>
         </div>
         <div class="flex flex-wrap items-center gap-3 shrink-0">
             <button class="flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 rounded-xl text-sm font-bold transition-colors shadow-sm active:scale-95">
@@ -31,7 +31,7 @@
                 ['label' => 'Total Orders',   'value' => number_format($totalOrders ?? 0),   'icon' => 'local_mall',  'theme' => 'amber'],
                 ['label' => 'Total Listings', 'value' => number_format($totalListings ?? 0), 'icon' => 'sell',        'theme' => 'blue'],
             ];
-            
+
             $themeMap = [
                 'emerald' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600'],
                 'amber'   => ['bg' => 'bg-amber-50',   'text' => 'text-amber-600'],
@@ -53,16 +53,14 @@
         @endforeach
     </div>
 
-    {{-- Sustainability Hero Banner (Replaced the 2-col row) --}}
+    {{-- Sustainability Banner --}}
     <div class="mb-6">
         <div class="bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-3xl p-8 md:p-10 relative overflow-hidden shadow-lg border border-emerald-800 flex flex-col justify-center min-h-[160px]">
-            {{-- Background Icon Graphic --}}
             <div class="absolute -right-6 top-1/2 -translate-y-1/2 opacity-10 pointer-events-none transform -rotate-12">
                 <span class="material-symbols-outlined text-[180px] text-white">eco</span>
             </div>
-            
             <div class="relative z-10">
-                <p class="text-[11px] font-bold uppercase tracking-widest text-emerald-400/80 mb-2 font-label">Total Platform Impact</p>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-emerald-400/80 mb-2 font-label">CO2 Saved Globally</p>
                 <div class="flex items-baseline gap-2 mb-2">
                     <p class="text-5xl md:text-6xl font-extrabold text-white font-headline tracking-tight">{{ number_format($platformCo2 / 1000, 1) }}</p>
                     <span class="text-2xl font-semibold text-emerald-100">Tons</span>
@@ -74,13 +72,13 @@
 
     {{-- Main Content Grid: Chart & Links --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        
+
         {{-- Chart Section --}}
         <div class="lg:col-span-2 bg-white border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm">
             <div class="flex items-start justify-between mb-6">
                 <div>
                     <h2 class="text-lg font-bold text-stone-900 font-headline">Marketplace Activity</h2>
-                    <p class="text-sm text-stone-500">New listings created over time</p>
+                    <p class="text-sm text-stone-500">New listings over time</p>
                 </div>
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-stone-50 rounded-lg border border-stone-100">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-800"></span>
@@ -104,7 +102,7 @@
                     </div>
                     <span class="material-symbols-outlined text-stone-300 group-hover:text-emerald-500 transition-colors text-[20px] transform group-hover:translate-x-1">arrow_forward</span>
                 </a>
-                
+
                 <a href="{{ route('admin.co2.index') }}" class="group flex items-center justify-between p-4 bg-stone-50 hover:bg-emerald-50 border border-stone-100 hover:border-emerald-100 rounded-2xl transition-colors">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-stone-400 group-hover:text-emerald-600 transition-colors">category</span>
@@ -123,7 +121,7 @@
     {{-- Recent Activity --}}
     <div>
         <div class="flex items-center justify-between mb-5">
-            <h2 class="text-lg font-bold text-stone-900 font-headline">Recent Orders</h2>
+            <h2 class="text-lg font-bold text-stone-900 font-headline">Recent Activity</h2>
             <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-800 hover:underline transition-colors">View All Activity</a>
         </div>
 
@@ -152,12 +150,10 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('trendChart').getContext('2d');
-    
-    // Create gradient for the line chart fill
     let gradient = ctx.createLinearGradient(0, 0, 0, 240);
-    gradient.addColorStop(0, 'rgba(6, 78, 59, 0.15)'); // emerald-900 at 15% opacity
-    gradient.addColorStop(1, 'rgba(6, 78, 59, 0)');    // fade to transparent
-    
+    gradient.addColorStop(0, 'rgba(6, 78, 59, 0.15)');
+    gradient.addColorStop(1, 'rgba(6, 78, 59, 0)');
+
     new Chart(ctx, {
         type: 'line',
         data: {
@@ -166,10 +162,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     label: 'New Listings',
                     data: @json($trendData),
-                    borderColor: '#064e3b', // emerald-900
+                    borderColor: '#064e3b',
                     backgroundColor: gradient,
                     borderWidth: 2.5,
-                    tension: 0.4, // smooth curves
+                    tension: 0.4,
                     fill: true,
                     pointBackgroundColor: '#ffffff',
                     pointBorderColor: '#064e3b',
@@ -182,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { 
+            plugins: {
                 legend: { display: false },
                 tooltip: {
                     backgroundColor: '#1c1917',
@@ -194,14 +190,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             scales: {
-                x: { 
-                    grid: { display: false }, 
+                x: {
+                    grid: { display: false },
                     ticks: { font: { family: 'monospace', size: 11 }, color: '#a8a29e' },
                     border: { display: false }
                 },
-                y: { 
-                    beginAtZero: true, 
-                    ticks: { stepSize: 1, font: { family: 'monospace', size: 11 }, color: '#a8a29e' }, 
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, font: { family: 'monospace', size: 11 }, color: '#a8a29e' },
                     grid: { color: '#f5f5f4', drawBorder: false },
                     border: { display: false }
                 }
