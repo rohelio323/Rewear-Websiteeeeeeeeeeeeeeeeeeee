@@ -2,89 +2,99 @@
 @section('title', 'User — '.$user->name)
 
 @section('content')
-<div class="max-w-4xl">
+<div class="max-w-5xl mx-auto font-body">
 
     {{-- Back Link --}}
-    <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-stone-500 hover:text-emerald-700 transition-colors mb-10 font-body">
-        <span class="material-symbols-outlined text-sm">arrow_back</span>
+    <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-stone-500 hover:text-emerald-700 transition-colors mb-8 group">
+        <span class="material-symbols-outlined text-sm transition-transform group-hover:-translate-x-1">arrow_back</span>
         Back to Users
     </a>
 
-    {{-- Simple Profile Header --}}
-    <div class="flex items-center gap-4 mb-10 font-body">
+    {{-- User Identity & Status Card --}}
+    <div class="bg-white rounded-3xl border border-stone-200 p-6 md:p-8 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+        
+        <div class="flex items-center gap-6">
+            {{-- Avatar (Replaced inline styles with Tailwind shrink-0, w-16, h-16) --}}
+            <div class="w-16 h-16 shrink-0 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-900 text-2xl font-bold shadow-inner">
+                @if($user->avatar_url)
+                    <img src="{{ $user->avatar_url }}" class="w-full h-full object-cover rounded-full" alt="{{ $user->name }}">
+                @else
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                @endif
+            </div>
 
-        {{-- The Avatar Circle (Hardcoded dimensions to prevent squishing) --}}
-        <div style="width: 48px; height: 48px; flex-shrink: 0;" class="rounded-full bg-emerald-100 flex items-center justify-center text-emerald-900 text-lg font-bold">
-            @if($user->avatar_url)
-                <img src="{{ $user->avatar_url }}" class="w-full h-full object-cover rounded-full" alt="{{ $user->name }}">
-            @else
-                {{ strtoupper(substr($user->name, 0, 1)) }}
-            @endif
+            {{-- Core Info --}}
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <h1 class="text-2xl font-semibold text-stone-900 tracking-tight leading-none">{{ $user->name }}</h1>
+                    @if($user->is_verified_seller)
+                        <span class="material-symbols-outlined text-emerald-600 text-[22px]" title="Verified Seller">verified</span>
+                    @endif
+                </div>
+                <div class="flex items-center gap-3 text-sm text-stone-500">
+                    <span class="font-medium text-stone-600">{{ $user->email }}</span>
+                    <span class="w-1 h-1 rounded-full bg-stone-300"></span>
+                    <span class="font-mono text-xs">Joined {{ $user->created_at->format('M Y') }}</span>
+                </div>
+            </div>
         </div>
 
-        {{-- Name --}}
-        <h1 class="text-2xl font-semibold text-stone-900 tracking-tight">{{ $user->name }}</h1>
-
-        {{-- Badges --}}
-        <div class="ml-2 flex items-center gap-2">
-            @if($user->is_verified_seller)
-                <span class="material-symbols-outlined text-emerald-600 text-xl" title="Verified Seller">verified</span>
+        {{-- Badges / Status --}}
+        <div class="flex flex-wrap items-center gap-2">
+            @if($user->role === 'admin')
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold uppercase tracking-widest font-label border border-purple-100/50">Admin</span>
             @endif
 
-            @if($user->role === 'admin')
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 text-[10px] font-bold uppercase tracking-wide font-label">Admin</span>
+            @if($user->trashed())
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold uppercase tracking-widest font-label border border-red-100">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Deactivated
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-widest font-label border border-emerald-100">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                </span>
             @endif
         </div>
     </div>
 
-    {{-- User Details & Activity Strip --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 font-body">
-
-        {{-- Member Status --}}
-        <div class="bg-white rounded-2xl border border-stone-200 p-5 flex flex-col justify-center">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2 font-label">Account Info</p>
-            <p class="text-sm font-medium text-emerald-950 truncate mb-1" title="{{ $user->email }}">{{ $user->email }}</p>
-            <div class="flex items-center gap-2 mt-auto pt-2">
-                @if($user->trashed())
-                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-bold uppercase tracking-wide font-label">Deactivated</span>
-                @else
-                    <span class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wide font-label">Active</span>
-                @endif
-                <span class="text-xs text-stone-400 font-mono">{{ $user->created_at->format('M Y') }}</span>
-            </div>
-        </div>
-
+    {{-- Metrics Grid (Now 3 columns, exclusively for numbers) --}}
+    <h2 class="text-xs font-bold uppercase tracking-widest text-stone-400 mb-4 font-label px-2">Platform Activity</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        
         {{-- Listings --}}
-        <div class="bg-white rounded-2xl border border-stone-200 p-5 flex items-center gap-4 hover:border-emerald-200 transition-colors">
-            <div class="w-12 h-12 rounded-xl bg-stone-50 flex items-center justify-center text-stone-500 border border-stone-100">
-                <span class="material-symbols-outlined text-xl">inventory_2</span>
+        <div class="bg-white rounded-3xl border border-stone-200 p-6 flex flex-col justify-between hover:border-emerald-200 hover:shadow-md transition-all group">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-xs font-bold uppercase tracking-widest text-stone-400 font-label">Active Listings</p>
+                <div class="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-stone-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+                </div>
             </div>
-            <div>
-                <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-0.5 font-label">Listings</p>
-                <p class="font-headline text-2xl font-extrabold text-emerald-950 leading-none">{{ $user->items->count() }}</p>
-            </div>
+            <p class="font-headline text-4xl font-extrabold text-stone-900 leading-none">{{ $user->items->count() }}</p>
         </div>
 
         {{-- Orders --}}
-        <div class="bg-white rounded-2xl border border-stone-200 p-5 flex items-center gap-4 hover:border-emerald-200 transition-colors">
-            <div class="w-12 h-12 rounded-xl bg-stone-50 flex items-center justify-center text-stone-500 border border-stone-100">
-                <span class="material-symbols-outlined text-xl">shopping_bag</span>
+        <div class="bg-white rounded-3xl border border-stone-200 p-6 flex flex-col justify-between hover:border-emerald-200 hover:shadow-md transition-all group">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-xs font-bold uppercase tracking-widest text-stone-400 font-label">Total Purchases</p>
+                <div class="w-10 h-10 rounded-full bg-stone-50 flex items-center justify-center text-stone-500 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+                </div>
             </div>
-            <div>
-                <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-0.5 font-label">Purchases</p>
-                <p class="font-headline text-2xl font-extrabold text-emerald-950 leading-none">{{ $user->buyerOrders->count() }}</p>
-            </div>
+            <p class="font-headline text-4xl font-extrabold text-stone-900 leading-none">{{ $user->buyerOrders->count() }}</p>
         </div>
 
-        {{-- CO2 Saved --}}
-        <div class="bg-white rounded-2xl border border-stone-200 p-5 flex items-center gap-4 hover:border-emerald-200 transition-colors">
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100">
-                <span class="material-symbols-outlined text-xl">eco</span>
+        {{-- CO2 Saved (Highlighted for the sustainable mission) --}}
+        <div class="bg-gradient-to-br from-emerald-50 to-[#f4f4f1] rounded-3xl border border-emerald-200/60 p-6 flex flex-col justify-between hover:shadow-md hover:border-emerald-300 transition-all shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]">
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-xs font-bold uppercase tracking-widest text-emerald-700 font-label">CO₂ Saved</p>
+                <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">eco</span>
+                </div>
             </div>
-            <div>
-                <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-0.5 font-label">CO₂ Saved</p>
-                <p class="font-mono text-xl font-bold text-emerald-700 leading-none">{{ number_format($user->total_co2_saved, 1) }}<span class="text-xs text-emerald-600/70 ml-0.5">kg</span></p>
-            </div>
+            <p class="font-mono text-4xl font-bold text-emerald-800 leading-none">
+                {{ number_format($user->total_co2_saved, 1) }}<span class="text-lg text-emerald-600/70 ml-1 font-medium tracking-normal">kg</span>
+            </p>
         </div>
 
     </div>
