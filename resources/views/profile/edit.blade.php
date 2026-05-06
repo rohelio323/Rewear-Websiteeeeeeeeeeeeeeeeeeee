@@ -25,7 +25,7 @@
             </div>
             <div class="relative z-10 flex flex-col items-end shrink-0 bg-emerald-950/50 px-8 py-5 rounded-2xl border border-emerald-800/50">
                 <div class="flex items-baseline gap-1">
-                    <span class="text-5xl font-black text-white tracking-tighter">{{ number_format($totalCo2Saved, 2) }}</span>
+                <span class="text-5xl font-black text-white tracking-tighter">{{ number_format(auth()->user()->total_co2_saved, 2) }}</span>
                     <span class="text-lg font-bold text-emerald-400">kg</span>
                 </div>
                 <span class="text-xs text-emerald-300 font-medium uppercase tracking-wider mt-1">CO₂ Saved</span>
