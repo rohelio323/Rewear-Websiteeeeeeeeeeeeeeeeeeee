@@ -62,7 +62,7 @@
             <div class="relative z-10">
                 <p class="text-[11px] font-bold uppercase tracking-widest text-emerald-400/80 mb-2 font-label">CO2 Saved Globally</p>
                 <div class="flex items-baseline gap-2 mb-2">
-                    <p class="text-5xl md:text-6xl font-extrabold text-white font-headline tracking-tight">{{ number_format($platformCo2 / 1000, 1) }}</p>
+                    <p class="text-5xl md:text-6xl font-extrabold text-white font-headline tracking-tight">{{ number_format($platformCo2 / 1000, 3) }}</p>
                     <span class="text-2xl font-semibold text-emerald-100">Tons</span>
                 </div>
                 <p class="text-sm text-emerald-200/80 max-w-md">Total CO₂ emissions saved globally by our community choosing pre-owned over new.</p>
