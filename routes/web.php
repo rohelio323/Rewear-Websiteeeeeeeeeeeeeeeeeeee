@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\CO2CategoryController;
+use App\Http\Controllers\ReportsController;
 
 
 Route::get('/', function () {
@@ -49,6 +50,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/favorites', [WishlistController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{item}/toggle', [WishlistController::class, 'toggle'])->name('favorites.toggle');
+    Route::post('/reports', [ReportsController::class, 'store'])->name('reports.store');
 });
 
 //Seller Middleware

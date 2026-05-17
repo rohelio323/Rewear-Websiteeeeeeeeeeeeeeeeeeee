@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('seller_request_reason')->nullable();
             $table->text('seller_rejection_note')->nullable();
             $table->decimal('total_co2_saved', 10, 2)->default(0.00);
+            $table->integer('warning_count')->default(0);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->softDeletes();
