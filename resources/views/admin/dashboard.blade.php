@@ -111,6 +111,15 @@
                     <span class="material-symbols-outlined text-stone-300 group-hover:text-emerald-500 transition-colors text-[20px] transform group-hover:translate-x-1">arrow_forward</span>
                 </a>
             </div>
+                <a href="{{ route('admin.moderation.index') }}" class="group flex items-center justify-between p-4 bg-stone-50 hover:bg-red-50 border border-stone-100 hover:border-red-100 rounded-2xl transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-stone-400 group-hover:text-red-500 transition-colors">flag</span>
+                        <span class="text-sm font-bold text-stone-700 group-hover:text-red-700 transition-colors">Moderation</span>
+                    </div>
+                    <span class="material-symbols-outlined text-stone-300 group-hover:text-red-400 transition-colors text-[20px] transform group-hover:translate-x-1">arrow_forward</span>
+                </a>
+
+            
 
             <button class="w-full mt-4 py-3 bg-white border-2 border-stone-100 hover:border-stone-200 hover:bg-stone-50 rounded-xl text-sm font-bold text-stone-600 transition-colors">
                 View All Reports

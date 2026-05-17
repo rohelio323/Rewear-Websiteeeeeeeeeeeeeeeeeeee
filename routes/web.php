@@ -70,6 +70,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/co2-categories', [CO2CategoryController::class, 'index'])->name('co2.index');
     Route::post('/seller-requests/{user}/approve', [AdminUserController::class, 'approveSeller'])->name('seller-requests.approve');
     Route::post('/seller-requests/{user}/reject', [AdminUserController::class, 'rejectSeller'])->name('seller-requests.reject');
+    Route::get('/moderation', [\App\Http\Controllers\Admin\AdminModerationController::class, 'index'])->name('moderation.index');
+    Route::get('/moderation/{report}', [\App\Http\Controllers\Admin\AdminModerationController::class, 'show'])->name('moderation.show');
+    Route::post('/moderation/{report}/hide',    [\App\Http\Controllers\Admin\AdminModerationController::class, 'hide'])->name('moderation.hide');
+    Route::post('/moderation/{report}/delete',  [\App\Http\Controllers\Admin\AdminModerationController::class, 'delete'])->name('moderation.delete');
+    Route::post('/moderation/{report}/dismiss', [\App\Http\Controllers\Admin\AdminModerationController::class, 'dismiss'])->name('moderation.dismiss');
+    Route::post('/moderation/{report}/warn',    [\App\Http\Controllers\Admin\AdminModerationController::class, 'warn'])->name('moderation.warn');
 });
 
 require __DIR__.'/auth.php';
