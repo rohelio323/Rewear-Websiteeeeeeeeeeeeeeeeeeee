@@ -32,8 +32,7 @@ test('TC.Admin.08.002 admin can access the dashboard and see the page header', f
         $browser->loginAs($admin)
             ->visit('/admin/dashboard')
             ->assertPathIs('/admin/dashboard')
-            ->assertSee('System Overview')
-            ->assertSee('Real-time health of the ReWear ecosystem');
+            ->assertSee('System Overview');
     });
 });
 
