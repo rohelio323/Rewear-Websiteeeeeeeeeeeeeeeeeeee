@@ -13,7 +13,7 @@ class ItemController extends Controller
     public function index() {
         $items = Item::with(['category', 'user'])->where('status', 'available')->get();
         $categories = Category::all();
-        
+
         if (auth()->check()) {
             auth()->user()->load('favorites');
         }
@@ -71,7 +71,7 @@ class ItemController extends Controller
     public function edit(Item $item) {
         if (auth()->id() != $item->users_id) {
             abort(403, 'Unauthorized action.');
-            
+
         }
 
         $categories = Category::all();

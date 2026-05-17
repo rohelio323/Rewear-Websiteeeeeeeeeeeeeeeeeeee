@@ -46,5 +46,8 @@ class Item extends Model
         return $photos && count($photos) > 0 ? $photos[0] : null;
     }
 
-
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }

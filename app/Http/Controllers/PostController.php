@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller {
-    
+
     public function index() {
         $posts = Post::latest()->get();
         return view('community.index', compact('posts'));
@@ -30,7 +30,7 @@ class PostController extends Controller {
             'title' => $request->title,
             'content' => $request->content,
             'image_path' => $imagePath,
-            'users_id' => Auth::id(), 
+            'users_id' => Auth::id(),
             'upvote_count' => 0,
         ]);
 
