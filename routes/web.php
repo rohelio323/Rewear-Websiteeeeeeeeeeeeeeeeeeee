@@ -26,6 +26,10 @@ Route::get('/marketplace', [ItemController::class, 'index'])->name('marketplace.
 Route::get('/item/detail/{item}', [ItemController::class, 'show'])->name('items.show');
 Route::get('/community', [PostController::class, 'index'])->name('community.index');
 
+// Challenges
+Route::get('/challenges', [App\Http\Controllers\ChallengeController::class, 'index'])->name('challenges.index');
+Route::get('/challenges/{challenge}', [App\Http\Controllers\ChallengeController::class, 'show'])->name('challenges.show');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -47,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/create', [PostController::class, 'store'])->name('community.store');
     Route::put('/community/update/{id}', [PostController::class, 'update'])->name('community.update');
     Route::delete('/community/delete/{id}', [PostController::class, 'destroy'])->name('community.destroy');
+    Route::post('/challenges/{challenge}/submit', [App\Http\Controllers\ChallengeController::class, 'submitPost'])->name('challenges.submit');
 
     Route::get('/favorites', [WishlistController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{item}/toggle', [WishlistController::class, 'toggle'])->name('favorites.toggle');
