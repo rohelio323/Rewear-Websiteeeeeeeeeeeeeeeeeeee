@@ -18,15 +18,27 @@ class AdminChallengeController extends Controller
     // Save a newly created challenge into the database
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
+            'hashtag' => 'required|string|max:50|unique:challenges,hashtag', // <-- Validate it!
             'description' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'status' => 'required|in:Active,Draft',
         ]);
 
-        Challenge::create($validated);
+        // Clean the hashtag just in case the admin typed a "#" symbol in the input
+        $cleanHashtag = str_replace('#', '', $request->hashtag);
 
-        return redirect()->back()->with('success', 'Challenge created successfully!');
+        Challenge::create([
+            'title' => $request->title,
+            'hashtag' => strtolower($cleanHashtag), // Force lowercase for easy matching later
+            'description' => $request->description,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'is_active' => $request->status === 'Active',
+        ]);
+
+        return redirect()->route('admin.challenges.index')->with('success', 'Challenge created successfully!');
     }
 }
