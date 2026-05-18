@@ -21,4 +21,9 @@ class Post extends Model {
         return $this->morphMany(Report::class, 'reportable');
     }
 
+    public function challenge()
+    {
+        return $this->belongsTo(Challenge::class, 'challanges_id');
+    }
+
 }

@@ -78,6 +78,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/moderation/{report}/delete',  [\App\Http\Controllers\Admin\AdminModerationController::class, 'delete'])->name('moderation.delete');
     Route::post('/moderation/{report}/dismiss', [\App\Http\Controllers\Admin\AdminModerationController::class, 'dismiss'])->name('moderation.dismiss');
     Route::post('/moderation/{report}/warn',    [\App\Http\Controllers\Admin\AdminModerationController::class, 'warn'])->name('moderation.warn');
+    Route::get('/challenges', [App\Http\Controllers\Admin\AdminChallengeController::class, 'index'])->name('challenges.index');
+    Route::post('/challenges', [App\Http\Controllers\Admin\AdminChallengeController::class, 'store'])->name('challenges.store');
 });
 
 require __DIR__.'/auth.php';
