@@ -43,28 +43,43 @@
                     Submit Your Fit
                 </h2>
                 
-                <form action="{{ route('challenges.submit', $challenge->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                    @csrf
-                    
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Outfit Title</label>
-                        <input type="text" name="title" required class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white transition-colors" placeholder="e.g., My Vintage Denim Tote">
-                    </div>
+                @auth
+                    {{-- User is logged in: Show the form --}}
+                    <form action="{{ route('challenges.submit', $challenge->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        @csrf
+                        
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Outfit Title</label>
+                            <input type="text" name="title" required class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white transition-colors" placeholder="e.g., My Vintage Denim Tote">
+                        </div>
 
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Story / Caption</label>
-                        <textarea name="content" required rows="3" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white transition-colors resize-none" placeholder="How did you upcycle this item?"></textarea>
-                    </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Story / Caption</label>
+                            <textarea name="content" required rows="3" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white transition-colors resize-none" placeholder="How did you upcycle this item?"></textarea>
+                        </div>
 
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Upload Photo</label>
-                        <input type="file" name="image" accept="image/*" required class="w-full text-sm text-stone-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition-colors cursor-pointer">
-                    </div>
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Upload Photo</label>
+                            <input type="file" name="image" accept="image/*" required class="w-full text-sm text-stone-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 transition-colors cursor-pointer">
+                        </div>
 
-                    <button type="submit" class="w-full py-3.5 px-4 bg-emerald-950 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold shadow-md active:scale-95 transition-all mt-4">
-                        Post to Challenge
-                    </button>
-                </form>
+                        <button type="submit" class="w-full py-3.5 px-4 bg-emerald-950 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold shadow-md active:scale-95 transition-all mt-4">
+                            Post to Challenge
+                        </button>
+                    </form>
+                @else
+                    {{-- Guest User: Show Login Prompt --}}
+                    <div class="bg-stone-50 rounded-2xl p-6 text-center border border-stone-200 border-dashed mt-4">
+                        <div class="w-12 h-12 mx-auto bg-white rounded-full flex items-center justify-center mb-3 shadow-sm">
+                            <span class="material-symbols-outlined text-stone-400">lock</span>
+                        </div>
+                        <p class="text-sm text-stone-600 mb-4">Want to join the challenge and earn eco-badges? Log in to submit your outfit!</p>
+                        <a href="{{ route('login') }}" class="inline-block w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition-all">
+                            Log in to Participate
+                        </a>
+                        <p class="mt-3 text-xs text-stone-400">New here? <a href="{{ route('register') }}" class="text-emerald-600 hover:underline font-bold">Create an account</a></p>
+                    </div>
+                @endauth
             </div>
         </div>
 
