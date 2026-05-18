@@ -26,4 +26,9 @@ class Post extends Model {
         return $this->belongsTo(Challenge::class, 'challanges_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'users_id');
+    }
+
 }
