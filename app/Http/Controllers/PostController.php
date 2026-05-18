@@ -3,14 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\PostVote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+
 
 class PostController extends Controller {
 
     public function index() {
         $posts = Post::latest()->get();
+        if (Auth::check()) {
+            $userVotes = PostVote::where('user_id', Auth::id())
+                ->whereIn('post_id', $posts->pluck('post_id'))
+                ->pluck('value', 'post_id');
+
+            foreach($posts as $post) {
+                $post->my_vote = $userVotes[$post->post_id] ?? null;
+            }
+        }
         return view('community.index', compact('posts'));
     }
 
