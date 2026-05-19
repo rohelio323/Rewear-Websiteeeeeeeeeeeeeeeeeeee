@@ -102,7 +102,7 @@
                 </div>
             </div>
         @endif
-        
+
         {{-- Environmental Impact Card --}}
         <div class="bg-emerald-950 text-emerald-50 p-8 rounded-2xl shadow-lg relative overflow-hidden">
             <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
@@ -157,7 +157,7 @@
                         </div>
                     @endif
                 </div>
-                
+
                 {{-- Right: Action Buttons --}}
                 <div class="flex flex-col gap-3 justify-center">
                     @if(Auth::id() === $order->buyer_id && $order->status === 'pending')
@@ -174,20 +174,15 @@
                         </form>
                     @endif
 
-                     @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
-                        {{-- Toggle button --}}
+                    @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
                         <button type="button" onclick="document.getElementById('ship-form').classList.toggle('hidden')"
                             class="w-full py-3.5 bg-emerald-900 text-white font-bold rounded-full text-sm hover:bg-emerald-800 transition-colors">
                             Mark as Shipped →
                         </button>
-
-                        {{-- Inline ship form (hidden by default) --}}
                         <div id="ship-form" class="hidden mt-2 rounded-2xl border border-stone-200 bg-stone-50 p-5">
                             <p class="text-sm text-stone-400 mb-4">Enter shipment details and upload proof. The buyer will be notified.</p>
                             <form method="POST" action="{{ route('orders.ship', $order) }}" enctype="multipart/form-data" class="flex flex-col gap-4">
                                 @csrf
-
-                                {{-- Courier Name --}}
                                 <div>
                                     <label class="block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-widest">Courier Name *</label>
                                     <input type="text" name="courier_name" value="{{ old('courier_name') }}"
@@ -197,8 +192,6 @@
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
-
-                                {{-- Tracking Number --}}
                                 <div>
                                     <label class="block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-widest">Tracking Number *</label>
                                     <input type="text" name="tracking_number" value="{{ old('tracking_number') }}"
@@ -208,8 +201,6 @@
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
-
-                                {{-- Shipping Proof --}}
                                 <div>
                                     <label class="block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-widest">Shipping Proof *</label>
                                     <label for="shipping_proof"
@@ -240,8 +231,6 @@
                                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
-
-                                {{-- Buttons --}}
                                 <div class="flex gap-3 justify-end mt-1">
                                     <button type="button" onclick="document.getElementById('ship-form').classList.add('hidden')"
                                         class="border border-stone-200 text-stone-600 hover:bg-stone-100 text-sm font-medium px-6 py-2.5 rounded-full transition-colors">
@@ -256,7 +245,6 @@
                         </div>
                     @endif
 
-
                     @if(Auth::id() === $order->buyer_id && $order->status === 'shipped')
                         <form method="POST" action="{{ route('orders.receive', $order) }}" class="w-full">
                             @csrf
@@ -264,6 +252,20 @@
                                 Confirm Received
                             </button>
                         </form>
+                    @endif
+
+                    {{-- PBI-38: Review Button --}}
+                    @if(Auth::id() === $order->buyer_id && $order->status === 'completed')
+                        @if($order->review)
+                            <div class="w-full py-3.5 bg-stone-50 border-2 border-stone-200 text-stone-400 font-bold rounded-full text-sm text-center">
+                                ★ Review Submitted
+                            </div>
+                        @else
+                            <a href="{{ route('reviews.create', $order) }}"
+                               class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-white font-bold rounded-full text-sm transition-colors text-center block">
+                                ★ Leave a Review
+                            </a>
+                        @endif
                     @endif
 
                     @if($order->status !== 'pending')
