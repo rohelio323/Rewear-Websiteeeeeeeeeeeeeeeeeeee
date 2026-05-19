@@ -85,10 +85,10 @@
                     <div class="flex items-center justify-between mb-4 relative z-10">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center font-bold text-gray-600 text-xs border border-gray-200">
-                                U{{ $post->users_id }}
+                                {{ substr($post->user->name ?? 'U', 0, 1) }}
                             </div>
                             <div>
-                                <p class="font-bold text-sm text-gray-800">User #{{ $post->users_id }}</p>
+                                <p class="font-bold text-sm text-gray-800">{{ $post->user->name ?? 'Anonymous' }}</p>
                                 <p class="text-[10px] text-gray-400 uppercase tracking-widest">{{ $post->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
@@ -146,9 +146,57 @@
 
                     <div class="flex items-center justify-between border-t border-gray-50 pt-4 mt-2">
                         <div class="flex gap-4">
-                            <button class="flex items-center gap-1 bg-gray-50 px-3 py-1.5 rounded-full text-xs font-bold hover:bg-emerald-50 transition border border-gray-100">
-                                ↑ <span class="text-gray-800">{{ $post->upvote_count ?? 0 }}</span> ↓
-                            </button>
+                            
+                            {{-- Integrated Teammate's Alpine JS Voting System! --}}
+                            @auth
+                                @php
+                                    $currentVote = $post->my_vote ?? 0; 
+                                @endphp
+                                <div x-data="{ 
+                                        currentVote: {{ $currentVote }}, 
+                                        score: {{ $post->upvote_count ?? 0 }},
+                                        castVote(value) {
+                                            let targetValue = value;
+                                            if (this.currentVote === value) {
+                                                this.score -= value;
+                                                this.currentVote = 0;
+                                                targetValue = value === 1 ? -1 : 1; 
+                                            } else {
+                                                this.score += (this.currentVote === 0) ? value : (value * 2);
+                                                this.currentVote = value;
+                                            }
+                                            fetch('{{ route('community.vote', $post->post_id) }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                },
+                                                body: JSON.stringify({ value: value })
+                                            });
+                                        }
+                                    }" 
+                                    class="flex items-center gap-1 bg-gray-50 rounded-full p-1 border border-gray-100">
+                                    
+                                    <button @click="castVote(1)" type="button" class="p-1.5 rounded-full transition-all flex items-center group" :class="currentVote === 1 ? 'bg-emerald-100 text-emerald-800' : 'hover:bg-emerald-50 text-gray-400 hover:text-emerald-700'">
+                                        <span class="material-symbols-outlined text-sm font-bold">arrow_upward</span>
+                                    </button>
+
+                                    <span x-text="score" class="font-bold text-xs px-2 min-w-[2rem] text-center transition-colors" :class="currentVote === 1 ? 'text-emerald-800' : (currentVote === -1 ? 'text-red-600' : 'text-gray-600')">
+                                        {{ $post->upvote_count ?? 0 }}
+                                    </span>
+
+                                    <button @click="castVote(-1)" type="button" class="p-1.5 rounded-full transition-all flex items-center group" :class="currentVote === -1 ? 'bg-red-100 text-red-600' : 'hover:bg-red-50 text-gray-400 hover:text-red-600'">
+                                        <span class="material-symbols-outlined text-sm font-bold">arrow_downward</span>
+                                    </button>
+                                </div>
+                            @else
+                                <div class="flex items-center gap-1.5 bg-gray-50 rounded-full px-3 py-1.5 text-gray-400 border border-gray-100">
+                                    <span class="material-symbols-outlined text-sm select-none">arrow_upward</span>
+                                    <span class="font-bold text-xs px-0.5 text-gray-700">{{ $post->upvote_count ?? 0 }}</span>
+                                    <span class="material-symbols-outlined text-sm select-none">arrow_downward</span>
+                                </div>
+                            @endauth
+
                         </div>
                         <span class="text-gray-400 hover:text-emerald-800 transition cursor-pointer text-xs font-bold flex items-center gap-1">
                             🔗 Share
@@ -182,7 +230,7 @@
         </div>
     </div>
 
-    {{-- Create Modal --}}
+    {{-- Create Modal (With Tags!) --}}
     <div id="createModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-xl p-6 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-box max-h-[90vh] overflow-y-auto">
             <button type="button" onclick="closeModal('createModal')" class="absolute top-5 right-6 text-gray-400 hover:text-red-500 text-xl font-bold transition z-10">✕</button>
@@ -236,7 +284,7 @@
         </div>
     </div>
 
-    {{-- Edit Modal --}}
+    {{-- Edit Modal (With Tags!) --}}
     <div id="editModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-3xl w-full max-w-xl p-6 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-box max-h-[90vh] overflow-y-auto">
             <button type="button" onclick="closeModal('editModal')" class="absolute top-5 right-6 text-gray-400 hover:text-red-500 text-xl font-bold transition z-10">✕</button>

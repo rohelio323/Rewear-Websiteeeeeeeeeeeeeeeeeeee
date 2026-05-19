@@ -10,6 +10,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\CO2CategoryController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\PostVoteController;
 
 
 Route::get('/', function () {
@@ -51,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/create', [PostController::class, 'store'])->name('community.store');
     Route::put('/community/update/{id}', [PostController::class, 'update'])->name('community.update');
     Route::delete('/community/delete/{id}', [PostController::class, 'destroy'])->name('community.destroy');
+    Route::post('/community/{id}/vote', [PostVoteController::class, 'vote'])->name('community.vote');
     Route::post('/challenges/{challenge}/submit', [App\Http\Controllers\ChallengeController::class, 'submitPost'])->name('challenges.submit');
     Route::get('/community/hashtag/lookup', [App\Http\Controllers\PostController::class, 'hashtagLookup'])->name('community.hashtag.lookup');
 

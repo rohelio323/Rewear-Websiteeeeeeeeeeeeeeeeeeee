@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Challenge;
+use App\Models\PostVote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,16 +13,27 @@ class PostController extends Controller {
 
     public function index()
     {
-        // Fetch all the community posts
+        // 1. Fetch all the community posts with the user data (Your branch)
         $posts = Post::with('user')->latest()->get(); 
 
-        // Fetch the active challenges
+        // 2. Attach the user's vote data to each post (Main branch)
+        if (Auth::check()) {
+            $userVotes = PostVote::where('user_id', Auth::id())
+                ->whereIn('post_id', $posts->pluck('post_id'))
+                ->pluck('value', 'post_id');
+
+            foreach($posts as $post) {
+                $post->my_vote = $userVotes[$post->post_id] ?? null;
+            }
+        }
+
+        // 3. Fetch the active challenges (Your branch)
         $activeChallenges = Challenge::where('is_active', true)
             ->where('end_date', '>=', now()->startOfDay())
             ->orderBy('start_date', 'asc')
             ->get();
 
-        // Pass both variables to community view
+        // 4. Pass both variables to community view
         return view('community.index', compact('posts', 'activeChallenges'));
     }
 
