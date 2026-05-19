@@ -20,38 +20,26 @@ class ChallengeController extends Controller
     }
 
     // Show a specific challenge and its entries
-    public function show(Challenge $challenge)
-    {
-        // Load the challenge along with all posts submitted to it from the newest
-        $challenge->load(['posts' => function($query) {
-            $query->latest();
-        }, 'posts.user']); 
-        
-        return view('challenges.show', compact('challenge'));
+    public function show($id) {
+        $challenge = \App\Models\Challenge::findOrFail($id);
+        // Search the tags column using LIKE
+        $posts = \App\Models\Post::with('user')->where('tags', 'LIKE', '%' . $challenge->hashtag . '%')->latest()->get();
+        return view('challenges.show', compact('challenge', 'posts'));
     }
 
     // Handle a user joining the challenge and uploading an outfit
-    public function submitPost(Request $request, Challenge $challenge)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048', // 2MB Max
-        ]);
+    public function submitPost(Request $request, Challenge $challenge) {
+        $request->validate([ 'title' => 'required|string|max:255', 'content' => 'required|string', 'image' => 'required|image|mimes:jpeg,png,jpg|max:2048' ]);
+        $imagePath = $request->file('image')->store('community_images', 'public');
+        
+        // Auto-inject the challenge hashtag into the post
+        $tags = $request->tags ? $request->tags . ', ' . $challenge->hashtag : $challenge->hashtag;
 
-        // Save the image securely to the storage folder
-        $imagePath = $request->file('image')->store('community_posts', 'public');
-
-        // Create the post using the database columns
         Post::create([
-            'title' => $request->title,
-            'content' => $request->content,
-            'image_path' => $imagePath,
-            'users_id' => auth()->id(),
-            'challanges_id' => $challenge->id, // Linked directly to the event
-            'upvote_count' => 0,
+            'title' => $request->title, 'content' => $request->content, 'image_path' => $imagePath,
+            'users_id' => auth()->id(), 'tags' => $tags, 'upvote_count' => 0,
         ]);
 
-        return redirect()->back()->with('success', 'Your outfit has been submitted to the challenge!');
+        return redirect()->back()->with('success', 'Your outfit has been submitted!');
     }
 }

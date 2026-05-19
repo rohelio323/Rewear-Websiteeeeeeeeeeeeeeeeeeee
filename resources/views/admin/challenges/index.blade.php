@@ -134,6 +134,19 @@
                         </div>
 
                         <div class="mb-4">
+                        <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Challenge Hashtag <span class="text-red-500">*</span></label>
+                        <p class="text-xs text-stone-400 mb-2 leading-relaxed">Users enter by tagging posts with this (no # needed here). Must be unique, no spaces.</p>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-stone-400 font-bold sm:text-sm">#</span>
+                            </div>
+                            <input type="text" name="hashtag" required 
+                                   class="w-full pl-8 pr-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white transition-colors" 
+                                   placeholder="rewear30days">
+                        </div>
+                        </div>
+
+                        <div class="mb-4">
                             <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Description</label>
                             <textarea name="description" required rows="3" placeholder="What are the rules and rewards?" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 placeholder-stone-400 bg-stone-50 focus:bg-white resize-none"></textarea>
                         </div>
@@ -147,6 +160,14 @@
                                 <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">End Date</label>
                                 <input type="date" name="end_date" required class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 bg-stone-50 focus:bg-white">
                             </div>
+                        </div>
+
+                        <div class="mb-8">
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Status <span class="text-red-500">*</span></label>
+                            <select name="status" required class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 bg-stone-50 focus:bg-white appearance-none cursor-pointer">
+                                <option value="Active">Active</option>
+                                <option value="Draft">Draft</option>
+                            </select>
                         </div>
 
                         <div class="flex gap-3 justify-end">

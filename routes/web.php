@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/community/delete/{id}', [PostController::class, 'destroy'])->name('community.destroy');
     Route::post('/community/{id}/vote', [PostVoteController::class, 'vote'])->name('community.vote');
     Route::post('/challenges/{challenge}/submit', [App\Http\Controllers\ChallengeController::class, 'submitPost'])->name('challenges.submit');
+    Route::get('/community/hashtag/lookup', [App\Http\Controllers\PostController::class, 'hashtagLookup'])->name('community.hashtag.lookup');
 
     Route::get('/favorites', [WishlistController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{item}/toggle', [WishlistController::class, 'toggle'])->name('favorites.toggle');
