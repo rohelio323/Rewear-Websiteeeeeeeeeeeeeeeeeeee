@@ -42,4 +42,53 @@ class ChallengeController extends Controller
 
         return redirect()->back()->with('success', 'Your outfit has been submitted!');
     }
+
+    /**
+     * Show the form for editing the specified challenge.
+     */
+    public function edit($id)
+    {
+        $challenge = \App\Models\Challenge::findOrFail($id);
+        return view('admin.challenges.edit', compact('challenge'));
+    }
+
+    /**
+     * Update the specified challenge in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $challenge = \App\Models\Challenge::findOrFail($id);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $challenge->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'is_active' => $request->has('is_active'), // Checkbox handling
+        ]);
+
+        return redirect()->route('admin.challenges.index')->with('success', 'Challenge updated successfully!');
+    }
+
+    /**
+     * Remove the specified challenge from storage.
+     */
+    public function destroy($id)
+    {
+        $challenge = \App\Models\Challenge::findOrFail($id);
+        
+        // Optional: Check if posts are attached to this challenge before deleting
+        // If you used 'onDelete(set null)' in your migration, deleting this is perfectly safe!
+        
+        $challenge->delete();
+
+        return redirect()->route('admin.challenges.index')->with('success', 'Challenge deleted permanently.');
+    }
 }

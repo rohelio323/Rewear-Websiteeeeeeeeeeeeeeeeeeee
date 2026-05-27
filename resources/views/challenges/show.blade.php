@@ -86,7 +86,6 @@
                 Community Submissions
             </h2>
 
-            {{-- UPDATED: Changed $challenge->posts to $posts --}}
             @if($posts->isEmpty())
                 <div class="bg-stone-50 rounded-3xl border border-stone-200 border-dashed p-12 text-center">
                     <div class="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
@@ -97,7 +96,6 @@
                 </div>
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {{-- UPDATED: Changed $challenge->posts to $posts --}}
                     @foreach($posts as $post)
                         <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm group">
                             <div class="aspect-square bg-stone-100 relative overflow-hidden">
