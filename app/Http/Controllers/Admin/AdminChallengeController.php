@@ -20,7 +20,7 @@ class AdminChallengeController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'hashtag' => 'required|string|max:50|unique:challenges,hashtag', // <-- Validate it!
+            'hashtag' => 'required|string|max:50|unique:challenges,hashtag', 
             'description' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
@@ -39,6 +39,56 @@ class AdminChallengeController extends Controller
             'is_active' => $request->status === 'Active',
         ]);
 
-        return redirect()->route('admin.challenges.index')->with('success', 'Challenge created successfully!');
+        return redirect()->route('challenges.index')->with('success', 'Challenge created successfully!');
+    }
+
+    /**
+     * Show the form for editing the specified challenge.
+     */
+    public function edit($id)
+    {
+        $challenge = Challenge::findOrFail($id);
+        return view('admin.challenges.edit', compact('challenge'));
+    }
+
+    /**
+     * Update the specified challenge in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $challenge = Challenge::findOrFail($id);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'hashtag' => 'required|string|max:50|unique:challenges,hashtag,' . $challenge->id, 
+            'description' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        // Clean the hashtag again for updates
+        $cleanHashtag = str_replace('#', '', $request->hashtag);
+
+        $challenge->update([
+            'title' => $request->title,
+            'hashtag' => strtolower($cleanHashtag),
+            'description' => $request->description,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'is_active' => $request->has('is_active'), 
+        ]);
+
+        return redirect()->route('challenges.index')->with('success', 'Challenge updated successfully!');
+    }
+
+    /**
+     * Remove the specified challenge from storage.
+     */
+    public function destroy($id)
+    {
+        $challenge = Challenge::findOrFail($id);
+        $challenge->delete();
+
+        return redirect()->route('challenges.index')->with('success', 'Challenge deleted permanently.');
     }
 }
