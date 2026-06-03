@@ -42,4 +42,8 @@ class Order extends Model
         return $this->belongsTo(Item::class);
     }
 
+    public function review()
+    {
+    return $this->hasOne(Review::class);
+    }
 }

@@ -52,7 +52,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $this->authorizeOrder($order);
-        $order->load(['item.category', 'buyer', 'seller']);
+        $order->load(['item.category', 'buyer', 'seller', 'review']);
         return view('orders.show', compact('order'));
     }
 
@@ -109,9 +109,9 @@ class OrderController extends Controller
         abort_unless($order->status === 'payment_confirmed', 403);
 
         $request->validate([
-            'courier_name'   => 'required|string|max:100',
+            'courier_name'    => 'required|string|max:100',
             'tracking_number' => 'required|string|max:100',
-            'shipping_proof' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'shipping_proof'  => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         $path = $request->file('shipping_proof')->store('shipping_proofs', 'public');
