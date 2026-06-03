@@ -13,7 +13,7 @@ class ItemController extends Controller
     public function index() {
         $items = Item::with(['category', 'user'])->where('status', 'available')->get();
         $categories = Category::all();
-        
+
         if (auth()->check()) {
             auth()->user()->load('favorites');
         }
@@ -45,8 +45,8 @@ class ItemController extends Controller
             'condition'   => 'required|in:new_with_tags,like_new,good,fair',
             'price'       => 'required|numeric|min:0.01',
             'category_id' => 'required|exists:categories,id',
-            'photos'      => 'required|array|min:1|max:5',
-            'photos.*'    => 'image|max:2048',
+            'photos'      => 'required|array|min:1|max:4',
+            'photos.*'    => 'image|max:5120',
         ]);
 
         $photoPaths = [];
@@ -71,7 +71,7 @@ class ItemController extends Controller
     public function edit(Item $item) {
         if (auth()->id() != $item->users_id) {
             abort(403, 'Unauthorized action.');
-            
+
         }
 
         $categories = Category::all();

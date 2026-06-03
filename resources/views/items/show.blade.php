@@ -3,7 +3,7 @@
 @section('content')
 <main class="pt-5 pb-20 px-28 max-w-screen-2xl mx-auto">
     <div class="mb-6 flex justify-between">
-        <a href="{{ route('marketplace.index') }}" 
+        <a href="{{ route('marketplace.index') }}"
             class="group inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">
             <span class="material-symbols-outlined transition-transform group-hover:-translate-x-1">arrow_back</span>
             Back to Marketplace
@@ -12,11 +12,11 @@
         @auth
             @if(auth()->id() === $item->user->id)
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('items.edit', $item) }}" 
+                    <a href="{{ route('items.edit', $item) }}"
                         class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-surface-container-high text-on-surface-variant font-bold text-xs uppercase tracking-wider hover:brightness-95 transition">
                         <span class="material-symbols-outlined text-sm">edit</span> Edit
                     </a>
-                    
+
                     <form action="{{ route('items.destroy', $item) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this item?');">
                         @csrf
                         @method('DELETE')
@@ -28,9 +28,10 @@
             @endif
         @endauth
     </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
         <div class="lg:col-span-6 space-y-6">
-            
+
             <div class="rounded-xl overflow-hidden bg-surface-container-low aspect-[3/4] relative group max-w-2xl mx-auto">
                 @if($item->first_photo)
                     <img id="main-image" src="{{ asset('storage/'.$item->first_photo) }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
@@ -60,11 +61,11 @@
                     <span class="material-symbols-outlined text-[10px]">arrow_forward_ios</span>
                     <a class="hover:text-primary transition-colors" href="#">{{ $item->category->category_name ?? 'Uncategorized' }}</a>
                 </nav>
-                
+
                 <h1 class="text-3xl lg:text-4xl font-extrabold font-headline tracking-tighter text-primary mb-2">
                     {{ $item->item_name }}
                 </h1>
-                
+
                 <div class="flex items-baseline gap-4">
                     <span class="text-2xl font-bold font-headline text-primary">Rp {{ number_format($item->price, 0, ',', '.') }}</span>
                 </div>
@@ -92,8 +93,8 @@
             <div class="p-5 rounded-xl bg-surface-container flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full overflow-hidden bg-secondary-fixed relative ring-2 ring-white">
-                        <img class="w-full h-full object-cover" 
-                             src="{{ $item->user->avatar_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($item->user->name) }}" 
+                        <img class="w-full h-full object-cover"
+                             src="{{ $item->user->avatar_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($item->user->name) }}"
                              alt="{{ $item->user->name }}">
                     </div>
                     <div>
@@ -102,7 +103,6 @@
                             <span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
                         </div>
                         <div class="flex items-center text-[11px] text-on-surface-variant gap-2">
-                            
                             <span class="flex items-center gap-0.5">
                                 <span class="material-symbols-outlined text-[12px]">location_on</span> {{ $item->city ?? 'Indonesia' }}
                             </span>
@@ -110,6 +110,7 @@
                     </div>
                 </div>
             </div>
+
             @auth
             <div class="relative z-10 mt-auto">
                 @php
@@ -132,12 +133,45 @@
                         </button>
                     </form>
                 @endif
+
+                {{-- PBI-29: Report button — only visible to users who don't own the item --}}
+                @if(auth()->id() !== $item->users_id)
+                    <button onclick="document.getElementById('itemReportModal').classList.remove('hidden')"
+                        class="mt-3 w-full text-center text-xs text-stone-400 hover:text-red-500 transition py-1">
+                        🚩 Report this listing
+                    </button>
+                @endif
             </div>
             @endauth
         </div>
     </div>
 
-    {{-- Similar Items (Smaller Images) --}}
+    {{-- PBI-29: Item Report Modal --}}
+    @auth
+    <div id="itemReportModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+            <button onclick="document.getElementById('itemReportModal').classList.add('hidden')"
+                class="absolute top-5 right-6 text-stone-400 hover:text-red-500 text-xl font-bold">✕</button>
+            <h2 class="text-xl font-bold mb-5 text-red-700">🚩 Report Listing</h2>
+            <form action="{{ route('reports.store') }}" method="POST" class="flex flex-col gap-4">
+                @csrf
+                <input type="hidden" name="reportable_type" value="item">
+                <input type="hidden" name="reportable_id" value="{{ $item->id }}">
+                <div>
+                    <label class="block text-xs font-bold text-stone-600 uppercase tracking-widest mb-2">Reason *</label>
+                    <textarea name="reason" rows="4" required
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-red-400 focus:outline-none resize-none"
+                        placeholder="Describe why you're reporting this listing..."></textarea>
+                </div>
+                <button type="submit" class="bg-red-600 text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-red-700 transition w-full">
+                    Submit Report
+                </button>
+            </form>
+        </div>
+    </div>
+    @endauth
+
+    {{-- Similar Items --}}
     @if($similarItems->count() > 0)
         <section class="mt-24">
             <div class="flex items-end justify-between mb-8">
@@ -163,9 +197,7 @@
 @push('scripts')
 <script>
     function switchImage(thumbnail, src) {
-        
         document.getElementById('main-image').src = src;
-
         document.querySelectorAll('.thumbnail').forEach(t => {
             t.classList.remove('border-2', 'border-primary');
         });

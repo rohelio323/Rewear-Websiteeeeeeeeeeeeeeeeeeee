@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\Admin\CO2CategoryController;
+use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\PostVoteController;
 
 
 Route::get('/', function () {
@@ -26,10 +28,15 @@ Route::get('/marketplace', [ItemController::class, 'index'])->name('marketplace.
 Route::get('/item/detail/{item}', [ItemController::class, 'show'])->name('items.show');
 Route::get('/community', [PostController::class, 'index'])->name('community.index');
 
+// Challenges
+Route::get('/challenges', [App\Http\Controllers\ChallengeController::class, 'index'])->name('challenges.index');
+Route::get('/challenges/{challenge}', [App\Http\Controllers\ChallengeController::class, 'show'])->name('challenges.show');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/my-stats', [App\Http\Controllers\ProfileStatsController::class, 'index'])->name('profile.stats');
     Route::post('/profile/seller-apply', [ProfileController::class, 'applyAsSeller'])->name('seller.apply.submit');
 
     // Orders
@@ -46,13 +53,20 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/create', [PostController::class, 'store'])->name('community.store');
     Route::put('/community/update/{id}', [PostController::class, 'update'])->name('community.update');
     Route::delete('/community/delete/{id}', [PostController::class, 'destroy'])->name('community.destroy');
+    Route::post('/community/{id}/vote', [PostVoteController::class, 'vote'])->name('community.vote');
+    Route::post('/challenges/{challenge}/submit', [App\Http\Controllers\ChallengeController::class, 'submitPost'])->name('challenges.submit');
+    Route::get('/community/hashtag/lookup', [App\Http\Controllers\PostController::class, 'hashtagLookup'])->name('community.hashtag.lookup');
 
     Route::get('/favorites', [WishlistController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{item}/toggle', [WishlistController::class, 'toggle'])->name('favorites.toggle');
 
+
     // ===== PBI-38: Reviews =====
     Route::get('/orders/{order}/review', [ReviewController::class, 'create'])->name('reviews.create');
     Route::post('/orders/{order}/review', [ReviewController::class, 'store'])->name('reviews.store');
+
+    Route::post('/reports', [ReportsController::class, 'store'])->name('reports.store');
+
 });
 
 // Seller Middleware
@@ -74,6 +88,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/co2-categories', [CO2CategoryController::class, 'index'])->name('co2.index');
     Route::post('/seller-requests/{user}/approve', [AdminUserController::class, 'approveSeller'])->name('seller-requests.approve');
     Route::post('/seller-requests/{user}/reject', [AdminUserController::class, 'rejectSeller'])->name('seller-requests.reject');
+    Route::get('/moderation', [\App\Http\Controllers\Admin\AdminModerationController::class, 'index'])->name('moderation.index');
+    Route::get('/moderation/{report}', [\App\Http\Controllers\Admin\AdminModerationController::class, 'show'])->name('moderation.show');
+    Route::post('/moderation/{report}/hide',    [\App\Http\Controllers\Admin\AdminModerationController::class, 'hide'])->name('moderation.hide');
+    Route::post('/moderation/{report}/delete',  [\App\Http\Controllers\Admin\AdminModerationController::class, 'delete'])->name('moderation.delete');
+    Route::post('/moderation/{report}/dismiss', [\App\Http\Controllers\Admin\AdminModerationController::class, 'dismiss'])->name('moderation.dismiss');
+    Route::post('/moderation/{report}/warn',    [\App\Http\Controllers\Admin\AdminModerationController::class, 'warn'])->name('moderation.warn');
+    Route::get('/challenges', [App\Http\Controllers\Admin\AdminChallengeController::class, 'index'])->name('challenges.index');
+    Route::post('/challenges', [App\Http\Controllers\Admin\AdminChallengeController::class, 'store'])->name('challenges.store');
+    Route::get('/challenges/{id}/edit', [App\Http\Controllers\Admin\AdminChallengeController::class, 'edit'])->name('challenges.edit');
+    Route::put('/challenges/{id}', [App\Http\Controllers\Admin\AdminChallengeController::class, 'update'])->name('challenges.update');
+    Route::delete('/challenges/{id}', [App\Http\Controllers\Admin\AdminChallengeController::class, 'destroy'])->name('challenges.destroy');
 });
 
 require __DIR__.'/auth.php';

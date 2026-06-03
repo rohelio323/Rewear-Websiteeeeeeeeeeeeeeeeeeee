@@ -1,150 +1,222 @@
 @extends('layouts.admin')
-@section('title','Dashboard')
+@section('title', 'Dashboard')
 
 @section('content')
+<div class="max-w-7xl mx-auto font-body">
 
-{{-- Header --}}
-<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;gap:1rem;flex-wrap:wrap;">
+    {{-- Header --}}
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+        <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mb-1 font-label">Overview</p>
+            <h1 class="text-3xl font-extrabold text-emerald-950 tracking-tight font-headline">System Overview</h1>
+            <p class="text-sm text-stone-500 mt-1">Real-time health of the ReWear ecosystem</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+            <button class="flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 rounded-xl text-sm font-bold transition-colors shadow-sm active:scale-95">
+                <span class="material-symbols-outlined text-[18px]">download</span>
+                Export Report
+            </button>
+            <button class="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-950 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow active:scale-95">
+                <span class="material-symbols-outlined text-[18px]">campaign</span>
+                Announcement
+            </button>
+        </div>
+    </div>
+
+    {{-- KPI Cards Grid --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+        @php
+            $kpis = [
+                ['label' => 'Total Users',    'value' => number_format($totalUsers),         'icon' => 'group',       'theme' => 'emerald'],
+                ['label' => 'Total Orders',   'value' => number_format($totalOrders ?? 0),   'icon' => 'local_mall',  'theme' => 'amber'],
+                ['label' => 'Total Listings', 'value' => number_format($totalListings ?? 0), 'icon' => 'sell',        'theme' => 'blue'],
+            ];
+
+            $themeMap = [
+                'emerald' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-600'],
+                'amber'   => ['bg' => 'bg-amber-50',   'text' => 'text-amber-600'],
+                'blue'    => ['bg' => 'bg-blue-50',    'text' => 'text-blue-600'],
+            ];
+        @endphp
+
+        @foreach($kpis as $kpi)
+            @php $t = $themeMap[$kpi['theme']]; @endphp
+            <div class="bg-white border border-stone-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all group">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 rounded-full {{ $t['bg'] }} flex items-center justify-center {{ $t['text'] }}">
+                        <span class="material-symbols-outlined text-[24px]">{{ $kpi['icon'] }}</span>
+                    </div>
+                </div>
+                <p class="text-[11px] font-bold uppercase tracking-widest text-stone-400 mb-1 font-label">{{ $kpi['label'] }}</p>
+                <p class="text-3xl font-extrabold text-stone-900 font-headline leading-none">{{ $kpi['value'] }}</p>
+            </div>
+        @endforeach
+    </div>
+
+    {{-- Sustainability Banner --}}
+    <div class="mb-6">
+        <div class="bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-3xl p-8 md:p-10 relative overflow-hidden shadow-lg border border-emerald-800 flex flex-col justify-center min-h-[160px]">
+            <div class="absolute -right-6 top-1/2 -translate-y-1/2 opacity-10 pointer-events-none transform -rotate-12">
+                <span class="material-symbols-outlined text-[180px] text-white">eco</span>
+            </div>
+            <div class="relative z-10">
+                <p class="text-[11px] font-bold uppercase tracking-widest text-emerald-400/80 mb-2 font-label">CO2 Saved Globally</p>
+                <div class="flex items-baseline gap-2 mb-2">
+                    <p class="text-5xl md:text-6xl font-extrabold text-white font-headline tracking-tight">{{ number_format($platformCo2 / 1000, 3) }}</p>
+                    <span class="text-2xl font-semibold text-emerald-100">Tons</span>
+                </div>
+                <p class="text-sm text-emerald-200/80 max-w-md">Total CO₂ emissions saved globally by our community choosing pre-owned over new.</p>
+            </div>
+        </div>
+    </div>
+
+    {{-- Main Content Grid: Chart & Links --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+        {{-- Chart Section --}}
+        <div class="lg:col-span-2 bg-white border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-stone-900 font-headline">Marketplace Activity</h2>
+                    <p class="text-sm text-stone-500">New listings over time</p>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-stone-50 rounded-lg border border-stone-100">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-800"></span>
+                    <span class="text-xs font-semibold text-stone-600">Listings</span>
+                </div>
+            </div>
+            <div class="relative w-full h-[240px]">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        {{-- Quick Links Section --}}
+        <div class="bg-white border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col">
+            <h2 class="text-lg font-bold text-stone-900 font-headline mb-6">Quick Actions</h2>
+
+            <div class="space-y-3 flex-1">
+                <a href="{{ route('admin.users.index') }}" class="group flex items-center justify-between p-4 bg-stone-50 hover:bg-emerald-50 border border-stone-100 hover:border-emerald-100 rounded-2xl transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-stone-400 group-hover:text-emerald-600 transition-colors">manage_accounts</span>
+                        <span class="text-sm font-bold text-stone-700 group-hover:text-emerald-800 transition-colors">Manage Users</span>
+                    </div>
+                    <span class="material-symbols-outlined text-stone-300 group-hover:text-emerald-500 transition-colors text-[20px] transform group-hover:translate-x-1">arrow_forward</span>
+                </a>
+
+                <a href="{{ route('admin.co2.index') }}" class="group flex items-center justify-between p-4 bg-stone-50 hover:bg-emerald-50 border border-stone-100 hover:border-emerald-100 rounded-2xl transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-stone-400 group-hover:text-emerald-600 transition-colors">category</span>
+                        <span class="text-sm font-bold text-stone-700 group-hover:text-emerald-800 transition-colors">CO₂ Categories</span>
+                    </div>
+                    <span class="material-symbols-outlined text-stone-300 group-hover:text-emerald-500 transition-colors text-[20px] transform group-hover:translate-x-1">arrow_forward</span>
+                </a>
+            </div>
+                <a href="{{ route('admin.moderation.index') }}" class="group flex items-center justify-between p-4 bg-stone-50 hover:bg-red-50 border border-stone-100 hover:border-red-100 rounded-2xl transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-stone-400 group-hover:text-red-500 transition-colors">flag</span>
+                        <span class="text-sm font-bold text-stone-700 group-hover:text-red-700 transition-colors">Moderation</span>
+                    </div>
+                    <span class="material-symbols-outlined text-stone-300 group-hover:text-red-400 transition-colors text-[20px] transform group-hover:translate-x-1">arrow_forward</span>
+                </a>
+
+            
+
+            <button class="w-full mt-4 py-3 bg-white border-2 border-stone-100 hover:border-stone-200 hover:bg-stone-50 rounded-xl text-sm font-bold text-stone-600 transition-colors">
+                View All Reports
+            </button>
+        </div>
+    </div>
+
+    {{-- Recent Activity --}}
     <div>
-        <h1 style="font-family:'Manrope',sans-serif;font-size:2rem;font-weight:800;color:#1A2820;letter-spacing:-0.03em;margin-bottom:0.25rem;">System Overview</h1>
-        <p style="font-size:0.9375rem;color:#5A6B60;line-height:1.5;max-width:480px;">Real-time health of the ReWear ecosystem.</p>
-    </div>
-    <div style="display:flex;gap:10px;flex-shrink:0;">
-        <button style="display:flex;align-items:center;gap:7px;background:#fff;border:1.5px solid #E2E2DE;color:#1A2820;padding:0.5rem 1rem;border-radius:10px;font-size:0.875rem;font-weight:600;cursor:pointer;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5A6B60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export Report
-        </button>
-        <button style="display:flex;align-items:center;gap:7px;background:#1A2820;border:none;color:#fff;padding:0.5rem 1.125rem;border-radius:10px;font-size:0.875rem;font-weight:600;cursor:pointer;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            New Announcement
-        </button>
-    </div>
-</div>
-
-{{-- KPI Cards --}}
-<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
-    @php
-        $kpis = [
-            ['label'=>'Total Users','value'=>number_format($totalUsers),'icon'=>'👥','bg'=>'#F0F5F2'],
-            ['label'=>'Total Orders','value'=>number_format($totalOrders ?? 0),'icon'=>'📦','bg'=>'#FFF8F0'],
-            ['label'=>'Total Listings','value'=>number_format($totalListings ?? 0),'icon'=>'🏷','bg'=>'#F0FAF5'],
-        ];
-    @endphp
-    @foreach($kpis as $kpi)
-    <div style="background:#fff;border:1.5px solid #E2E2DE;border-radius:14px;padding:1.25rem;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
-            <span style="width:40px;height:40px;border-radius:10px;background:{{ $kpi['bg'] }};display:flex;align-items:center;justify-content:center;font-size:1.125rem;">{{ $kpi['icon'] }}</span>
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-lg font-bold text-stone-900 font-headline">Recent Activity</h2>
+            <a href="{{ route('admin.users.index') }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-800 hover:underline transition-colors">View All Activity</a>
         </div>
-        <p style="font-size:0.75rem;color:#8A9E94;font-weight:500;margin-bottom:4px;">{{ $kpi['label'] }}</p>
-        <p style="font-family:'Manrope',sans-serif;font-size:1.5rem;font-weight:800;color:#1A2820;letter-spacing:-0.02em;">{{ $kpi['value'] }}</p>
-    </div>
-    @endforeach
-</div>
 
-{{-- Sustainability row --}}
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
-    {{-- CO2 dark card --}}
-    <div style="background:#1A2820;border-radius:14px;padding:1.5rem;position:relative;overflow:hidden;">
-        <div style="position:absolute;right:1.5rem;top:50%;transform:translateY(-50%);opacity:0.12;">
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="white"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @forelse($recentOrders->take(4) as $order)
+                <div class="bg-white border border-stone-200 rounded-2xl p-5 flex flex-col items-center text-center hover:shadow-md transition-shadow group">
+                    <div class="w-12 h-12 rounded-full bg-stone-100 group-hover:bg-emerald-50 flex items-center justify-center text-lg font-bold text-stone-600 group-hover:text-emerald-700 transition-colors mb-3">
+                        {{ strtoupper(substr($order->buyer?->name ?? '?', 0, 1)) }}
+                    </div>
+                    <p class="text-sm font-bold text-stone-900 truncate w-full">{{ Str::limit($order->buyer?->name ?? 'Unknown User', 16) }}</p>
+                    <p class="text-xs text-stone-400 mt-1 font-mono">{{ $order->created_at?->diffForHumans() }}</p>
+                </div>
+            @empty
+                <div class="col-span-full py-10 text-center bg-stone-50 rounded-2xl border border-stone-100 border-dashed">
+                    <p class="text-sm font-medium text-stone-500">No recent activity found.</p>
+                </div>
+            @endforelse
         </div>
-        <p style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.45);margin-bottom:0.5rem;">CO2 Saved Globally</p>
-        <p style="font-family:'Manrope',sans-serif;font-size:2.75rem;font-weight:800;color:#fff;letter-spacing:-0.03em;line-height:1;margin-bottom:0.25rem;">{{ number_format($platformCo2/1000,1) }} <span style="font-size:1.75rem;">Tons</span></p>
-        <p style="font-size:0.8125rem;color:rgba(255,255,255,0.5);margin-bottom:1rem;">Total CO2 emissions saved across the platform</p>
     </div>
 
-    {{-- Water saved --}}
-    <div style="background:#EBF8F2;border-radius:14px;padding:1.5rem;position:relative;overflow:hidden;">
-        <div style="position:absolute;right:-10px;bottom:-10px;opacity:0.12;">
-            <svg width="100" height="100" viewBox="0 0 24 24" fill="#059669"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
-        </div>
-        <p style="font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#059669;margin-bottom:0.5rem;">Total Water Saved</p>
-        <p style="font-family:'Manrope',sans-serif;font-size:2.75rem;font-weight:800;color:#1A2820;letter-spacing:-0.03em;line-height:1;margin-bottom:0.25rem;">{{ number_format(($platformWater ?? 0)/1000,1) }} <span style="font-size:1.75rem;">kL</span></p>
-        <p style="font-size:0.8125rem;color:#5A6B60;margin-bottom:1rem;">Saved by choosing pre-owned over new</p>
-    </div>
 </div>
-
-<div style="display:grid;grid-template-columns:1fr 340px;gap:1.25rem;margin-bottom:1.5rem;">
-    {{-- Chart --}}
-    <div style="background:#fff;border:1.5px solid #E2E2DE;border-radius:14px;padding:1.5rem;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;">
-            <div>
-                <h2 style="font-family:'Manrope',sans-serif;font-size:1.0625rem;font-weight:700;color:#1A2820;">Marketplace Activity</h2>
-                <p style="font-size:0.8125rem;color:#8A9E94;">New listings over time</p>
-            </div>
-            <div style="display:flex;align-items:center;gap:12px;font-size:0.75rem;color:#5A6B60;font-weight:500;">
-                <span style="display:flex;align-items:center;gap:5px;"><span style="width:8px;height:8px;border-radius:50%;background:#2D4739;display:inline-block;"></span>Listings</span>
-            </div>
-        </div>
-        <canvas id="trendChart" height="160"></canvas>
-    </div>
-
-    {{-- Quick Links --}}
-    <div style="background:#fff;border:1.5px solid #E2E2DE;border-radius:14px;padding:1.5rem;">
-        <h2 style="font-family:'Manrope',sans-serif;font-size:1.0625rem;font-weight:700;color:#1A2820;margin-bottom:1.25rem;">Quick Actions</h2>
-
-        <a href="{{ route('admin.users.index') }}" style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem;background:#F0F5F2;border-radius:8px;text-decoration:none;margin-bottom:8px;">
-            <span style="font-size:0.875rem;font-weight:600;color:#1A2820;">Manage Users</span>
-            <span style="font-size:0.75rem;color:#5A6B60;">→</span>
-        </a>
-
-        <button style="width:100%;padding:0.5625rem;background:#fff;border:1.5px solid #E2E2DE;border-radius:8px;font-size:0.875rem;font-weight:600;color:#2D4739;cursor:pointer;margin-top:8px;">View All Reports</button>
-    </div>
-</div>
-
-{{-- Directory Management --}}
-<div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-        <h2 style="font-family:'Manrope',sans-serif;font-size:1.0625rem;font-weight:700;color:#1A2820;">Recent Activity</h2>
-        <a href="{{ route('admin.users.index') }}" style="padding:4px 12px;border-radius:6px;font-size:0.8125rem;font-weight:600;text-decoration:none;background:#1A2820;color:#fff;">View All Users</a>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-        @forelse($recentOrders->take(4) as $order)
-        <div style="background:#fff;border:1.5px solid #E2E2DE;border-radius:12px;padding:1rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;">
-            <span style="width:40px;height:40px;border-radius:50%;background:#EBF0EC;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#2D4739;">{{ strtoupper(substr($order->buyer?->name ?? '?', 0, 1)) }}</span>
-            <div>
-                <p style="font-size:0.8125rem;font-weight:600;color:#1A2820;">{{ Str::limit($order->buyer?->name ?? 'User', 16) }}</p>
-                <p style="font-size:0.6875rem;color:#8A9E94;">{{ $order->created_at?->diffForHumans() }}</p>
-            </div>
-        </div>
-        @empty
-        <p style="color:#8A9E94;font-size:0.875rem;grid-column:span 4;">No recent activity.</p>
-        @endforelse
-    </div>
-</div>
-
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('trendChart').getContext('2d');
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: @json($trendLabels),
-        datasets: [
-            {
-                label: 'Listings',
-                data: @json($trendData),
-                borderColor: '#2D4739',
-                backgroundColor: 'rgba(45,71,57,0.06)',
-                borderWidth: 2,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: '#2D4739',
-                pointRadius: 3,
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        plugins: { legend: { display: false } },
-        scales: {
-            x: { grid: { display: false }, ticks: { font: { family: 'JetBrains Mono', size: 10 }, color: '#8A9E94' } },
-            y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'JetBrains Mono', size: 10 }, color: '#8A9E94' }, grid: { color: 'rgba(0,0,0,0.04)' } }
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    let gradient = ctx.createLinearGradient(0, 0, 0, 240);
+    gradient.addColorStop(0, 'rgba(6, 78, 59, 0.15)');
+    gradient.addColorStop(1, 'rgba(6, 78, 59, 0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: @json($trendLabels),
+            datasets: [
+                {
+                    label: 'New Listings',
+                    data: @json($trendData),
+                    borderColor: '#064e3b',
+                    backgroundColor: gradient,
+                    borderWidth: 2.5,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#064e3b',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1c1917',
+                    padding: 12,
+                    titleFont: { family: 'sans-serif', size: 13 },
+                    bodyFont: { family: 'sans-serif', size: 13, weight: 'bold' },
+                    displayColors: false,
+                    cornerRadius: 8,
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { family: 'monospace', size: 11 }, color: '#a8a29e' },
+                    border: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, font: { family: 'monospace', size: 11 }, color: '#a8a29e' },
+                    grid: { color: '#f5f5f4', drawBorder: false },
+                    border: { display: false }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
         }
-    }
+    });
 });
 </script>
 @endpush

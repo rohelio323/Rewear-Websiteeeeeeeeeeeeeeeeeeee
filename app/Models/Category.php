@@ -8,7 +8,7 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = ['category_name', 'co2_constant'];
-    
+
     protected function casts(): array {
         return ['co2_constant' => 'decimal:2'];
     }
