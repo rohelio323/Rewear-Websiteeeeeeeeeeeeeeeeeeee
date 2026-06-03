@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Storage;
 class PostController extends Controller {
 
     public function index() {
-        $posts = Post::latest()->get();
+        $posts = Post::where('status', 'active')
+            ->latest()
+            ->get();
         return view('community.index', compact('posts'));
     }
 
