@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/{id}/vote', [PostVoteController::class, 'vote'])->name('community.vote');
     Route::post('/challenges/{challenge}/submit', [App\Http\Controllers\ChallengeController::class, 'submitPost'])->name('challenges.submit');
     Route::get('/community/hashtag/lookup', [App\Http\Controllers\PostController::class, 'hashtagLookup'])->name('community.hashtag.lookup');
+    Route::get('/community/posts/{id}/breakdown', [PostVoteController::class, 'details'])->name('community.posts.breakdown')->middleware('auth');
 
     Route::get('/favorites', [WishlistController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{item}/toggle', [WishlistController::class, 'toggle'])->name('favorites.toggle');
