@@ -9,8 +9,10 @@
         editId: '', 
         editName: '', 
         editCo2: '',
+        editRefNote: '',
+        editRefUrl: '',
         showSuccess: true
-    }" class="font-body max-w-5xl mx-auto">
+    }" class="font-body max-w-5xl mx-auto pb-24">
 
     {{-- Header --}}
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
@@ -60,84 +62,115 @@
     @endif
 
     {{-- Data Table --}}
-    <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-                <thead>
-                    <tr class="border-b border-stone-200 bg-stone-50/80">
-                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label">Category Details</th>
-                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label">Impact (CO₂ Saved)</th>
-                        <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-stone-100">
-                    @forelse($categories as $category)
-                    <tr class="hover:bg-stone-50 transition-colors group/row">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-500 group-hover/row:bg-emerald-50 group-hover/row:text-emerald-600 transition-colors shrink-0">
-                                    <span class="material-symbols-outlined text-[20px]">checkroom</span>
-                                </div>
-                                <span class="font-bold text-stone-900 font-headline text-base">{{ $category->category_name }}</span>
+    {{-- Note: Removed overflow-hidden to allow tooltips to break out of the container --}}
+    <div class="bg-white rounded-2xl border border-stone-200 shadow-sm relative">
+        <table class="w-full text-sm text-left">
+            <thead>
+                <tr class="border-b border-stone-200 bg-stone-50/80">
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label rounded-tl-2xl">Category Details</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label">Impact (CO₂ Saved)</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-stone-500 font-label text-right rounded-tr-2xl">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+                @forelse($categories as $category)
+                <tr class="hover:bg-stone-50 transition-colors group/row">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-500 group-hover/row:bg-emerald-50 group-hover/row:text-emerald-600 transition-colors shrink-0">
+                                <span class="material-symbols-outlined text-[20px]">checkroom</span>
                             </div>
-                        </td>
-                        <td class="px-6 py-4">
+                            <span class="font-bold text-stone-900 font-headline text-base">{{ $category->category_name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100/50 font-mono text-xs font-bold shadow-sm">
                                 <span class="material-symbols-outlined text-[16px] text-emerald-500">eco</span>
                                 {{ number_format($category->co2_constant ?? 0, 2) }} kg
                             </span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-3">
+                            
+                            {{-- Interactive Tooltip --}}
+                            @if($category->reference_note || $category->reference_url)
+                            <div x-data="{ showSource: false }" 
+                                 @mouseenter="showSource = true" 
+                                 @mouseleave="showSource = false" 
+                                 class="relative flex items-center justify-center cursor-help">
                                 
-                                {{-- Edit Button with Animated Tooltip --}}
-                                <div class="relative group flex items-center justify-center">
-                                    <button type="button" 
-                                            @click="showEditModal = true; editId = '{{ $category->id }}'; editName = '{{ addslashes($category->category_name) }}'; editCo2 = '{{ $category->co2_constant }}'" 
-                                            class="p-2 rounded-lg text-stone-400 hover:bg-amber-50 hover:text-amber-600 transition-colors focus:outline-none">
-                                        <span class="material-symbols-outlined text-[20px]">edit</span>
+                                <span class="material-symbols-outlined text-[18px] text-stone-400 hover:text-emerald-600 transition-colors">help</span>
+                                
+                                {{-- The Tooltip Popup (with pb-3 for the invisible hover bridge) --}}
+                                <div x-show="showSource" 
+                                     x-transition.opacity.duration.200ms 
+                                     style="display: none;" 
+                                     class="absolute z-50 w-72 pb-3 bottom-full left-1/2 -translate-x-1/2">
+                                    
+                                    <div class="p-4 text-xs bg-stone-900 text-stone-100 rounded-2xl shadow-xl border border-stone-700 whitespace-normal relative">
+                                        <p class="leading-relaxed text-stone-300 {{ $category->reference_url ? 'mb-3' : '' }}">
+                                            {{ $category->reference_note }}
+                                        </p>
+                                        
+                                        @if($category->reference_url)
+                                            <a href="{{ $category->reference_url }}" target="_blank" class="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 hover:underline font-bold transition-colors">
+                                                Source Link <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+                                            </a>
+                                        @endif
+                                        
+                                        {{-- CSS Triangle pointing down --}}
+                                        <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-stone-900 border-b border-r border-stone-700 transform rotate-45"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-3">
+                            
+                            {{-- Edit Button --}}
+                            <div class="relative group flex items-center justify-center">
+                                <button type="button" 
+                                        @click="showEditModal = true; 
+                                                editId = '{{ $category->id }}'; 
+                                                editName = '{{ addslashes($category->category_name) }}'; 
+                                                editCo2 = '{{ $category->co2_constant }}';
+                                                editRefNote = '{{ addslashes($category->reference_note ?? '') }}';
+                                                editRefUrl = '{{ addslashes($category->reference_url ?? '') }}';" 
+                                        class="p-2 rounded-lg text-stone-400 hover:bg-amber-50 hover:text-amber-600 transition-colors focus:outline-none">
+                                    <span class="material-symbols-outlined text-[20px]">edit</span>
+                                </button>
+                            </div>
+
+                            {{-- Delete Form --}}
+                            <div class="relative group flex items-center justify-center">
+                                <form action="{{ url('/admin/categories/' . $category->id) }}" method="POST" onsubmit="return confirm('Delete {{ addslashes($category->category_name) }}? This action cannot be undone.');" class="m-0 p-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="p-2 rounded-lg text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors focus:outline-none">
+                                        <span class="material-symbols-outlined text-[20px]">delete</span>
                                     </button>
-                                    {{-- Tooltip popup --}}
-                                    <span class="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition-all duration-200 origin-bottom px-2 py-1 bg-stone-800 text-white text-[10px] font-bold uppercase tracking-wider rounded shadow-sm whitespace-nowrap pointer-events-none z-10">
-                                        Edit
-                                    </span>
-                                </div>
-
-                                {{-- Delete Form with Animated Tooltip --}}
-                                <div class="relative group flex items-center justify-center">
-                                    <form action="{{ url('/admin/categories/' . $category->id) }}" method="POST" onsubmit="return confirm('Delete {{ addslashes($category->category_name) }}? This action cannot be undone.');" class="m-0 p-0">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-2 rounded-lg text-stone-400 hover:bg-red-50 hover:text-red-600 transition-colors focus:outline-none">
-                                            <span class="material-symbols-outlined text-[20px]">delete</span>
-                                        </button>
-                                    </form>
-                                    {{-- Tooltip popup --}}
-                                    <span class="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition-all duration-200 origin-bottom px-2 py-1 bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider rounded shadow-sm whitespace-nowrap pointer-events-none z-10">
-                                        Delete
-                                    </span>
-                                </div>
-
+                                </form>
                             </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="3" class="px-6 py-24 text-center text-stone-400 font-body">
-                            <div class="w-20 h-20 mx-auto bg-stone-50 rounded-full flex items-center justify-center mb-4 border border-stone-100 shadow-inner">
-                                <span class="material-symbols-outlined text-4xl text-stone-300">category</span>
-                            </div>
-                            <p class="font-bold text-stone-600 text-base mb-1">No categories configured</p>
-                            <p class="text-sm text-stone-400 max-w-sm mx-auto mb-4">Set up categories and their associated CO₂ savings to start tracking environmental impact.</p>
-                            <button @click="showAddModal = true" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors">
-                                + Create your first category
-                            </button>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="3" class="px-6 py-24 text-center text-stone-400 font-body">
+                        <div class="w-20 h-20 mx-auto bg-stone-50 rounded-full flex items-center justify-center mb-4 border border-stone-100 shadow-inner">
+                            <span class="material-symbols-outlined text-4xl text-stone-300">category</span>
+                        </div>
+                        <p class="font-bold text-stone-600 text-base mb-1">No categories configured</p>
+                        <p class="text-sm text-stone-400 max-w-sm mx-auto mb-4">Set up categories and their associated CO₂ savings to start tracking environmental impact.</p>
+                        <button @click="showAddModal = true" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors">
+                            + Create your first category
+                        </button>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
     {{-- ================= Add Category Modal ================= --}}
@@ -172,11 +205,25 @@
                             <input type="text" name="category_name" required placeholder="e.g., Winter Coats, Denim" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 placeholder-stone-400 bg-stone-50 focus:bg-white">
                         </div>
                         
-                        <div class="mb-8">
+                        <div class="mb-5">
                             <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">CO₂ Saved (kg per item)</label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-[18px]">eco</span>
                                 <input type="number" step="0.01" name="co2_constant" required placeholder="e.g., 15.50" class="w-full pl-11 pr-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 placeholder-stone-400 bg-stone-50 focus:bg-white">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Scientific Reference Note</label>
+                            <textarea name="reference_note" rows="2" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 bg-stone-50 focus:bg-white resize-none" placeholder="e.g., Based on WRAP UK research..."></textarea>
+                        </div>
+                        <div class="mb-8">
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Source URL</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-stone-400 text-[18px]">link</span>
+                                </div>
+                                <input type="url" name="reference_url" class="w-full pl-9 pr-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 bg-stone-50 focus:bg-white" placeholder="https://wrap.org.uk/resources...">
                             </div>
                         </div>
 
@@ -224,11 +271,25 @@
                             <input type="text" x-model="editName" name="category_name" readonly class="w-full px-4 py-3 bg-stone-100 border border-stone-200 rounded-xl text-sm text-stone-500 cursor-not-allowed select-none">
                         </div>
                         
-                        <div class="mb-8">
+                        <div class="mb-5">
                             <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">CO₂ Saved (kg per item)</label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 text-[18px]">eco</span>
                                 <input type="number" step="0.01" x-model="editCo2" name="co2_constant" required class="w-full pl-11 pr-4 py-3 border border-emerald-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-900 font-mono font-bold bg-emerald-50/30">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Scientific Reference Note</label>
+                            <textarea x-model="editRefNote" name="reference_note" rows="2" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 bg-stone-50 focus:bg-white resize-none"></textarea>
+                        </div>
+                        <div class="mb-8">
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Source URL</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-stone-400 text-[18px]">link</span>
+                                </div>
+                                <input type="url" x-model="editRefUrl" name="reference_url" class="w-full pl-9 pr-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 bg-stone-50 focus:bg-white">
                             </div>
                         </div>
 

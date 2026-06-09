@@ -83,9 +83,61 @@
                 </div>
             </div>
 
+            {{-- ================= ENVIRONMENTAL IMPACT CARD ================= --}}
+            @if($item->category && $item->category->co2_constant > 0)
+            <div class="bg-emerald-50 rounded-2xl p-5 sm:p-6 border border-emerald-100 shadow-sm">
+                <div class="flex items-start gap-4">
+                    {{-- Eco Icon Badge --}}
+                    <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-emerald-500 shrink-0 shadow-sm border border-emerald-100/50">
+                        <span class="material-symbols-outlined text-[24px]">eco</span>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <h3 class="text-[11px] font-bold text-emerald-600 uppercase tracking-widest mb-1 font-label">Environmental Impact</h3>
+                        
+                        <p class="text-emerald-950 font-medium text-sm sm:text-base mb-2 leading-snug">
+                            Choosing this pre-loved item saves <span class="font-extrabold text-emerald-700 bg-emerald-100/50 px-1.5 py-0.5 rounded">{{ number_format($item->category->co2_constant, 2) }} kg of CO₂</span> compared to buying new.
+                        </p>
+
+                        {{-- Expandable Scientific Reference (Alpine.js) --}}
+                        @if($item->category->reference_note || $item->category->reference_url)
+                        <div x-data="{ showRef: false }" class="mt-3">
+                            {{-- Toggle Button --}}
+                            <button @click="showRef = !showRef" type="button" class="text-[11px] font-bold uppercase tracking-widest text-emerald-600 hover:text-emerald-800 flex items-center gap-1 transition-colors focus:outline-none">
+                                <span class="material-symbols-outlined text-[14px]" x-text="showRef ? 'expand_less' : 'science'"></span>
+                                <span x-text="showRef ? 'Hide Methodology' : 'View Scientific Reference'"></span>
+                            </button>
+
+                            {{-- Expanded Content --}}
+                            <div x-show="showRef" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 -translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 style="display: none;" 
+                                 class="mt-3 pt-3 border-t border-emerald-200/60">
+                                
+                                <p class="text-xs text-emerald-800/80 leading-relaxed mb-2">
+                                    {{ $item->category->reference_note }}
+                                </p>
+                                
+                                @if($item->category->reference_url)
+                                    <a href="{{ $item->category->reference_url }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-800 transition-colors group">
+                                        Read full Lifecycle Assessment 
+                                        <span class="material-symbols-outlined text-[12px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
+            {{-- ========================================================== --}}
+
             <div class="space-y-3">
                 <h3 class="text-md font-bold font-headline text-primary uppercase tracking-tight">ITEM DESCRIPTION</h3>
-                <p class="text-on-surface-variant leading-relaxed text-sm">
+                <p class="text-on-surface-variant leading-relaxed text-sm whitespace-pre-line">
                     {{ $item->description }}
                 </p>
             </div>
