@@ -6,7 +6,14 @@ class Post extends Model {
     protected $primaryKey = 'post_id';
 
     protected $fillable = [
-        'title', 'content', 'users_id', 'upvote_count', 'tags', 'image_path'
+        'status ',
+        'title',
+        'content',
+        'users_id',
+        'upvote_count',
+        'tags',
+        'image_path',
+        'challanges_id'
     ];
     
     public function reports()
