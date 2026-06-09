@@ -8,7 +8,7 @@
     <title>ReWear | @yield('title', 'Marketplace')</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0" rel="stylesheet"/>
     @stack('styles')
     @vite(['resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -83,10 +83,13 @@
         }
     </script>
 
-    <!-- Material Symbols + body styles -->
     <style>
       .material-symbols-outlined {
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        transition: font-variation-settings 0.2s ease;
+      }
+      .material-symbols-outlined.filled {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
       }
       body {
         background-color: #f9f9f6;
@@ -102,7 +105,17 @@
 
     {{-- Page Content --}}
     <main class="pt-24 min-h-screen px-10">
-        @yield('content')
+    @if(session('success'))
+        <div class="mb-4 px-4 py-3 rounded-lg bg-emerald-100 border border-emerald-400 text-emerald-800 text-sm font-medium">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="mb-4 px-4 py-3 rounded-lg bg-red-100 border border-red-400 text-red-700 text-sm font-medium">
+            {{ session('error') }}
+        </div>
+    @endif
+    @yield('content')
     </main>
 
     {{-- Footer --}}
