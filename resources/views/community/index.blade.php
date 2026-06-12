@@ -271,10 +271,10 @@
             <button type="button" onclick="closeModal('createModal')" class="absolute top-5 right-6 text-[#424844] hover:text-[#ba1a1a] text-xl font-bold transition-colors z-10">✕</button>
             <h2 class="font-headline text-2xl font-bold mb-6 text-[#173124]">Create a Post</h2>
             
-            <form action="{{ route('community.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+            <form id="createPostForm" action="{{ route('community.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" onsubmit="return validateChallengePost(event)">
                 @csrf
-                <input type="text" name="title" class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none font-bold placeholder-[#424844]" placeholder="Give your story a title..." required>
-                <textarea name="content" rows="3" class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none resize-none placeholder-[#424844]" placeholder="Share your sustainable tips..." required></textarea>
+                <input type="text" name="title" id="createTitle" class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none font-bold placeholder-[#424844]" placeholder="Give your story a title..." required>
+                <textarea name="content" id="createContent" rows="3" class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none resize-none placeholder-[#424844]" placeholder="Share your sustainable tips..." required></textarea>
                 
                 {{-- Hashtag Challenge Interface Elements Blocks --}}
                 <div class="bg-[#ccead6]/20 border border-[#b0cdbb]/40 rounded-xl p-4">
@@ -309,13 +309,20 @@
                 <div class="border-2 border-dashed border-[#b0cdbb] bg-[#ccead6]/10 rounded-xl p-6 text-center hover:bg-[#ccead6]/20 transition-colors cursor-pointer relative group mt-1">
                     <label class="cursor-pointer flex flex-col items-center gap-2 w-full h-full">
                         <span class="material-symbols-outlined text-3xl text-[#324c3e] group-hover:scale-110 transition-transform duration-300">photo_camera</span>
-                        <span class="text-xs text-[#324c3e] font-semibold">Upload Image (Optional)</span>
-                        <input type="file" name="image" class="hidden" accept="image/*" onchange="previewImage(this, 'createFileName', 'createImagePreview')">
+                        <span class="text-xs text-[#324c3e] font-semibold">Upload Image</span>
+                        <input type="file" id="createImageInput" name="image" class="hidden" accept="image/*" onchange="previewImage(this, 'createFileName', 'createImagePreview'); hideCreateError();">
                     </label>
                     <p id="createFileName" class="text-xs text-[#062014] font-bold mt-3 hidden bg-[#ccead6] py-1 px-3 rounded-full inline-block"></p>
                     <img id="createImagePreview" class="hidden mt-4 w-full h-40 object-cover rounded-xl border border-[#b0cdbb] shadow-sm" alt="Preview element" />
                 </div>
-                <button type="submit" class="bg-[#173124] text-white px-6 py-3.5 rounded-full text-sm font-bold hover:opacity-90 transition-opacity w-full mt-2">Share to Community</button>
+
+                {{-- Client-Side Error Banner --}}
+                <div id="createFormError" class="hidden bg-[#ffdad6] border border-[#ba1a1a]/30 text-[#ba1a1a] px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-2 mt-2 animate-pulse">
+                    <span class="material-symbols-outlined text-[18px]">error</span>
+                    <span>Since you used a challenge hashtag, you must upload a photo to participate!</span>
+                </div>
+
+                <button type="submit" class="bg-[#173124] text-white px-6 py-3.5 rounded-full text-sm font-bold hover:opacity-90 transition-opacity w-full mt-2 shadow-md active:scale-95">Share to Community</button>
             </form>
         </div>
     </div>
@@ -385,10 +392,49 @@
         </div>
     </div>
 
+
     <script>
         const CSRF = document.querySelector('meta[name="csrf-token"]')?.content;
         const LOOKUP_URL = '{{ route("community.hashtag.lookup") }}';
         
+        // --- NEW JAVASCRIPT LOGIC START ---
+        // Pull active hashtags from Laravel into Javascript
+        const activeChallengeTags = @json(isset($activeChallenges) ? $activeChallenges->pluck('hashtag') : []);
+
+        function validateChallengePost(event) {
+            const tagsInput = document.getElementById('createTags').value.toLowerCase();
+            const contentInput = document.getElementById('createContent').value.toLowerCase();
+            const imageInput = document.getElementById('createImageInput');
+            const errorBanner = document.getElementById('createFormError');
+
+            // Combine text to check
+            const textToCheck = tagsInput + ' ' + contentInput;
+
+            // Check if any active challenge hashtag is used
+            let isChallenge = activeChallengeTags.some(tag => textToCheck.includes(tag.toLowerCase()));
+
+            // If it's a challenge BUT no image is uploaded
+            if (isChallenge && imageInput.files.length === 0) {
+                event.preventDefault(); // Stop form from submitting
+                errorBanner.classList.remove('hidden'); // Show error inside the modal
+                
+                // Shake animation on the upload box to draw attention
+                const uploadBox = imageInput.closest('.border-dashed');
+                uploadBox.classList.add('translate-x-1', 'border-[#ba1a1a]', 'bg-[#ffdad6]/20');
+                setTimeout(() => uploadBox.classList.remove('translate-x-1'), 100);
+                setTimeout(() => uploadBox.classList.add('-translate-x-1'), 200);
+                setTimeout(() => uploadBox.classList.remove('-translate-x-1', 'border-[#ba1a1a]', 'bg-[#ffdad6]/20'), 300);
+                
+                return false;
+            }
+
+            return true; // Let it submit normally
+        }
+
+        function hideCreateError() {
+            document.getElementById('createFormError').classList.add('hidden');
+        }
+
         const lookupCache = {};
         let lookupTimer = null;
 
@@ -479,7 +525,7 @@
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const fileName = document.getElementById(textId);
-                fileName.textContent = '✅ Selected: ' + file.name;
+                fileName.textContent = 'Selected: ' + file.name;
                 fileName.classList.remove('hidden');
 
                 if (imageId) {
