@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\PostVote;
 
 class Post extends Model {
     protected $primaryKey = 'post_id';
@@ -28,6 +29,18 @@ class Post extends Model {
     public function challenge()
     {
         return $this->belongsTo(Challenge::class, 'challanges_id');
+    }
+
+    public function votes()
+    {
+        return $this->hasMany(PostVote::class, 'post_id', 'post_id');
+    }
+
+    public function recalculateScore(): void
+    {
+        $this->update([
+            'upvote_count' => $this->votes()->sum('value'),
+        ]);
     }
 
 }
