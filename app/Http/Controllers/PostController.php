@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Challenge;
 use App\Models\PostVote;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class PostController extends Controller {
 
@@ -34,8 +36,21 @@ class PostController extends Controller {
             ->orderBy('start_date', 'asc')
             ->get();
 
+        $trendingPosts = Post::with('user')
+            ->where('created_at', '>=', Carbon::now()->startOfWeek())
+            ->orderByDesc('upvote_count')
+            ->get();
+
+        $topUser = User::select('users.id', 'users.name')
+            ->join('posts', 'users.id', '=', 'posts.users_id')
+            ->selectRaw('SUM(posts.upvote_count) as total_upvotes')
+            ->groupBy('users.id', 'users.name')
+            ->orderByDesc('total_upvotes')
+            ->take(5)
+            ->get();
+
         // 4. Pass both variables to community view
-        return view('community.index', compact('posts', 'activeChallenges'));
+        return view('community.index', compact('posts', 'activeChallenges', 'trendingPosts', 'topUser'));
     }
 
     public function store(Request $request) {

@@ -4,28 +4,14 @@
 <main class="pt-10 pb-20 px-6 max-w-screen-2xl mx-auto min-h-screen text-gray-900 antialiased font-sans">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <header class="mb-12 md:mb-5">
-        <h1 class="font-headline text-5xl md:text-6xl font-extrabold text-[#173124] tracking-tighter mb-4">The Living Archive</h1>
-        <p class="font-body text-[#424844] max-w-2xl text-lg leading-relaxed">Join our community of conscious curators. Share your repair journey and document the life of your garments.</p>
-    </header>
-
-    <div class="w-full bg-black rounded-xl overflow-hidden relative h-72 mb-12 shadow-lg hidden md:block border border-[#e2e3e0]">
-        <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-50" alt="Banner">
+    <div class="w-full bg-black rounded-3xl overflow-hidden relative h-72 mb-10 shadow-lg hidden md:block border border-[#e2e3e0]">
+        <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1200&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-20" alt="Banner">
         <div class="absolute inset-0 p-10 flex flex-col justify-end z-10">
-            <span class="bg-[#fea181] text-[#380d00] text-[10px] font-bold px-3 py-1 rounded-full w-max mb-3 uppercase tracking-widest">Story of the Week</span>
-            <h2 class="font-headline text-3xl font-bold text-white mb-2">The Leather Legacy</h2>
-            <button class="bg-white text-[#173124] font-bold text-sm px-6 py-2.5 rounded-full w-max hover:bg-[#eeeeeb] transition-colors shadow-sm">Read Story</button>
+            <h1 class="font-headline text-5xl md:text-6xl font-extrabold text-white tracking-tighter mb-4">The Living Archive</h1>
+            <p class="font-body text-white/70 max-w-2xl text-lg leading-relaxed">Join our community of conscious curators. Share your repair journey and document the life of your garments.</p>
         </div>
     </div>
 
-    {{-- System Status Notification Banners --}}
-    @if(session('success'))
-        <div class="mb-8 bg-[#ccead6]/40 border border-[#b0cdbb] text-[#062014] px-6 py-4 rounded-xl text-sm font-medium flex items-center gap-2">
-            <span class="material-symbols-outlined text-base text-[#173124]">check_circle</span>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
-    
     @if ($errors->any())
         <div class="mb-8 bg-[#ffdad6] border border-[#ffdad6] text-[#ba1a1a] px-6 py-4 rounded-xl text-sm font-medium">
             <div class="flex items-center gap-2 font-bold mb-2">
@@ -40,59 +26,41 @@
         </div>
     @endif
 
-    {{-- Active Ongoing Challenges Carousel --}}
-    @if(isset($activeChallenges) && $activeChallenges->isNotEmpty())
-    <div class="mb-12">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xs font-bold uppercase tracking-widest text-[#173124] font-headline flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">local_fire_department</span>
-                Trending Challenges
-            </h3>
-            <a href="{{ route('challenges.index') }}" class="text-xs font-bold text-[#424844] hover:text-[#173124] transition-colors uppercase tracking-wider">View All</a>
-        </div>
-        
-        <div class="flex gap-4 overflow-x-auto pb-4 snap-x" style="scrollbar-width: none; -ms-overflow-style: none;">
-            @foreach($activeChallenges as $challenge)
-                <a href="{{ route('challenges.show', $challenge->id) }}" class="snap-start flex-shrink-0 bg-[#173124] rounded-xl p-6 w-[300px] relative overflow-hidden group border border-[#e2e3e0]/10 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ccead6 1px, transparent 1px); background-size: 20px 20px;"></div>
-                    
-                    <div class="relative z-10">
-                        <span class="inline-block px-2.5 py-1 bg-[#ccead6]/20 text-[#ccead6] border border-[#b0cdbb]/30 rounded-lg text-[10px] font-bold uppercase tracking-wider mb-4 backdrop-blur-sm shadow-sm">
-                            #{{ $challenge->hashtag }}
-                        </span>
-                        <h4 class="text-white font-extrabold text-xl font-headline mb-2 leading-tight">{{ $challenge->title }}</h4>
-                        <p class="text-[#eeeeeb]/70 text-xs line-clamp-2 leading-relaxed">{{ $challenge->description }}</p>
-                    </div>
+    {{-- Main Layout: Feed + Sidebar --}}
+    <div class="flex flex-col lg:flex-row gap-12">
 
-                    <span class="material-symbols-outlined absolute -right-4 -bottom-4 text-[100px] text-[#062014]/40 group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-500 select-none">style</span>
+        {{-- Feed Column --}}
+        <div class="flex-1 min-w-0">
+
+            {{-- Sort bar + New Post button --}}
+            <div class="flex items-center gap-3 mb-6">
+                <a href="{{ route('community.index') }}"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition {{ !request('sort') ? 'bg-[#173124] text-white shadow' : 'bg-white border border-[#e2e3e0] text-[#424844] hover:border-[#173124] hover:text-[#173124]' }}">
+                    <span class="material-symbols-outlined text-sm {{ !request('sort') ? 'text-[#ccead6]' : 'text-[#424844]' }}">schedule</span>
+                    Latest
                 </a>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        
-        <div class="lg:col-span-8 space-y-8">
-            
-        @auth
-            <div class="bg-white p-6 rounded-xl editorial-shadow border border-[#e2e3e0] flex items-center gap-4 transition-all hover:bg-[#eeeeeb] cursor-pointer group" onclick="openModal('createModal')">
-                <div class="w-12 h-12 rounded-full bg-[#ccead6] overflow-hidden flex-shrink-0 flex items-center justify-center font-bold text-[#062014]">
-                    <span>{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</span>
-                </div>
-                <button class="flex-grow text-left text-[#424844] font-medium py-3 px-6 rounded-full bg-[#eeeeeb] group-hover:bg-[#e2e3e0] transition-colors">
-                    What's your sustainable story, {{ explode(' ', Auth::user()->name ?? 'Guest')[0] }}?
-                </button>
-                <button class="bg-[#173124] text-white px-6 py-3 rounded-full font-bold flex items-center gap-2 transition-all hover:opacity-90 active:scale-95 shrink-0">
-                    <span class="material-symbols-outlined text-sm">edit</span>
-                    Post
-                </button>
+                
+                <a href="{{ route('community.index', ['sort' => 'popular']) }}"
+                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition {{ request('sort') === 'popular' ? 'bg-[#173124] text-white shadow' : 'bg-white border border-[#e2e3e0] text-[#424844] hover:border-[#173124] hover:text-[#173124]' }}">
+                    <span class="material-symbols-outlined text-sm {{ request('sort') === 'popular' ? 'text-[#ccead6]' : 'text-[#424844]' }}">local_fire_department</span>
+                    Popular
+                </a>
+                
+                @auth
+                    <button onclick="openModal('createModal')"
+                            class="ml-auto flex items-center gap-2 px-5 py-2.5 bg-[#173124] hover:opacity-90 active:scale-95 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-sm">
+                        <span class="material-symbols-outlined text-base text-[#ccead6] font-bold">add</span>
+                        Create Post
+                    </button>
+                @endauth
             </div>
-        @endauth
 
+            {{-- Posts Feed --}}
             <div class="space-y-6">
-                @forelse($posts as $post)
+                @forelse(request('sort') === 'popular' ? ($trendingPosts ?? collect()) : $posts as $post)
                 <article class="relative bg-white rounded-xl overflow-hidden editorial-shadow border border-[#e2e3e0]">
+
+                    {{-- Post Header --}}
                     <div class="flex items-center gap-4 m-6 mb-2">
                         <div class="w-10 h-10 rounded-full bg-[#ffdbcf] overflow-hidden flex-shrink-0 flex items-center justify-center font-bold text-[#380d00] border border-[#c2c8c2]">
                             {{ \Illuminate\Support\Str::substr($post->user->name ?? 'User', 0, 1) }}
@@ -103,23 +71,25 @@
                         </div>
                     </div>
 
+                    {{-- Kebab menu --}}
                     @auth
-                        @if(Auth::id() == $post->users_id || Auth::id() == 1) 
+                        @if(Auth::id() == $post->users_id)
                         <div class="absolute right-4 top-4 z-20">
                             <button onclick="toggleDropdown({{ $post->post_id }})" class="kebab-button text-[#424844] hover:text-[#173124] font-bold text-xl px-2 pb-2 transition-colors">⋮</button>
-                            
                             <div id="dropdown-{{ $post->post_id }}" class="dropdown-menu hidden absolute right-0 top-8 w-40 bg-white rounded-xl shadow-lg border border-[#e2e3e0] overflow-hidden z-30">
-                                <button onclick="openEditModal(this)" 
-                                        data-id="{{ $post->post_id }}" 
-                                        data-title="{{ $post->title }}" 
-                                        data-content="{{ $post->content }}" 
+                                <button onclick="openEditModal(this)"
+                                        data-id="{{ $post->post_id }}"
+                                        data-title="{{ $post->title }}"
+                                        data-content="{{ $post->content }}"
+                                        data-created="{{ $post->created_at->toISOString() }}"
                                         data-tags="{{ is_array($post->tags) ? implode(', ', $post->tags) : (is_string($post->tags) ? $post->tags : '') }}"
                                         class="w-full text-left px-4 py-3 text-sm text-[#1a1c1b] hover:bg-[#f4f4f1] font-semibold border-b border-[#eeeeeb] transition-colors flex items-center gap-2">
                                     <span class="material-symbols-outlined text-sm">edit</span> Edit Post
                                 </button>
                                 <form action="{{ route('community.destroy', $post->post_id) }}" method="POST">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="w-full text-left px-4 py-3 text-sm text-[#ba1a1a] hover:bg-[#ffdad6] font-semibold transition-colors flex items-center gap-2" onclick="return confirm('Are you sure you want to delete this post?')">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')"
+                                        class="w-full text-left px-4 py-3 text-sm text-[#ba1a1a] hover:bg-[#ffdad6] font-semibold transition-colors flex items-center gap-2">
                                         <span class="material-symbols-outlined text-sm">delete</span> Delete
                                     </button>
                                 </form>
@@ -128,22 +98,24 @@
                         @endif
                     @endauth
 
+                    {{-- Post Image --}}
                     @if($post->image_path)
                     <div class="w-full overflow-hidden bg-[#f4f4f1] border-b border-[#e2e3e0] max-h-[440px]">
                         <img src="{{ asset('storage/' . $post->image_path) }}" alt="Post image" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700">
                     </div>
                     @endif
-                    
-                    <div class="p-8">        
+
+                    {{-- Post Body --}}
+                    <div class="p-8">
                         <h2 class="font-headline text-2xl font-bold text-[#173124] mb-3">{{ $post->title }}</h2>
                         <p class="text-[#1a1c1b] leading-relaxed mb-4 whitespace-pre-line text-sm">{{ $post->content }}</p>
-                        
-                        {{-- Safe Tag Implementation Block Wrapper --}}
+
+                        {{-- Tags --}}
                         @if(!empty($post->tags))
                         <div class="flex flex-wrap gap-1.5 mb-4">
-                            @php 
-                                $rawTags = is_array($post->tags) 
-                                    ? $post->tags 
+                            @php
+                                $rawTags = is_array($post->tags)
+                                    ? $post->tags
                                     : (json_decode($post->tags, true) ?? explode(',', (string)$post->tags));
                                 $tagsArray = is_array($rawTags) ? $rawTags : (array)$rawTags;
                             @endphp
@@ -158,54 +130,43 @@
                             @endforeach
                         </div>
                         @endif
-                        
+
+                        {{-- Vote Bar + Analytics --}}
                         <div class="flex items-center justify-between pt-6 border-t border-[#eeeeeb]">
                             @auth
-                            @php
-                                $currentVote = $post->my_vote ?? 0; 
-                            @endphp
-
-                            <div x-data="{ 
-                                    currentVote: {{ $currentVote }}, 
+                            @php $currentVote = $post->my_vote ?? 0; @endphp
+                            <div x-data="{
+                                    currentVote: {{ $currentVote }},
                                     score: {{ $post->upvote_count ?? 0 }},
                                     castVote(value) {
-                                        let targetValue = value;
                                         if (this.currentVote === value) {
                                             this.score -= value;
                                             this.currentVote = 0;
-                                            targetValue = value === 1 ? -1 : 1;
                                         } else {
                                             this.score += (this.currentVote === 0) ? value : (value * 2);
                                             this.currentVote = value;
                                         }
                                         fetch('{{ route('community.vote', $post->post_id) }}', {
                                             method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                            },
+                                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                                             body: JSON.stringify({ value: value })
                                         });
                                     }
-                                }" 
+                                }"
                                 class="flex items-center gap-1 bg-[#f4f4f1] rounded-full p-1 border border-[#e2e3e0]">
-                                
-                                <button @click="castVote(1)"
-                                        type="button"
-                                        class="p-2 rounded-full transition-all flex items-center group"
+
+                                <button @click="castVote(1)" type="button"
+                                        class="p-2 rounded-full transition-all flex items-center"
                                         :class="currentVote === 1 ? 'bg-[#ccead6] text-[#062014] ring-2 ring-[#b0cdbb]' : 'hover:bg-[#ccead6] text-[#173124]'">
                                     <span class="material-symbols-outlined text-base font-bold">arrow_upward</span>
                                 </button>
-
                                 <span x-text="score"
-                                    class="font-bold text-xs px-2 min-w-[2rem] text-center transition-colors cursor-pointer"
-                                    :class="currentVote === 1 ? 'text-[#062014]' : (currentVote === -1 ? 'text-[#ba1a1a]' : 'text-[#1a1c1b]')">
+                                      class="font-bold text-xs px-2 min-w-[2rem] text-center transition-colors"
+                                      :class="currentVote === 1 ? 'text-[#062014]' : (currentVote === -1 ? 'text-[#ba1a1a]' : 'text-[#1a1c1b]')">
                                     {{ $post->upvote_count ?? 0 }}
                                 </span>
-
-                                <button @click="castVote(-1)"
-                                        type="button"
-                                        class="p-2 rounded-full transition-all flex items-center group"
+                                <button @click="castVote(-1)" type="button"
+                                        class="p-2 rounded-full transition-all flex items-center"
                                         :class="currentVote === -1 ? 'bg-[#ffdad6] text-[#ba1a1a] ring-2 ring-[#ffdad6]' : 'hover:bg-[#ffdad6] text-[#424844] hover:text-[#ba1a1a]'">
                                     <span class="material-symbols-outlined text-base font-bold">arrow_downward</span>
                                 </button>
@@ -225,10 +186,6 @@
                                 </button>
                                 @endif
                             @endauth
-
-                            <span class="text-[#424844] hover:text-[#173124] transition-colors cursor-pointer text-xs font-bold flex items-center gap-1 uppercase tracking-wider">
-                                <span class="material-symbols-outlined text-sm">share</span> Share
-                            </span>
                         </div>
                     </div>
                 </article>
@@ -237,51 +194,95 @@
                     <span class="material-symbols-outlined text-5xl text-[#424844] mb-3 select-none">eco</span>
                     <h3 class="font-headline font-bold text-[#1a1c1b] text-lg">The archive is empty</h3>
                     <p class="text-[#424844] text-sm mt-1">Be the first to share your sustainable story!</p>
+                    @auth
+                        <button onclick="openModal('createModal')" class="mt-5 px-6 py-2.5 bg-[#173124] text-white text-sm font-bold rounded-full hover:opacity-90 transition">
+                            Create First Post
+                        </button>
+                    @endauth
                 </div>
                 @endforelse
             </div>
+
         </div>
 
-        <aside class="lg:col-span-4 space-y-12">
-            <section class="bg-[#fea181] text-[#380d00] p-8 rounded-xl editorial-shadow">
-                <div class="flex items-center gap-3 mb-6">
-                    <span class="material-symbols-outlined text-[#924a2f]">lightbulb</span>
-                    <h4 class="font-headline font-bold uppercase tracking-widest text-xs">Tip of the Day</h4>
-                </div>
-                <p class="font-headline text-xl font-bold leading-snug">The most sustainable garment is the one already in your closet.</p>
-            </section>
+        {{-- Sidebar --}}
+        <aside class="w-full lg:w-80 shrink-0 space-y-8">
 
-            <section class="bg-[#e2e3e0] p-8 rounded-xl border border-[#c2c8c2]/60">
-                <h4 class="font-headline font-bold text-[#173124] mb-6 uppercase tracking-wider text-xs">Top Curators</h4>
-                <div class="space-y-4 mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-[#fea181] rounded-full flex items-center justify-center text-[#380d00] text-xs font-bold shadow-sm">1</div>
-                        <p class="font-bold text-sm text-[#1a1c1b]">Julian Vogel</p>
+            @if(isset($activeChallenges) && $activeChallenges->isNotEmpty())
+                <div class="bg-white rounded-2xl p-6 border border-[#e2e3e0] editorial-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xs font-bold uppercase tracking-widest text-[#173124] font-headline flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[18px] text-[#173124]">rewarded_ads</span>
+                            Trending Challenges
+                        </h3>
+                        <a href="{{ route('challenges.index') }}" class="text-[10px] font-bold text-[#424844] hover:text-[#173124] transition-colors uppercase tracking-wider">View All</a>
+                    </div>
+                    
+                    {{-- Vertical stack for pristine sidebar layout integration --}}
+                    <div class="space-y-4">
+                        @foreach($activeChallenges->take(3) as $challenge)
+                            <a href="{{ route('challenges.show', $challenge->id) }}" class="block bg-[#173124] rounded-xl p-5 relative overflow-hidden group border border-[#e2e3e0]/10 shadow-sm hover:shadow-md transition-all duration-300">
+                                <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ccead6 1px, transparent 1px); background-size: 16px 16px;"></div>
+                                
+                                <div class="relative z-10">
+                                    <span class="inline-block px-2 py-0.5 bg-[#ccead6]/20 text-[#ccead6] border border-[#b0cdbb]/30 rounded-md text-[9px] font-bold uppercase tracking-wider mb-2 backdrop-blur-sm">
+                                        #{{ $challenge->hashtag }}
+                                    </span>
+                                    <h4 class="text-white font-bold text-base font-headline mb-1 leading-tight group-hover:text-[#fea181] transition-colors">{{ $challenge->title }}</h4>
+                                    <p class="text-[#eeeeeb]/70 text-[11px] line-clamp-2 leading-relaxed">{{ $challenge->description }}</p>
+                                </div>
+                            </a>
+                        @endforeach
                     </div>
                 </div>
-                <button class="w-full bg-white border border-[#c2c8c2] text-[10px] font-bold py-3 rounded-full hover:bg-[#f4f4f1] hover:text-[#173124] transition-all uppercase tracking-wider text-[#424844] shadow-sm">
-                    View Leaderboard
-                </button>
+            @endif
+
+            {{-- Top Curators --}}
+            <section class="bg-[#e2e3e0] p-8 rounded-xl border border-[#c2c8c2]/60">
+                <h4 class="font-headline font-bold text-[#173124] mb-6 uppercase tracking-wider text-xs flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-md">social_leaderboard</span> Top Currator of All Time
+                </h4>
+                <div class="space-y-4">
+                    @forelse($topUser as $index => $user)
+                        <div class="flex items-center justify-between bg-white/50 p-2.5 rounded-lg border border-white/40">
+                            <div class="flex items-center gap-3">
+                                <div class="w-6 h-6 {{ $index == 0 ? 'bg-[#fea181] text-[#380d00]' : 'bg-[#173124] text-white' }} rounded-full flex items-center justify-center text-[11px] font-bold shadow-sm">
+                                    {{ $index + 1 }}
+                                </div>
+                                <p class="font-bold text-sm text-[#1a1c1b] leading-tight">{{ $user->name }}</p>
+                            </div>
+                            <span class="text-xs font-extrabold text-[#173124] flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-xs">thumb_up</span> {{ $user->total_upvotes }}
+                            </span>
+                        </div>
+                    @empty
+                        <p class="text-xs italic text-[#424844] text-center py-2">No curations logged yet.</p>
+                    @endforelse
+                </div>
             </section>
         </aside>
     </div>
 
+    {{-- Create Post Modal --}}
     <div id="createModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-xl w-full max-w-xl p-8 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-box border border-[#e2e3e0] max-h-[90vh] overflow-y-auto">
             <button type="button" onclick="closeModal('createModal')" class="absolute top-5 right-6 text-[#424844] hover:text-[#ba1a1a] text-xl font-bold transition-colors z-10">✕</button>
             <h2 class="font-headline text-2xl font-bold mb-6 text-[#173124]">Create a Post</h2>
-            
+
             <form id="createPostForm" action="{{ route('community.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" onsubmit="return validateChallengePost(event)">
                 @csrf
-                <input type="text" name="title" id="createTitle" class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none font-bold placeholder-[#424844]" placeholder="Give your story a title..." required>
-                <textarea name="content" id="createContent" rows="3" class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none resize-none placeholder-[#424844]" placeholder="Share your sustainable tips..." required></textarea>
-                
-                {{-- Hashtag Challenge Interface Elements Blocks --}}
+                <input type="text" name="title" id="createTitle"
+                       class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none font-bold placeholder-[#424844]"
+                       placeholder="Give your story a title..." required>
+                <textarea name="content" id="createContent" rows="3"
+                          class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none resize-none placeholder-[#424844]"
+                          placeholder="Share your sustainable tips..." required></textarea>
+
+                {{-- Challenge Tags --}}
                 <div class="bg-[#ccead6]/20 border border-[#b0cdbb]/40 rounded-xl p-4">
                     <label class="block text-xs font-bold text-[#173124] uppercase tracking-widest mb-2 flex items-center gap-1">
                         <span class="material-symbols-outlined text-xs">tag</span> Challenge Tags
                     </label>
-
                     @if(isset($activeChallenges) && $activeChallenges->isNotEmpty())
                     <div class="mb-3">
                         <p class="text-[10px] text-[#424844] font-semibold uppercase tracking-widest mb-2">Active Challenges — click to add:</p>
@@ -296,16 +297,14 @@
                         </div>
                     </div>
                     @endif
-
                     <input type="text" name="tags" id="createTags"
                            class="w-full bg-[#f4f4f1] border border-[#e2e3e0] rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-[#173124] focus:outline-none placeholder-[#424844]"
                            placeholder="or type manually: rewear30days, slowfashion"
                            oninput="this.value=this.value.toLowerCase(); previewHashtags(this.value, 'createTagPreview')">
-                    
                     <div id="createTagPreview" class="mt-2 space-y-1.5"></div>
                 </div>
 
-                {{-- Interactive Upload File Container Layout Block --}}
+                {{-- Image Upload --}}
                 <div class="border-2 border-dashed border-[#b0cdbb] bg-[#ccead6]/10 rounded-xl p-6 text-center hover:bg-[#ccead6]/20 transition-colors cursor-pointer relative group mt-1">
                     <label class="cursor-pointer flex flex-col items-center gap-2 w-full h-full">
                         <span class="material-symbols-outlined text-3xl text-[#324c3e] group-hover:scale-110 transition-transform duration-300">photo_camera</span>
@@ -313,11 +312,11 @@
                         <input type="file" id="createImageInput" name="image" class="hidden" accept="image/*" onchange="previewImage(this, 'createFileName', 'createImagePreview'); hideCreateError();">
                     </label>
                     <p id="createFileName" class="text-xs text-[#062014] font-bold mt-3 hidden bg-[#ccead6] py-1 px-3 rounded-full inline-block"></p>
-                    <img id="createImagePreview" class="hidden mt-4 w-full h-40 object-cover rounded-xl border border-[#b0cdbb] shadow-sm" alt="Preview element" />
+                    <img id="createImagePreview" class="hidden mt-4 w-full h-40 object-cover rounded-xl border border-[#b0cdbb] shadow-sm" alt="Preview">
                 </div>
 
-                {{-- Client-Side Error Banner --}}
-                <div id="createFormError" class="hidden bg-[#ffdad6] border border-[#ba1a1a]/30 text-[#ba1a1a] px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-2 mt-2 animate-pulse">
+                {{-- Challenge validation error --}}
+                <div id="createFormError" class="hidden bg-[#ffdad6] border border-[#ba1a1a]/30 text-[#ba1a1a] px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-2 mt-2">
                     <span class="material-symbols-outlined text-[18px]">error</span>
                     <span>Since you used a challenge hashtag, you must upload a photo to participate!</span>
                 </div>
@@ -327,22 +326,34 @@
         </div>
     </div>
 
+    {{-- Edit Post Modal --}}
     <div id="editModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-xl w-full max-w-xl p-8 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-box border border-[#e2e3e0] max-h-[90vh] overflow-y-auto">
             <button type="button" onclick="closeModal('editModal')" class="absolute top-5 right-6 text-[#424844] hover:text-[#ba1a1a] text-xl font-bold transition-colors z-10">✕</button>
             <h2 class="font-headline text-2xl font-bold mb-6 text-[#173124]">Edit Post</h2>
-            
+
+            {{-- 30-min edit lock warning --}}
+            <div id="editLockWarning" class="hidden mb-4 bg-[#ffdad6] border border-[#ba1a1a]/20 text-[#ba1a1a] px-4 py-3 rounded-xl text-xs font-medium flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">lock</span>
+                This post is outside its 30-minute edit window and can no longer be edited.
+            </div>
+
             <form id="editForm" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
-                @csrf 
-                @method('PUT')
-                <input type="text" id="editTitle" name="title" class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none font-bold text-[#1a1c1b]" required>
-                <textarea id="editContent" name="content" rows="3" class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none resize-none text-[#1a1c1b]" required></textarea>
-                
-                {{-- Dynamic Edit Modal Hashtag Tag Layout Block --}}
+                @csrf @method('PUT')
+                <input type="text" id="editTitle" name="title"
+                       class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none font-bold text-[#1a1c1b]" required>
+                <textarea id="editContent" name="content" rows="3"
+                          class="bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#173124] focus:outline-none resize-none text-[#1a1c1b]" required></textarea>
+
+                {{-- Tags --}}
                 <div class="bg-[#ccead6]/20 border border-[#b0cdbb]/40 rounded-xl p-4">
                     <label class="block text-xs font-bold text-[#173124] uppercase tracking-widest mb-2 flex items-center gap-1">
                         <span class="material-symbols-outlined text-xs">tag</span> # Tags
                     </label>
+                    <div id="editTagsLocked" class="hidden text-xs text-[#424844] italic py-2 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">lock</span>
+                        Hashtag tags are locked after 15 minutes and cannot be changed.
+                    </div>
                     <input type="text" name="tags" id="editTags"
                            class="w-full bg-white border border-[#e2e3e0] rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-[#173124] focus:outline-none lowercase placeholder-[#424844]"
                            placeholder="rewear30days, slowfashion"
@@ -350,7 +361,7 @@
                     <div id="editTagPreview" class="mt-2 space-y-1.5"></div>
                 </div>
 
-                {{-- Interactive Form Modification Image Management Block Container --}}
+                {{-- Image Upload --}}
                 <div class="border-2 border-dashed border-[#b0cdbb] bg-[#ccead6]/10 rounded-xl p-6 text-center hover:bg-[#ccead6]/20 transition-colors cursor-pointer relative group mt-1">
                     <label class="cursor-pointer flex flex-col items-center gap-2 w-full h-full">
                         <span class="material-symbols-outlined text-3xl text-[#324c3e] group-hover:scale-110 transition-transform duration-300">photo_camera</span>
@@ -358,25 +369,23 @@
                         <input type="file" name="image" class="hidden" accept="image/*" onchange="previewImage(this, 'editFileName', 'editImagePreview')">
                     </label>
                     <p id="editFileName" class="text-xs text-[#062014] font-bold mt-3 hidden bg-[#ccead6] py-1 px-3 rounded-full inline-block"></p>
-                    <img id="editImagePreview" class="hidden mt-4 w-full h-40 object-cover rounded-xl border border-[#b0cdbb] shadow-sm" alt="Preview secondary element" />
+                    <img id="editImagePreview" class="hidden mt-4 w-full h-40 object-cover rounded-xl border border-[#b0cdbb] shadow-sm" alt="Preview">
                 </div>
+
                 <button type="submit" class="bg-[#173124] text-white px-6 py-3.5 rounded-full text-sm font-bold hover:opacity-90 transition-opacity w-full mt-2">Save Changes</button>
             </form>
         </div>
     </div>
 
-    {{-- Post Analytics Display Sheet --}}
+    {{-- Post Analytics Modal --}}
     <div id="breakdownModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-box text-center border border-[#e2e3e0]">
             <button type="button" onclick="closeModal('breakdownModal')" class="absolute top-5 right-6 text-[#424844] hover:text-[#ba1a1a] text-xl font-bold transition-colors z-10">✕</button>
-            
             <h2 class="font-headline text-xl font-bold mb-1 text-[#173124]">Community Sentiment</h2>
             <p class="text-[10px] text-[#424844] font-bold mb-6 uppercase tracking-widest">Post Analytics Breakdown</p>
-
             <div id="breakdownLoading" class="py-6">
                 <div class="w-8 h-8 border-4 border-[#173124] border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
-
             <div id="breakdownContent" class="hidden grid grid-cols-2 gap-4 my-4">
                 <div class="bg-[#ccead6]/30 border border-[#b0cdbb]/60 rounded-xl p-4 flex flex-col items-center">
                     <span class="material-symbols-outlined text-2xl mb-1 text-[#062014] select-none">thumb_up</span>
@@ -392,55 +401,41 @@
         </div>
     </div>
 
-
     <script>
         const CSRF = document.querySelector('meta[name="csrf-token"]')?.content;
         const LOOKUP_URL = '{{ route("community.hashtag.lookup") }}';
-        
-        // --- NEW JAVASCRIPT LOGIC START ---
-        // Pull active hashtags from Laravel into Javascript
         const activeChallengeTags = @json(isset($activeChallenges) ? $activeChallenges->pluck('hashtag') : []);
 
+        // ── Challenge post validation 
         function validateChallengePost(event) {
-            const tagsInput = document.getElementById('createTags').value.toLowerCase();
-            const contentInput = document.getElementById('createContent').value.toLowerCase();
+            const tagsInput  = document.getElementById('createTags').value.toLowerCase();
+            const content    = document.getElementById('createContent').value.toLowerCase();
             const imageInput = document.getElementById('createImageInput');
             const errorBanner = document.getElementById('createFormError');
+            const textToCheck = tagsInput + ' ' + content;
+            const isChallenge = activeChallengeTags.some(tag => textToCheck.includes(tag.toLowerCase()));
 
-            // Combine text to check
-            const textToCheck = tagsInput + ' ' + contentInput;
-
-            // Check if any active challenge hashtag is used
-            let isChallenge = activeChallengeTags.some(tag => textToCheck.includes(tag.toLowerCase()));
-
-            // If it's a challenge BUT no image is uploaded
             if (isChallenge && imageInput.files.length === 0) {
-                event.preventDefault(); // Stop form from submitting
-                errorBanner.classList.remove('hidden'); // Show error inside the modal
-                
-                // Shake animation on the upload box to draw attention
+                event.preventDefault();
+                errorBanner.classList.remove('hidden');
                 const uploadBox = imageInput.closest('.border-dashed');
                 uploadBox.classList.add('translate-x-1', 'border-[#ba1a1a]', 'bg-[#ffdad6]/20');
                 setTimeout(() => uploadBox.classList.remove('translate-x-1'), 100);
                 setTimeout(() => uploadBox.classList.add('-translate-x-1'), 200);
                 setTimeout(() => uploadBox.classList.remove('-translate-x-1', 'border-[#ba1a1a]', 'bg-[#ffdad6]/20'), 300);
-                
                 return false;
             }
-
-            return true; // Let it submit normally
+            return true;
         }
 
         function hideCreateError() {
             document.getElementById('createFormError').classList.add('hidden');
         }
 
-        const lookupCache = {};
-        let lookupTimer = null;
-
-        function openModal(modalId) { 
+        // ── Modal helpers 
+        function openModal(modalId) {
             const modal = document.getElementById(modalId);
-            const box = modal.querySelector('.modal-box');
+            const box   = modal.querySelector('.modal-box');
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
@@ -449,66 +444,70 @@
             }, 10);
         }
 
-        function closeModal(modalId) { 
+        function closeModal(modalId) {
             const modal = document.getElementById(modalId);
-            const box = modal.querySelector('.modal-box');
+            const box   = modal.querySelector('.modal-box');
             modal.classList.add('opacity-0');
             box.classList.remove('scale-100');
             box.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
+        // ── Edit modal with time-lock logic 
         function openEditModal(btn) {
-            const id = btn.getAttribute('data-id');
-            document.getElementById('editTitle').value = btn.getAttribute('data-title');
+            document.getElementById('editTitle').value   = btn.getAttribute('data-title');
             document.getElementById('editContent').value = btn.getAttribute('data-content');
-            
-            const existingTags = btn.getAttribute('data-tags') || '';
-            document.getElementById('editTags').value = existingTags;
-            if (existingTags) {
-                previewHashtags(existingTags, 'editTagPreview');
+            document.getElementById('editForm').action   = `/community/update/${btn.getAttribute('data-id')}`;
+
+            const createdAt = new Date(btn.getAttribute('data-created'));
+            const ageMin    = (Date.now() - createdAt.getTime()) / 60000;
+
+            document.getElementById('editLockWarning').classList.toggle('hidden', ageMin < 30);
+
+            const tagsLocked = ageMin >= 15;
+            document.getElementById('editTagsLocked').classList.toggle('hidden', !tagsLocked);
+            const tagsInput   = document.getElementById('editTags');
+            tagsInput.disabled = tagsLocked;
+            tagsInput.value    = btn.getAttribute('data-tags') || '';
+            if (!tagsLocked && tagsInput.value) {
+                previewHashtags(tagsInput.value, 'editTagPreview');
             } else {
                 document.getElementById('editTagPreview').innerHTML = '';
             }
 
-            document.getElementById('editForm').action = `/community/update/${id}`;
             closeAllDropdowns();
             openModal('editModal');
         }
 
+        // ── Breakdown / Analytics modal 
         async function openBreakdownModal(postId) {
             openModal('breakdownModal');
-            
-            const loadingNode = document.getElementById('breakdownLoading');
-            const contentNode = document.getElementById('breakdownContent');
-            const likesNode = document.getElementById('breakdownLikes');
+            const loadingNode  = document.getElementById('breakdownLoading');
+            const contentNode  = document.getElementById('breakdownContent');
+            const likesNode    = document.getElementById('breakdownLikes');
             const dislikesNode = document.getElementById('breakdownDislikes');
-            
             loadingNode.classList.remove('hidden');
             contentNode.classList.add('hidden');
-            
             try {
                 const response = await fetch(`/community/posts/${postId}/breakdown`);
-                if(!response.ok) throw new Error('Data breakdown network failure execution context');
+                if (!response.ok) throw new Error('Network error');
                 const data = await response.json();
-                
-                likesNode.textContent = data.likes ?? 0;
+                likesNode.textContent    = data.likes ?? 0;
                 dislikesNode.textContent = data.dislikes ?? 0;
-                
-                loadingNode.classList.add('hidden');
-                contentNode.classList.remove('hidden');
-            } catch(e) {
-                likesNode.textContent = '-';
+            } catch (e) {
+                likesNode.textContent    = '-';
                 dislikesNode.textContent = '-';
+            } finally {
                 loadingNode.classList.add('hidden');
                 contentNode.classList.remove('hidden');
             }
         }
 
+        // ── Dropdown 
         function toggleDropdown(id) {
             const dropdown = document.getElementById('dropdown-' + id);
             const isHidden = dropdown.classList.contains('hidden');
-            closeAllDropdowns(); 
+            closeAllDropdowns();
             if (isHidden) dropdown.classList.remove('hidden');
         }
 
@@ -516,26 +515,26 @@
             document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.add('hidden'));
         }
 
-        window.onclick = function(event) {
-            if (!event.target.matches('.kebab-button') && !event.target.closest('.dropdown-menu')) closeAllDropdowns();
-            if (event.target.classList.contains('fixed')) closeModal(event.target.id);
-        }
+        window.addEventListener('click', e => {
+            if (!e.target.closest('.kebab-button') && !e.target.closest('.dropdown-menu')) closeAllDropdowns();
+            if (e.target.id && e.target.classList.contains('fixed')) closeModal(e.target.id);
+        });
 
+        // ── Image preview 
         function previewImage(input, textId, imageId) {
             if (input.files && input.files[0]) {
-                const file = input.files[0];
                 const fileName = document.getElementById(textId);
-                fileName.textContent = 'Selected: ' + file.name;
+                fileName.textContent = 'Selected: ' + input.files[0].name;
                 fileName.classList.remove('hidden');
-
                 if (imageId) {
                     const imgPreview = document.getElementById(imageId);
-                    imgPreview.src = URL.createObjectURL(file);
+                    imgPreview.src = URL.createObjectURL(input.files[0]);
                     imgPreview.classList.remove('hidden');
                 }
             }
         }
 
+        // ── Tag helpers 
         function addTag(inputId, tag, previewId) {
             const input = document.getElementById(inputId);
             if (!input) return;
@@ -548,10 +547,12 @@
             input.focus();
         }
 
+        const lookupCache = {};
+        let lookupTimer   = null;
+
         async function previewHashtags(raw, previewId) {
             const preview = document.getElementById(previewId);
             if (!preview) return;
-
             const tags = raw.split(',').map(t => t.trim().replace(/[^a-z0-9]/gi, '').toLowerCase()).filter(Boolean);
             if (!tags.length) { preview.innerHTML = ''; return; }
 
@@ -561,7 +562,7 @@
                     const results = await Promise.all(tags.map(async tag => {
                         if (lookupCache[tag] !== undefined) return { tag, challenge: lookupCache[tag] };
                         const r = await fetch(`${LOOKUP_URL}?q=${tag}`);
-                        if (!r.ok) throw new Error('Network context lookup fault execution string response');
+                        if (!r.ok) throw new Error('Lookup failed');
                         const d = await r.json();
                         lookupCache[tag] = d.challenge;
                         return { tag, challenge: d.challenge };
@@ -569,21 +570,21 @@
 
                     preview.innerHTML = results.map(({ tag, challenge }) => challenge
                         ? `<div class="flex items-center gap-2 bg-[#ccead6]/40 border border-[#b0cdbb]/60 rounded-lg px-3 py-1.5">
-                            <span class="text-[#173124] font-mono text-xs font-bold">#${tag}</span>
-                            <span class="material-symbols-outlined text-xs text-[#424844]">trending_flat</span>
-                            <span class="text-[#062014] font-bold text-xs flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs">military_tech</span> ${challenge.title}
-                            </span>
+                                <span class="text-[#173124] font-mono text-xs font-bold">#${tag}</span>
+                                <span class="material-symbols-outlined text-xs text-[#424844]">trending_flat</span>
+                                <span class="text-[#062014] font-bold text-xs flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs">military_tech</span> ${challenge.title}
+                                </span>
                            </div>`
                         : `<div class="flex items-center gap-2 bg-[#f4f4f1] border border-[#e2e3e0] rounded-lg px-3 py-1.5">
-                            <span class="text-[#424844] font-mono text-xs">#${tag}</span>
-                            <span class="text-[#424844]/60 text-xs italic flex items-center gap-1">
-                                <span class="material-symbols-outlined text-xs">info</span> no active challenge
-                            </span>
+                                <span class="text-[#424844] font-mono text-xs">#${tag}</span>
+                                <span class="text-[#424844]/60 text-xs italic flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-xs">info</span> no active challenge
+                                </span>
                            </div>`
                     ).join('');
                 } catch (error) {
-                    preview.innerHTML = tags.map(tag => 
+                    preview.innerHTML = tags.map(tag =>
                         `<div class="flex items-center gap-2 bg-[#f4f4f1] border border-[#e2e3e0] rounded-lg px-3 py-1.5">
                             <span class="text-[#424844] font-mono text-xs">#${tag}</span>
                         </div>`
