@@ -87,6 +87,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore');
     Route::get('/co2-categories', [CO2CategoryController::class, 'index'])->name('co2.index');
+    Route::get('/co2-categories', [CO2Controller::class, 'index'])->name('co2.index');
     Route::post('/seller-requests/{user}/approve', [AdminUserController::class, 'approveSeller'])->name('seller-requests.approve');
     Route::post('/seller-requests/{user}/reject', [AdminUserController::class, 'rejectSeller'])->name('seller-requests.reject');
     Route::get('/moderation', [\App\Http\Controllers\Admin\AdminModerationController::class, 'index'])->name('moderation.index');
