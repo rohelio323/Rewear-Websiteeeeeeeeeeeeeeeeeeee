@@ -162,7 +162,7 @@
             </div>
         </div>
 
-        {{-- UPDATED: Summary & Actions (Clean Receipt Layout) --}}
+        {{-- Summary & Actions --}}
         <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <h3 class="text-xl font-bold text-emerald-900 mb-6">Summary</h3>
             
@@ -221,7 +221,8 @@
                     </a>
                 @endif
 
-                @if(Auth::id() === $order->seller_id && $order->status === 'payment_confirmed')
+                {{-- FIX: Updated to users_id for seller authentication --}}
+                @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
                     <button type="button" onclick="document.getElementById('ship-form').classList.toggle('hidden')"
                         class="w-full sm:w-auto px-8 py-3.5 bg-emerald-900 text-white font-bold rounded-xl text-sm hover:bg-emerald-800 shadow-md transition-colors active:scale-95">
                         Mark as Shipped →
@@ -257,8 +258,8 @@
                 @endif
             </div>
 
-            {{-- Shipping Form for Seller --}}
-            @if(Auth::id() === $order->seller_id && $order->status === 'payment_confirmed')
+            {{-- FIX: Updated to users_id for seller authentication --}}
+            @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
                 <div id="ship-form" class="hidden mt-6">
                     <div class="bg-stone-50 rounded-2xl border border-stone-200 p-6 md:p-8">
                         <div class="flex items-center gap-3 mb-6">
