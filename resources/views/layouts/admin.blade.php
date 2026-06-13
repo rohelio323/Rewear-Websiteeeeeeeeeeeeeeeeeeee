@@ -79,11 +79,10 @@
 
         @php
             $mainLinks = [
-                ['route' => 'admin.dashboard',          'label' => 'Dashboard', 'icon' => 'dashboard'],
-                ['route' => 'admin.users.index',         'label' => 'Users',     'icon' => 'group'],
-                ['route' => 'admin.co2.index',          'label' => 'CO2 Categories', 'icon' => 'eco'],
-                 ['route' => 'admin.moderation.index', 'label' => 'Moderation',   'icon' => 'gavel'], 
-
+                ['route' => 'admin.dashboard',          'label' => 'Dashboard',         'icon' => 'dashboard'],
+                ['route' => 'admin.users.index',        'label' => 'Users',             'icon' => 'group'],
+                ['route' => 'admin.co2.index',          'label' => 'CO2 Categories',    'icon' => 'eco'],
+                ['route' => 'admin.moderation.index',   'label' => 'Moderation',        'icon' => 'gavel'], 
             ];
         @endphp
 
@@ -96,8 +95,23 @@
             </a>
         @endforeach
 
+        {{-- CONTENT SECTION --}}
         <p style="font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#AABAB0;padding:1rem 0.875rem 0.375rem;">Content</p>
 
+        @php
+            $contentLinks = [
+                ['route' => 'admin.challenges.index',   'label' => 'Challenges',        'icon' => 'emoji_events'], 
+            ];
+        @endphp
+
+        @foreach($contentLinks as $link)
+            @php $isActive = request()->routeIs($link['route'].'*'); @endphp
+            <a href="{{ route($link['route']) }}"
+               class="admin-sidebar-link {{ $isActive ? 'active' : '' }}">
+                <span class="icon material-symbols-outlined">{{ $link['icon'] }}</span>
+                {{ $link['label'] }}
+            </a>
+        @endforeach
     </div>
 
     {{-- Bottom --}}

@@ -12,21 +12,22 @@
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
             SAVED {{ (float) $item->category?->co2_constant ?? '0' }}KG CO2
         </div>
+
+        {{-- Wishlist Button --}}
         @auth
-            <form action="{{ route('favorites.toggle', $item->id) }}" method="POST" class="absolute top-2.5 right-2.5 z-10">
-                @csrf
-                <button type="submit" 
-                    class="wishlist-btn flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm transition-transform active:scale-90"
-                    title="{{ auth()->user()->favorites->contains($item->id) ? 'Hapus' : 'Tambah' }}">
-                    
-                    <span class="material-symbols-outlined text-base {{ auth()->user()->favorites->contains($item->id) ? 'text-red-500' : 'text-stone-400' }}" 
-                        style="font-variation-settings:'FILL' {{ auth()->user()->favorites->contains($item->id) ? 1 : 0 }};">
-                        favorite
-                    </span>
-                </button>
-            </form>
+            @php $isFavorited = auth()->user()->favorites->contains($item->id); @endphp
+            <button
+                class="wishlist-btn absolute top-2.5 right-2.5 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm hover:scale-110 transition-all duration-150"
+                data-url="{{ route('favorites.toggle', $item->id) }}"
+                data-favorited="{{ $isFavorited ? 'true' : 'false' }}"
+                title="{{ $isFavorited ? 'Hapus dari wishlist' : 'Tambah ke wishlist' }}"
+            >
+                <span class="material-symbols-outlined text-base transition-all"
+                    style="font-variation-settings:'FILL' {{ $isFavorited ? 1 : 0 }}; color: {{ $isFavorited ? '#ef4444' : '#a8a29e' }};">
+                    favorite
+                </span>
+            </button>
         @else
-            {{-- For guests, just a link to login --}}
             <a href="{{ route('login') }}" class="absolute top-2.5 right-2.5 z-10 flex items-center justify-center w-8 h-8 rounded-full bg-white/90 shadow-sm">
                 <span class="material-symbols-outlined text-base text-stone-400">favorite</span>
             </a>
@@ -36,7 +37,6 @@
     {{-- Body --}}
     <div class="px-3.5 py-3 flex flex-col flex-1">
         <div class="flex items-baseline justify-between gap-2 mb-1">
-            {{-- 2. This link now acts as the "Main" click target for the whole card --}}
             <a href="{{ route('items.show', $item) }}" class="text-sm font-medium text-stone-900 leading-snug hover:text-emerald-900 transition-colors line-clamp-2 after:absolute after:inset-0 after:z-0">
                 {{ $item->item_name }}
             </a>
@@ -85,3 +85,49 @@
         @endauth
     </div>
 </div>
+
+@auth
+@once
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.wishlist-btn');
+        if (!btn) return;
+
+        e.preventDefault();
+        const url = btn.dataset.url;
+        const icon = btn.querySelector('.material-symbols-outlined');
+        const isFavorited = btn.dataset.favorited === 'true';
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.favorited) {
+                icon.style.fontVariationSettings = "'FILL' 1";
+                icon.style.color = '#ef4444';
+                btn.dataset.favorited = 'true';
+                btn.title = 'Hapus dari wishlist';
+            } else {
+                icon.style.fontVariationSettings = "'FILL' 0";
+                icon.style.color = '#a8a29e';
+                btn.dataset.favorited = 'false';
+                btn.title = 'Tambah ke wishlist';
+            }
+        })
+        .catch(() => alert('Terjadi kesalahan.'));
+    });
+});
+</script>
+@endpush
+@endonce
+@endauth
