@@ -8,7 +8,16 @@
         <p class="text-stone-500 text-sm">Manage your personal details, security, and view your ReWear impact.</p>
     </div>
 
-    <div class="space-y-8">
+<div class="space-y-8">
+
+        {{-- Warning Notification --}}
+        @if(auth()->user()->warning_count > 0)
+            <div class="bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-2xl text-sm font-medium flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-600 text-base">warning</span>
+                Your account has <strong class="mx-1">{{ auth()->user()->warning_count }} warning{{ auth()->user()->warning_count > 1 ? 's' : '' }}</strong> for violating community standards. Please review our guidelines.
+            </div>
+        @endif
+
         {{-- CO2 Impact Card --}}
         <div class="p-8 bg-emerald-900 shadow-xl shadow-emerald-900/10 rounded-3xl text-emerald-50 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
             <div class="absolute -top-10 -right-10 opacity-10 pointer-events-none">
