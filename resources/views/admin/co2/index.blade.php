@@ -62,7 +62,6 @@
     @endif
 
     {{-- Data Table --}}
-    {{-- Note: Removed overflow-hidden to allow tooltips to break out of the container --}}
     <div class="bg-white rounded-2xl border border-stone-200 shadow-sm relative">
         <table class="w-full text-sm text-left">
             <thead>
@@ -85,9 +84,9 @@
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-3">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100/50 font-mono text-xs font-bold shadow-sm">
+                            <span class="inline-flex items-center justify-between w-28 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100/50 font-mono text-xs font-bold shadow-sm">
                                 <span class="material-symbols-outlined text-[16px] text-emerald-500">eco</span>
-                                {{ number_format($category->co2_constant ?? 0, 2) }} kg
+                                <span>{{ number_format($category->co2_constant ?? 0, 2) }} kg</span>
                             </span>
                             
                             {{-- Interactive Tooltip --}}

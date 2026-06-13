@@ -221,7 +221,6 @@
                     </a>
                 @endif
 
-                {{-- FIX: Updated to users_id for seller authentication --}}
                 @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
                     <button type="button" onclick="document.getElementById('ship-form').classList.toggle('hidden')"
                         class="w-full sm:w-auto px-8 py-3.5 bg-emerald-900 text-white font-bold rounded-xl text-sm hover:bg-emerald-800 shadow-md transition-colors active:scale-95">
@@ -258,7 +257,6 @@
                 @endif
             </div>
 
-            {{-- FIX: Updated to users_id for seller authentication --}}
             @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')
                 <div id="ship-form" class="hidden mt-6">
                     <div class="bg-stone-50 rounded-2xl border border-stone-200 p-6 md:p-8">
