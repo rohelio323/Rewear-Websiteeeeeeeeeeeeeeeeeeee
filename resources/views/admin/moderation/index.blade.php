@@ -56,27 +56,27 @@
                     <div class="flex flex-row lg:flex-col gap-2 lg:min-w-[140px]">
                         <form action="{{ route('admin.moderation.hide', $report) }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full px-4 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 font-bold text-xs rounded-xl transition">
-                                🙈 Hide
+                            <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 font-bold text-xs rounded-xl transition">
+                                <span class="material-symbols-outlined text-[14px]">visibility_off</span> Hide
                             </button>
                         </form>
                         <form action="{{ route('admin.moderation.warn', $report) }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full px-4 py-2 bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 font-bold text-xs rounded-xl transition">
-                                ⚠️ Warn User
+                            <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 font-bold text-xs rounded-xl transition">
+                                <span class="material-symbols-outlined text-[14px]">warning</span> Warn User
                             </button>
                         </form>
                         <form action="{{ route('admin.moderation.delete', $report) }}" method="POST"
                               onsubmit="return confirm('Permanently delete this content?')">
                             @csrf
-                            <button type="submit" class="w-full px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold text-xs rounded-xl transition">
-                                🗑️ Delete
+                            <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold text-xs rounded-xl transition">
+                                <span class="material-symbols-outlined text-[14px]">delete</span> Delete
                             </button>
                         </form>
                         <form action="{{ route('admin.moderation.dismiss', $report) }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full px-4 py-2 bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-600 font-bold text-xs rounded-xl transition">
-                                ✓ Dismiss
+                            <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-600 font-bold text-xs rounded-xl transition">
+                                <span class="material-symbols-outlined text-[14px]">check</span> Dismiss
                             </button>
                         </form>
                     </div>
@@ -84,7 +84,7 @@
             </div>
         @empty
             <div class="text-center py-24 bg-stone-50 rounded-3xl border-2 border-dashed border-stone-200">
-                <span class="text-4xl mb-3 block">✅</span>
+                <span class="material-symbols-outlined text-5xl text-stone-300 mb-3 block">inbox</span>
                 <h3 class="font-bold text-stone-700">All clear!</h3>
                 <p class="text-stone-400 text-sm mt-1">No pending reports to review.</p>
             </div>

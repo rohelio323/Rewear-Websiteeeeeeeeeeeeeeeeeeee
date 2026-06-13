@@ -23,6 +23,14 @@
                 </div>
             </div>
         </header>
+        
+        {{-- Warning Notification --}}
+        @if(auth()->user()->warning_count > 0)
+            <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-2xl text-sm font-medium flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-600 text-base">warning</span>
+                Your account has <strong class="mx-1">{{ auth()->user()->warning_count }} warning{{ auth()->user()->warning_count > 1 ? 's' : '' }}</strong> for violating community standards. Please review our guidelines.
+            </div>
+        @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
