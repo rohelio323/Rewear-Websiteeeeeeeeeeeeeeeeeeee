@@ -7,6 +7,13 @@ use App\Models\Category;
 
 class CO2Controller extends Controller
 {
+
+    public function index() 
+    {
+        $categories = Category::all();
+        return view('admin.categories', compact('categories'));
+    }
+    
     /**
      * [PBI-01] ADMIN: Create a new category and define its CO2 constant with scientific references
      */
