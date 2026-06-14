@@ -18,7 +18,9 @@ class AdminChallengeManagementTest extends DuskTestCase
     }
 
     /**
-     * TC.Challenge.22.001 | Admin can view the challenge management dashboard
+     * Case ID: TC.Challenge.22.001
+     * Case Type: Positive
+     * Description: Admin can view the challenge management dashboard
      */
     public function testAdminCanViewTheChallengeManagementDashboard()
     {
@@ -32,7 +34,9 @@ class AdminChallengeManagementTest extends DuskTestCase
     }
 
     /**
-     * TC.Challenge.22.002 | Admin can successfully create a new active challenge using the modal form
+     * Case ID: TC.Challenge.22.002
+     * Case Type: Positive
+     * Description: Admin can successfully create a new active challenge using the modal form
      */
     public function testAdminCanCreateANewActiveChallenge()
     {
@@ -57,7 +61,9 @@ class AdminChallengeManagementTest extends DuskTestCase
     }
 
     /**
-     * TC.Challenge.22.003 | Admin encounters validation errors when trying to create a challenge without a required title
+     * Case ID: TC.Challenge.22.003
+     * Case Type: Negative
+     * Description: Admin encounters validation errors when trying to create a challenge without a required title
      */
     public function testAdminEncountersValidationErrorsWithoutTitle()
     {
@@ -81,7 +87,9 @@ class AdminChallengeManagementTest extends DuskTestCase
     }
 
     /**
-     * TC.Challenge.25.001 | Admin can open the edit modal, modify the challenge details, and save them
+     * Case ID: TC.Challenge.25.001
+     * Case Type: Positive
+     * Description: Admin can open the edit modal, modify the challenge details, and save them
      */
     public function testAdminCanEditAChallenge()
     {
@@ -112,7 +120,9 @@ class AdminChallengeManagementTest extends DuskTestCase
     }
 
     /**
-     * TC.Challenge.25.002 | Admin can click delete on a challenge, accept the confirmation modal, and verify the challenge is removed
+     * Case ID: TC.Challenge.25.002
+     * Case Type: Positive
+     * Description: Admin can click delete on a challenge, accept the confirmation modal, and verify the challenge is removed
      */
     public function testAdminCanDeleteAChallenge()
     {

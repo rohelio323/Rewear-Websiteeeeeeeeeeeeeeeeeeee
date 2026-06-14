@@ -7,13 +7,16 @@ use App\Models\Post;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
+use PHPUnit\Framework\Attributes\TestDox;
 
 class PersonalStatsTest extends DuskTestCase
 {
     use DatabaseTruncation;
 
     /**
-     * TC.Stats.23.001 | User can view their calculated Total Score (Points) and Leaderboard Rank
+     * Case ID: TC.Stats.23.001
+     * Case Type: Positive
+     * Description: User can view their calculated Total Score (Points) and Leaderboard Rank
      */
     public function testUserCanViewTheirTotalScoreAndRank()
     {
@@ -46,7 +49,9 @@ class PersonalStatsTest extends DuskTestCase
     }
 
     /**
-     * TC.Stats.23.002 | User can view their documented "Challenge History" on the profile page
+     * Case ID: TC.Stats.23.002
+     * Case Type: Positive
+     * Description: User can view their documented "Challenge History" on the profile page
      */
     public function testUserCanViewTheirChallengeHistory()
     {
@@ -83,7 +88,9 @@ class PersonalStatsTest extends DuskTestCase
     }
 
     /**
-     * TC.Stats.23.003 | A new user with no posts sees the "No stories yet" empty state
+     * Case ID: TC.Stats.23.003
+     * Case Type: Positive
+     * Description: A new user with no posts sees the "No stories yet" empty state
      */
     public function testNewUserSeesEmptyChallengeHistoryState()
     {
