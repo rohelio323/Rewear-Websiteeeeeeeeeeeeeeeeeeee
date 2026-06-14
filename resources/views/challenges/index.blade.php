@@ -37,9 +37,6 @@
                             <span class="material-symbols-outlined text-[18px] text-amber-500">stars</span>
                             <span class="text-xs font-extrabold text-amber-900">
                                 +{{ $challenge->reward_points }} CO₂ Saved
-                                @if($challenge->reward_description)
-                                    <span class="font-medium text-amber-700 ml-0.5">({{ $challenge->reward_description }})</span>
-                                @endif
                             </span>
                         </div>
                     @endif
