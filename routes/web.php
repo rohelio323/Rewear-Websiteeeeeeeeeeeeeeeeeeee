@@ -15,7 +15,23 @@ use App\Http\Controllers\PostVoteController;
 
 
 Route::get('/', function () {
-    return view('home');
+    $featuredItems = \App\Models\Item::with(['category', 'user'])
+        ->where('status', 'available')
+        ->latest()
+        ->take(6)
+        ->get();
+
+    $activeChallenges = \App\Models\Challenge::where('is_active', true)
+        ->where('end_date', '>=', now()->startOfDay())
+        ->orderBy('end_date', 'asc')
+        ->take(3)
+        ->get();
+
+    $userCount  = \App\Models\User::count();
+    $itemCount  = \App\Models\Item::where('status', 'available')->count();
+    $orderCount = \App\Models\Order::where('status', 'completed')->count();
+
+    return view('home', compact('featuredItems', 'activeChallenges', 'userCount', 'itemCount', 'orderCount'));
 })->name('home');
 
 Route::post('/admin/categories', [CO2Controller::class, 'addCategory']);
