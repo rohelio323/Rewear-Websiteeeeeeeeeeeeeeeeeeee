@@ -128,9 +128,9 @@
                             </form>
                         @endif
                     </div>
-                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200">
-                        @include('profile.partials.voucher-exchange')
-                    </div>
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200">
+                            @include('profile.partials.voucher-exchange')
+                        </div>
                 </div>
             </div>
 
