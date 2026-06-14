@@ -121,6 +121,28 @@ class User extends Authenticatable
         return $this->hasMany(Order::class, 'users_id');
     }
 
+    // Seller Reputation
+    public function reviewsReceived()
+    {
+        return $this->hasMany(Review::class, 'seller_id');
+    }
 
+    public function averageRating(): float
+    {
+        return round($this->reviewsReceived()->avg('rating') ?? 0, 1);
+    }
+
+    public function totalReviews(): int
+    {
+        return $this->reviewsReceived()->count();
+    }
+    
+    public function reviewsReceivedList()
+    {
+    return $this->hasMany(Review::class, 'seller_id')
+        ->with(['item', 'buyer'])
+        ->latest();
+    }
+    
 }
 

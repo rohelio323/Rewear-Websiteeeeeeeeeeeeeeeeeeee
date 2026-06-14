@@ -323,15 +323,23 @@
                     </form>
                 @endif
 
-                @if(Auth::id() === $order->buyer_id && $order->status === 'completed')
-                    @if($order->review)
-                        <div class="w-full sm:w-auto px-8 py-3.5 bg-stone-100 border border-stone-200 text-stone-500 font-bold rounded-xl text-sm text-center">
-                            <span class="text-amber-500 mr-1">★</span> Review Submitted
-                        </div>
-                    @else
-                        <a href="{{ route('reviews.create', $order) }}"
-                           class="w-full sm:w-auto px-8 py-3.5 bg-amber-500 hover:bg-amber-400 text-white shadow-md font-bold rounded-xl text-sm transition-colors text-center block active:scale-95">
-                            ★ Leave a Review
+                    {{-- PBI-38: Review Button --}}
+                    @if(Auth::id() === $order->buyer_id && $order->status === 'completed')
+                        @if($order->review)
+                            <div class="w-full py-3.5 bg-stone-50 border-2 border-stone-200 text-stone-400 font-bold rounded-full text-sm text-center">
+                                ★ Review Submitted
+                            </div>
+                        @else
+                            <a href="{{ route('reviews.create', $order) }}"
+                               class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-white font-bold rounded-full text-sm transition-colors text-center block">
+                                ★ Leave a Review
+                            </a>
+                        @endif
+                    @endif
+
+                    @if($order->status !== 'pending')
+                        <a href="{{ route('marketplace.index') }}" class="w-full py-3.5 bg-transparent border-2 border-stone-200 text-stone-600 font-bold rounded-full text-sm hover:bg-stone-50 transition-colors text-center block">
+                            Back to Marketplace
                         </a>
                     @endif
                 @endif

@@ -18,17 +18,16 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-// [PBI-01] Admin Routes to define and manage CO2 constants
 Route::post('/admin/categories', [CO2Controller::class, 'addCategory']);
 Route::put('/admin/categories/{id}/co2-constant', [CO2Controller::class, 'updateCategoryCO2']);
 Route::delete('/admin/categories/{id}', [CO2Controller::class, 'deleteCategory']);
 
-// Marketplace
 Route::get('/marketplace', [ItemController::class, 'index'])->name('marketplace.index');
 Route::get('/item/detail/{item}', [ItemController::class, 'show'])->name('items.show');
 Route::get('/community', [PostController::class, 'index'])->name('community.index');
 
-// Challenges
+Route::get('/seller/{user}', [ReviewController::class, 'sellerProfile'])->name('seller.profile');
+
 Route::get('/challenges', [App\Http\Controllers\ChallengeController::class, 'index'])->name('challenges.index');
 Route::get('/challenges/{challenge}', [App\Http\Controllers\ChallengeController::class, 'show'])->name('challenges.show');
 
@@ -68,6 +67,7 @@ Route::middleware('auth')->group(function () {
     // ===== PBI-38: Reviews =====
     Route::get('/orders/{order}/review', [ReviewController::class, 'create'])->name('reviews.create');
     Route::post('/orders/{order}/review', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::get('/my-reviews', [ReviewController::class, 'index'])->name('reviews.index');
 
     Route::post('/reports', [ReportsController::class, 'store'])->name('reports.store');
 
@@ -82,7 +82,6 @@ Route::middleware(['auth', 'seller'])->group(function () {
     Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
 });
 
-// Admin
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/chart-data', [AdminDashboardController::class, 'chartData'])->name('dashboard.chartData');
@@ -95,10 +94,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/seller-requests/{user}/reject', [AdminUserController::class, 'rejectSeller'])->name('seller-requests.reject');
     Route::get('/moderation', [\App\Http\Controllers\Admin\AdminModerationController::class, 'index'])->name('moderation.index');
     Route::get('/moderation/{report}', [\App\Http\Controllers\Admin\AdminModerationController::class, 'show'])->name('moderation.show');
-    Route::post('/moderation/{report}/hide',    [\App\Http\Controllers\Admin\AdminModerationController::class, 'hide'])->name('moderation.hide');
-    Route::post('/moderation/{report}/delete',  [\App\Http\Controllers\Admin\AdminModerationController::class, 'delete'])->name('moderation.delete');
+    Route::post('/moderation/{report}/hide', [\App\Http\Controllers\Admin\AdminModerationController::class, 'hide'])->name('moderation.hide');
+    Route::post('/moderation/{report}/delete', [\App\Http\Controllers\Admin\AdminModerationController::class, 'delete'])->name('moderation.delete');
     Route::post('/moderation/{report}/dismiss', [\App\Http\Controllers\Admin\AdminModerationController::class, 'dismiss'])->name('moderation.dismiss');
-    Route::post('/moderation/{report}/warn',    [\App\Http\Controllers\Admin\AdminModerationController::class, 'warn'])->name('moderation.warn');
+    Route::post('/moderation/{report}/warn',[\App\Http\Controllers\Admin\AdminModerationController::class, 'warn'])->name('moderation.warn');
     Route::resource('vouchers', \App\Http\Controllers\Admin\AdminVoucherController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('/challenges', [App\Http\Controllers\Admin\AdminChallengeController::class, 'index'])->name('challenges.index');
     Route::post('/challenges', [App\Http\Controllers\Admin\AdminChallengeController::class, 'store'])->name('challenges.store');

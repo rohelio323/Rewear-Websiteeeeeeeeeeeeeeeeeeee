@@ -44,8 +44,6 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             ItemSeeder::class,
             ChallengeSeeder::class,
-            PostSeeder::class,
-            PostVoteSeeder::class,
         ]);
     }
 
