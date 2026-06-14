@@ -101,9 +101,6 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'seller-applied');
     }
 
-    /**
-     * Redeem a carbon voucher (from RewardsController).
-     */
     public function redeem(Request $request, CarbonVoucher $voucher): RedirectResponse
     {
         $user = Auth::user();
@@ -127,7 +124,7 @@ class ProfileController extends Controller
         ]);
 
         return redirect()->route('profile.edit', ['tab' => 'rewards'])
-            ->with('success', "Voucher code <strong>{$voucher->code}</strong> redeemed! Discount: Rp " . number_format($voucher->discount_amount, 0, ',', '.') . ". Use it on your next payment.");
+            ->with('success', "Voucher code {$voucher->code} redeemed! Discount: Rp " . number_format($voucher->discount_amount, 0, ',', '.') . ". Use it on your next payment.");
     }
 
     /**
