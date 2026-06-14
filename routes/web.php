@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-stats', [App\Http\Controllers\ProfileStatsController::class, 'index'])->name('profile.stats');
     Route::post('/profile/seller-apply', [ProfileController::class, 'applyAsSeller'])->name('seller.apply.submit');
 
+    // Orders
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::get('/orders/{order}/payment', [OrderController::class, 'paymentForm'])->name('orders.payment');
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/community/{id}/vote', [PostVoteController::class, 'vote'])->name('community.vote');
     Route::post('/challenges/{challenge}/submit', [App\Http\Controllers\ChallengeController::class, 'submitPost'])->name('challenges.submit');
     Route::get('/community/hashtag/lookup', [App\Http\Controllers\PostController::class, 'hashtagLookup'])->name('community.hashtag.lookup');
+    Route::get('/community/posts/{id}/breakdown', [PostVoteController::class, 'details'])->name('community.posts.breakdown')->middleware('auth');
 
     Route::get('/favorites', [WishlistController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{item}/toggle', [WishlistController::class, 'toggle'])->name('favorites.toggle');
@@ -63,8 +65,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-reviews', [ReviewController::class, 'index'])->name('reviews.index');
 
     Route::post('/reports', [ReportsController::class, 'store'])->name('reports.store');
+
 });
 
+// Seller Middleware
 Route::middleware(['auth', 'seller'])->group(function () {
     Route::get('/items/create', [ItemController::class, 'create'])->name('items.create');
     Route::post('/items', [ItemController::class, 'store'])->name('items.store');
@@ -79,7 +83,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
     Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore');
-    Route::get('/co2-categories', [CO2CategoryController::class, 'index'])->name('co2.index');
+    Route::get('/co2-categories', [CO2Controller::class, 'index'])->name('co2.index');
     Route::post('/seller-requests/{user}/approve', [AdminUserController::class, 'approveSeller'])->name('seller-requests.approve');
     Route::post('/seller-requests/{user}/reject', [AdminUserController::class, 'rejectSeller'])->name('seller-requests.reject');
     Route::get('/moderation', [\App\Http\Controllers\Admin\AdminModerationController::class, 'index'])->name('moderation.index');

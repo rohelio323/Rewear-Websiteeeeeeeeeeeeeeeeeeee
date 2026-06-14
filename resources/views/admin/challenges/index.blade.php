@@ -17,6 +17,7 @@
         editStart: '',
         editEnd: '',
         editActive: false,
+        editRewardPoints: 0,
 
         /* Delete Modal State */
         deleteUrl: ''
@@ -76,6 +77,12 @@
                                 <div>
                                     <span class="block font-bold text-stone-900 font-headline text-base">{{ $challenge->title }}</span>
                                     <span class="block text-xs text-stone-500 mt-0.5 truncate max-w-xs">{{ $challenge->description }}</span>
+                                    @if($challenge->reward_points > 0)
+                                        <span class="inline-flex mt-2 items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md shadow-sm">
+                                            <span class="material-symbols-outlined text-[12px] text-amber-500">stars</span> 
+                                            +{{ $challenge->reward_points }} Points
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
                         </td>
@@ -108,6 +115,7 @@
                                         editStart = '{{ \Carbon\Carbon::parse($challenge->start_date)->format('Y-m-d') }}';
                                         editEnd = '{{ \Carbon\Carbon::parse($challenge->end_date)->format('Y-m-d') }}';
                                         editActive = {{ $challenge->is_active ? 'true' : 'false' }};
+                                        editRewardPoints = {{ $challenge->reward_points ?? 0 }};
                                         showEditModal = true;
                                     " class="p-2 text-stone-400 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-all" title="Edit Challenge">
                                     <span class="material-symbols-outlined text-[18px]">edit</span>
@@ -147,7 +155,7 @@
         <div x-show="showAddModal" x-transition.opacity.duration.300ms class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
             <div class="flex min-h-full items-center justify-center p-4">
-                <div x-show="showAddModal" @click.away="showAddModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-stone-200 transform transition-all">
+                <div x-show="showAddModal" @click.away="showAddModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl border border-stone-200 transform transition-all">
                     
                     <div class="flex items-center gap-4 mb-6">
                         <div class="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100">
@@ -179,6 +187,18 @@
                             <textarea name="description" required rows="3" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-stone-800 bg-stone-50 focus:bg-white resize-none"></textarea>
                         </div>
                         
+                        {{-- REWARDS SECTION --}}
+                        <div class="mb-6">
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Reward (CO₂ Points)</label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 text-[18px]">eco</span>
+                                <input type="number" name="reward_points" 
+                                       @if(isset($isEdit)) x-model="editRewardPoints" @else value="0" @endif 
+                                       min="0" required 
+                                       class="w-full pl-11 pr-4 py-3 bg-emerald-50/50 border border-emerald-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-emerald-900 font-mono font-bold">
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-4 mb-8">
                             <div>
                                 <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Start Date</label>
@@ -231,7 +251,7 @@
                         @method('PUT')
                         <div class="mb-4">
                             <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Challenge Title</label>
-                            <input type="text" name="title" x-model="editTitle" required class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white">
+                            <input type="text" name="title" id="edit_title" x-model="editTitle" required class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white">
                         </div>
 
                         <div class="mb-4">
@@ -245,6 +265,18 @@
                         <div class="mb-4">
                             <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Description</label>
                             <textarea name="description" x-model="editDesc" required rows="3" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white resize-none"></textarea>
+                        </div>
+
+                        {{-- REWARDS SECTION --}}
+                        <div class="mb-6">
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Reward (CO₂ Points)</label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 text-[18px]">eco</span>
+                                <input type="number" name="reward_points" 
+                                       @if(isset($isEdit)) x-model="editRewardPoints" @else value="0" @endif 
+                                       min="0" required 
+                                       class="w-full pl-11 pr-4 py-3 bg-emerald-50/50 border border-emerald-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors text-emerald-900 font-mono font-bold">
+                            </div>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4 mb-6">

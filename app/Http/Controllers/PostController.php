@@ -5,18 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use App\Models\Challenge;
 use App\Models\PostVote;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class PostController extends Controller {
 
     public function index()
     {
-        // 1. Fetch all the community posts with the user data (Your branch)
+        // 1. Fetch all the community posts with the user data
         $posts = Post::with('user')->latest()->get(); 
 
-        // 2. Attach the user's vote data to each post (Main branch)
+        // 2. Attach the user's vote data to each post
         if (Auth::check()) {
             $userVotes = PostVote::where('user_id', Auth::id())
                 ->whereIn('post_id', $posts->pluck('post_id'))
@@ -27,21 +30,58 @@ class PostController extends Controller {
             }
         }
 
-        // 3. Fetch the active challenges (Your branch)
+        // 3. Fetch the active challenges
         $activeChallenges = Challenge::where('is_active', true)
             ->where('end_date', '>=', now()->startOfDay())
             ->orderBy('start_date', 'asc')
             ->get();
 
+        $trendingPosts = Post::with('user')
+            ->where('created_at', '>=', Carbon::now()->startOfWeek())
+            ->orderByDesc('upvote_count')
+            ->get();
+
+        $topUser = User::select('users.id', 'users.name')
+            ->join('posts', 'users.id', '=', 'posts.users_id')
+            ->selectRaw('SUM(posts.upvote_count) as total_upvotes')
+            ->groupBy('users.id', 'users.name')
+            ->orderByDesc('total_upvotes')
+            ->take(5)
+            ->get();
+
         // 4. Pass both variables to community view
-        return view('community.index', compact('posts', 'activeChallenges'));
+        return view('community.index', compact('posts', 'activeChallenges', 'trendingPosts', 'topUser'));
     }
 
     public function store(Request $request) {
+        
+        // --- CHALLENGE HASHTAG DETECTION ---
+        // Get all active challenge hashtags to check against
+        $activeHashtags = Challenge::where('is_active', true)->pluck('hashtag')->toArray();
+        $textToCheck = strtolower($request->content . ' ' . $request->tags);
+        
+        $isChallengePost = false;
+        foreach ($activeHashtags as $hashtag) {
+            // Check if their content or tags contain the active hashtag
+            if (str_contains($textToCheck, strtolower($hashtag))) {
+                $isChallengePost = true;
+                break;
+            }
+        }
+
         $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // 2MB Limit
+            // Dynamically require image ONLY if a challenge hashtag was found
+            'image' => [
+                $isChallengePost ? 'required' : 'nullable', 
+                'image', 
+                'mimes:jpeg,png,jpg', 
+                'max:2048'
+            ],
+        ], [
+            // Custom friendly error message so the user knows exactly why it failed
+            'image.required' => 'Since you used a challenge hashtag, you must upload a photo of your outfit to participate!'
         ]);
 
         $imagePath = null;
@@ -64,10 +104,31 @@ class PostController extends Controller {
     public function update(Request $request, $id) {
         $post = Post::findOrFail($id);
 
+        // --- CHALLENGE HASHTAG DETECTION ---
+        $activeHashtags = Challenge::where('is_active', true)->pluck('hashtag')->toArray();
+        $textToCheck = strtolower($request->content . ' ' . $request->tags);
+        
+        $isChallengePost = false;
+        foreach ($activeHashtags as $hashtag) {
+            if (str_contains($textToCheck, strtolower($hashtag))) {
+                $isChallengePost = true;
+                break;
+            }
+        }
+
         $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => [
+                // If it's a challenge post, they MUST have an image. 
+                // Either they are uploading a new one, or the post already has one in the database.
+                ($isChallengePost && !$post->image_path) ? 'required' : 'nullable',
+                'image',
+                'mimes:jpeg,png,jpg',
+                'max:2048'
+            ],
+        ], [
+            'image.required' => 'Challenge posts require a photo. Please upload one to keep your challenge status!'
         ]);
 
         $data = [

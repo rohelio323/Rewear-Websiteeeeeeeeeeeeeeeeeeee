@@ -25,6 +25,7 @@ class User extends Authenticatable
         'seller_requested_at',
         'seller_reviewed_at',
         'total_co2_saved',
+        'warning_count',
     ];
 
     protected $hidden = [

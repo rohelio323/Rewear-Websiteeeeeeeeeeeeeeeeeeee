@@ -8,14 +8,12 @@ use Illuminate\Http\Request;
 
 class AdminChallengeController extends Controller
 {
-    // Show the list of challenges on the Admin Dashboard
     public function index()
     {
         $challenges = Challenge::latest()->get();
         return view('admin.challenges.index', compact('challenges'));
     }
 
-    // Save a newly created challenge into the database
     public function store(Request $request)
     {
         $request->validate([
@@ -25,35 +23,30 @@ class AdminChallengeController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'status' => 'required|in:Active,Draft',
+            'reward_points' => 'required|integer|min:0', 
         ]);
 
-        // Clean the hashtag just in case the admin typed a "#" symbol in the input
         $cleanHashtag = str_replace('#', '', $request->hashtag);
 
         Challenge::create([
             'title' => $request->title,
-            'hashtag' => strtolower($cleanHashtag), // Force lowercase for easy matching later
+            'hashtag' => strtolower($cleanHashtag),
             'description' => $request->description,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'is_active' => $request->status === 'Active',
+            'reward_points' => $request->reward_points,
         ]);
 
-        return redirect()->route('challenges.index')->with('success', 'Challenge created successfully!');
+        return redirect()->route('challenges.index')->with('success', 'Challenge created with CO₂ reward!');
     }
 
-    /**
-     * Show the form for editing the specified challenge.
-     */
     public function edit($id)
     {
         $challenge = Challenge::findOrFail($id);
         return view('admin.challenges.edit', compact('challenge'));
     }
 
-    /**
-     * Update the specified challenge in storage.
-     */
     public function update(Request $request, $id)
     {
         $challenge = Challenge::findOrFail($id);
@@ -64,9 +57,9 @@ class AdminChallengeController extends Controller
             'description' => 'required|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'reward_points' => 'required|integer|min:0', 
         ]);
 
-        // Clean the hashtag again for updates
         $cleanHashtag = str_replace('#', '', $request->hashtag);
 
         $challenge->update([
@@ -75,15 +68,13 @@ class AdminChallengeController extends Controller
             'description' => $request->description,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
-            'is_active' => $request->has('is_active'), 
+            'is_active' => $request->has('is_active') ? $request->is_active : $challenge->is_active, 
+            'reward_points' => $request->reward_points,
         ]);
 
         return redirect()->route('challenges.index')->with('success', 'Challenge updated successfully!');
     }
 
-    /**
-     * Remove the specified challenge from storage.
-     */
     public function destroy($id)
     {
         $challenge = Challenge::findOrFail($id);

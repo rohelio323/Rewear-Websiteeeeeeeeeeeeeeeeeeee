@@ -33,6 +33,17 @@
         <div class="lg:col-span-6 space-y-6">
 
             <div class="rounded-xl overflow-hidden bg-surface-container-low aspect-[3/4] relative group max-w-2xl mx-auto">
+                @auth
+                    @if(auth()->id() !== $item->users_id)
+                        <button type="button"
+                            onclick="document.getElementById('itemReportModal').classList.remove('hidden')"
+                            title="Report this listing"
+                            class="absolute top-3 right-3 z-10 flex items-center justify-center w-9 h-9 rounded-full bg-black/30 text-white backdrop-blur-sm hover:bg-red-600 transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">flag</span>
+                        </button>
+                    @endif
+                @endauth
+
                 @if($item->first_photo)
                     <img id="main-image" src="{{ asset('storage/'.$item->first_photo) }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                 @else
@@ -83,9 +94,61 @@
                 </div>
             </div>
 
+            {{-- ================= ENVIRONMENTAL IMPACT CARD ================= --}}
+            @if($item->category && $item->category->co2_constant > 0)
+            <div class="bg-emerald-50 rounded-2xl p-5 sm:p-6 border border-emerald-100 shadow-sm">
+                <div class="flex items-start gap-4">
+                    {{-- Eco Icon Badge --}}
+                    <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center text-emerald-500 shrink-0 shadow-sm border border-emerald-100/50">
+                        <span class="material-symbols-outlined text-[24px]">eco</span>
+                    </div>
+                    
+                    <div class="flex-1">
+                        <h3 class="text-[11px] font-bold text-emerald-600 uppercase tracking-widest mb-1 font-label">Environmental Impact</h3>
+                        
+                        <p class="text-emerald-950 font-medium text-sm sm:text-base mb-2 leading-snug">
+                            Choosing this pre-loved item saves <span class="font-extrabold text-emerald-700 bg-emerald-100/50 px-1.5 py-0.5 rounded">{{ number_format($item->category->co2_constant, 2) }} kg of CO₂</span> compared to buying new.
+                        </p>
+
+                        {{-- Expandable Scientific Reference (Alpine.js) --}}
+                        @if($item->category->reference_note || $item->category->reference_url)
+                        <div x-data="{ showRef: false }" class="mt-3">
+                            {{-- Toggle Button --}}
+                            <button @click="showRef = !showRef" type="button" class="text-[11px] font-bold uppercase tracking-widest text-emerald-600 hover:text-emerald-800 flex items-center gap-1 transition-colors focus:outline-none">
+                                <span class="material-symbols-outlined text-[14px]" x-text="showRef ? 'expand_less' : 'science'"></span>
+                                <span x-text="showRef ? 'Hide Methodology' : 'View Scientific Reference'"></span>
+                            </button>
+
+                            {{-- Expanded Content --}}
+                            <div x-show="showRef" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 -translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 style="display: none;" 
+                                 class="mt-3 pt-3 border-t border-emerald-200/60">
+                                
+                                <p class="text-xs text-emerald-800/80 leading-relaxed mb-2">
+                                    {{ $item->category->reference_note }}
+                                </p>
+                                
+                                @if($item->category->reference_url)
+                                    <a href="{{ $item->category->reference_url }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-800 transition-colors group">
+                                        Read full Lifecycle Assessment 
+                                        <span class="material-symbols-outlined text-[12px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
+            {{-- ========================================================== --}}
+
             <div class="space-y-3">
                 <h3 class="text-md font-bold font-headline text-primary uppercase tracking-tight">ITEM DESCRIPTION</h3>
-                <p class="text-on-surface-variant leading-relaxed text-sm">
+                <p class="text-on-surface-variant leading-relaxed text-sm whitespace-pre-line">
                     {{ $item->description }}
                 </p>
             </div>
@@ -150,25 +213,17 @@
                         </button>
                     </form>
                 @endif
-
-                @if(auth()->id() !== $item->users_id)
-                    <button onclick="document.getElementById('itemReportModal').classList.remove('hidden')"
-                        class="mt-3 w-full text-center text-xs text-stone-400 hover:text-red-500 transition py-1">
-                        🚩 Report this listing
-                    </button>
-                @endif
             </div>
             @endauth
         </div>
     </div>
 
-    {{-- PBI-29: Item Report Modal --}}
     @auth
     <div id="itemReportModal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm p-4">
         <div class="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
             <button onclick="document.getElementById('itemReportModal').classList.add('hidden')"
                 class="absolute top-5 right-6 text-stone-400 hover:text-red-500 text-xl font-bold">✕</button>
-            <h2 class="text-xl font-bold mb-5 text-red-700">🚩 Report Listing</h2>
+            <h2 class="text-xl font-bold mb-5 text-red-700"> Report Listing</h2>
             <form action="{{ route('reports.store') }}" method="POST" class="flex flex-col gap-4">
                 @csrf
                 <input type="hidden" name="reportable_type" value="item">
