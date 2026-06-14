@@ -251,7 +251,7 @@
                         @method('PUT')
                         <div class="mb-4">
                             <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Challenge Title</label>
-                            <input type="text" name="title" x-model="editTitle" required class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white">
+                            <input type="text" name="title" id="edit_title" x-model="editTitle" required class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white">
                         </div>
 
                         <div class="mb-4">

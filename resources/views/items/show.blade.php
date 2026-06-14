@@ -153,26 +153,43 @@
                 </p>
             </div>
 
-                <div class="p-5 rounded-xl bg-surface-container flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full overflow-hidden bg-secondary-fixed relative ring-2 ring-white">
-                            <img class="w-full h-full object-cover"
-                                src="{{ $item->user->avatar_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($item->user->name) }}"
-                                alt="{{ $item->user->name }}">
-                        </div>
-                        <div>
-                            <div class="font-bold text-sm text-primary flex items-center gap-1">
-                                {{ $item->user->name }}
-                                <span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
-                            </div>
-                            <div class="flex items-center text-[11px] text-on-surface-variant gap-2">
-                                <span class="flex items-center gap-0.5">
-                                    <span class="material-symbols-outlined text-[12px]">location_on</span> {{ $item->city ?? 'Indonesia' }}
-                                </span>
-                            </div>
+            <div class="p-5 rounded-xl bg-surface-container flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full overflow-hidden bg-secondary-fixed relative ring-2 ring-white">
+                        <img class="w-full h-full object-cover"
+                             src="{{ $item->user->avatar_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($item->user->name) }}"
+                             alt="{{ $item->user->name }}">
+                    </div>
+                    <div>
+                        {{-- Seller name now clickable → opens seller profile in new tab --}}
+                        <a href="{{ route('seller.profile', $item->user) }}" target="_blank"
+                           class="font-bold text-sm text-primary flex items-center gap-1 hover:underline">
+                            {{ $item->user->name }}
+                            <span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+                        </a>
+                        <div class="flex items-center text-[11px] text-on-surface-variant gap-2">
+                            <span class="flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-[12px]">location_on</span> {{ $item->city ?? 'Indonesia' }}
+                            </span>
                         </div>
                     </div>
                 </div>
+
+                {{-- PBI-39: Seller Rating Badge --}}
+                @php
+                    $avgRating = $item->user->averageRating();
+                    $totalReviews = $item->user->totalReviews();
+                @endphp
+                <div class="flex items-center gap-1.5">
+                    @if($totalReviews > 0)
+                        <span class="material-symbols-outlined text-amber-500 text-base" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="text-sm font-bold text-primary">{{ $avgRating }}</span>
+                        <span class="text-xs text-on-surface-variant">({{ $totalReviews }})</span>
+                    @else
+                        <span class="text-xs text-on-surface-variant italic">No reviews yet</span>
+                    @endif
+                </div>
+            </div>
 
             @auth
             <div class="relative z-10 mt-auto">
