@@ -54,6 +54,33 @@
         </div>
     @endif
 
+    @if (session('error'))
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">error</span>
+                </div>
+                <p class="text-sm font-bold text-red-800 font-headline">{{ session('error') }}</p>
+            </div>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                    <span class="material-symbols-outlined text-[18px]">error</span>
+                </div>
+                <p class="text-sm font-bold text-red-800 font-headline">There were some problems with your input:</p>
+            </div>
+            <ul class="list-disc list-inside text-sm text-red-700 space-y-1 ml-11">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     {{-- Data Table --}}
     <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
