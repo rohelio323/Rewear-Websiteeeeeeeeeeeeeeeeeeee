@@ -39,13 +39,13 @@
                     <span class="material-symbols-outlined text-sm {{ !request('sort') ? 'text-[#ccead6]' : 'text-[#424844]' }}">schedule</span>
                     Latest
                 </a>
-                
+
                 <a href="{{ route('community.index', ['sort' => 'popular']) }}"
                 class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition {{ request('sort') === 'popular' ? 'bg-[#173124] text-white shadow' : 'bg-white border border-[#e2e3e0] text-[#424844] hover:border-[#173124] hover:text-[#173124]' }}">
                     <span class="material-symbols-outlined text-sm {{ request('sort') === 'popular' ? 'text-[#ccead6]' : 'text-[#424844]' }}">local_fire_department</span>
                     Popular
                 </a>
-                
+
                 @auth
                     <button onclick="openModal('createModal')"
                             class="ml-auto flex items-center gap-2 px-5 py-2.5 bg-[#173124] hover:opacity-90 active:scale-95 text-white text-xs font-black uppercase tracking-widest rounded-xl transition shadow-sm">
@@ -70,13 +70,12 @@
                             <p class="text-[10px] text-[#424844] font-medium uppercase tracking-widest mt-0.5">{{ $post->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
-
                     {{-- Kebab menu --}}
                     @auth
-                        @if(Auth::id() == $post->users_id)
-                        <div class="absolute right-4 top-4 z-20">
-                            <button onclick="toggleDropdown({{ $post->post_id }})" class="kebab-button text-[#424844] hover:text-[#173124] font-bold text-xl px-2 pb-2 transition-colors">⋮</button>
-                            <div id="dropdown-{{ $post->post_id }}" class="dropdown-menu hidden absolute right-0 top-8 w-40 bg-white rounded-xl shadow-lg border border-[#e2e3e0] overflow-hidden z-30">
+                    <div class="absolute right-4 top-4 z-20">
+                        <button onclick="toggleDropdown({{ $post->post_id }})" class="kebab-button text-[#424844] hover:text-[#173124] font-bold text-xl px-2 pb-2 transition-colors">⋮</button>
+                        <div id="dropdown-{{ $post->post_id }}" class="dropdown-menu hidden absolute right-0 top-8 w-40 bg-white rounded-xl shadow-lg border border-[#e2e3e0] overflow-hidden z-30">
+                            @if(Auth::id() == $post->users_id)
                                 <button onclick="openEditModal(this)"
                                         data-id="{{ $post->post_id }}"
                                         data-title="{{ $post->title }}"
@@ -93,15 +92,22 @@
                                         <span class="material-symbols-outlined text-sm">delete</span> Delete
                                     </button>
                                 </form>
-                            </div>
+                            @else
+                                <button onclick="openReportModal({{ $post->post_id }})"
+                                    class="w-full text-left px-4 py-3 text-sm text-[#1a1c1b] hover:bg-[#ffdad6] hover:text-[#ba1a1a] font-semibold transition-colors flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">flag</span> Report
+                                </button>
+                            @endif
                         </div>
-                        @endif
+                    </div>
                     @endauth
 
                     {{-- Post Image --}}
                     @if($post->image_path)
-                    <div class="w-full overflow-hidden bg-[#f4f4f1] border-b border-[#e2e3e0] max-h-[440px]">
-                        <img src="{{ asset('storage/' . $post->image_path) }}" alt="Post image" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700">
+                    <div class="w-full flex justify-center overflow-hidden bg-[#f4f4f1] border-b border-[#e2e3e0] max-h-[440px]">
+                        <img src="{{ asset('storage/' . $post->image_path) }}" 
+                            alt="Post image" 
+                            class="h-full max-h-[440px] w-auto object-contain hover:scale-105 transition-transform duration-700">
                     </div>
                     @endif
 
@@ -217,13 +223,13 @@
                         </h3>
                         <a href="{{ route('challenges.index') }}" class="text-[10px] font-bold text-[#424844] hover:text-[#173124] transition-colors uppercase tracking-wider">View All</a>
                     </div>
-                    
+
                     {{-- Vertical stack for pristine sidebar layout integration --}}
                     <div class="space-y-4">
                         @foreach($activeChallenges->take(3) as $challenge)
                             <a href="{{ route('challenges.show', $challenge->id) }}" class="block bg-[#173124] rounded-xl p-5 relative overflow-hidden group border border-[#e2e3e0]/10 shadow-sm hover:shadow-md transition-all duration-300">
                                 <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ccead6 1px, transparent 1px); background-size: 16px 16px;"></div>
-                                
+
                                 <div class="relative z-10">
                                     <span class="inline-block px-2 py-0.5 bg-[#ccead6]/20 text-[#ccead6] border border-[#b0cdbb]/30 rounded-md text-[9px] font-bold uppercase tracking-wider mb-2 backdrop-blur-sm">
                                         #{{ $challenge->hashtag }}
@@ -242,7 +248,7 @@
                 <h4 class="font-headline font-bold text-[#173124] mb-6 uppercase tracking-wider text-xs flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-md">social_leaderboard</span> Top Currator of All Time
                 </h4>
-                <div class="space-y-4">
+                <div class="space-y-2">
                     @forelse($topUser as $index => $user)
                         <div class="flex items-center justify-between bg-white/50 p-2.5 rounded-lg border border-white/40">
                             <div class="flex items-center gap-3">
@@ -388,25 +394,48 @@
             </div>
             <div id="breakdownContent" class="hidden grid grid-cols-2 gap-4 my-4">
                 <div class="bg-[#ccead6]/30 border border-[#b0cdbb]/60 rounded-xl p-4 flex flex-col items-center">
-                    <span class="material-symbols-outlined text-2xl mb-1 text-[#062014] select-none">thumb_up</span>
+                    <span class="material-symbols-outlined text-2xl mb-1 text-[#062014] select-none">arrow_upward</span>
                     <span id="breakdownLikes" class="text-xl font-extrabold text-[#062014] block">0</span>
-                    <span class="text-[10px] font-bold text-[#324c3e] uppercase tracking-wider mt-1">Likes</span>
+                    <span class="text-[10px] font-bold text-[#324c3e] uppercase tracking-wider mt-1">Upvote</span>
                 </div>
                 <div class="bg-[#ffdad6]/60 border border-[#ffdad6] rounded-xl p-4 flex flex-col items-center">
-                    <span class="material-symbols-outlined text-2xl mb-1 text-[#ba1a1a] select-none">thumb_down</span>
+                    <span class="material-symbols-outlined text-2xl mb-1 text-[#ba1a1a] select-none">arrow_downward</span>
                     <span id="breakdownDislikes" class="text-xl font-extrabold text-[#ba1a1a] block">0</span>
-                    <span class="text-[10px] font-bold text-[#ba1a1a] uppercase tracking-wider mt-1">Dislikes</span>
+                    <span class="text-[10px] font-bold text-[#ba1a1a] uppercase tracking-wider mt-1">Downvote</span>
                 </div>
             </div>
         </div>
     </div>
+    @auth
+    <div id="reportPostModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-xl w-full max-w-md p-6 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-box border border-[#e2e3e0]">
+            <button type="button" onclick="closeModal('reportPostModal')" class="absolute top-5 right-6 text-[#424844] hover:text-[#ba1a1a] text-xl font-bold transition-colors z-10">✕</button>
+            <h2 class="font-headline text-xl font-bold mb-1 text-[#ba1a1a] flex items-center gap-2">
+                <span class="material-symbols-outlined">flag</span> Report Post
+            </h2>
+            <p class="text-[10px] text-[#424844] font-bold mb-6 uppercase tracking-widest">Help us keep the community safe</p>
+            <form action="{{ route('reports.store') }}" method="POST" class="flex flex-col gap-4">
+                @csrf
+                <input type="hidden" name="reportable_type" value="post">
+                <input type="hidden" name="reportable_id" id="reportPostId" value="">
+                <div>
+                    <label class="block text-xs font-bold text-[#173124] uppercase tracking-widest mb-2">Reason</label>
+                    <textarea name="reason" rows="4" required
+                        class="w-full bg-[#f4f4f1] border border-[#e2e3e0] rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#ba1a1a] focus:outline-none resize-none"
+                        placeholder="Describe why you're reporting this post..."></textarea>
+                </div>
+                <button type="submit" class="bg-[#ba1a1a] text-white px-6 py-3 rounded-full text-sm font-bold hover:opacity-90 transition w-full">Submit Report</button>
+            </form>
+        </div>
+    </div>
+    @endauth
 
     <script>
         const CSRF = document.querySelector('meta[name="csrf-token"]')?.content;
         const LOOKUP_URL = '{{ route("community.hashtag.lookup") }}';
         const activeChallengeTags = @json(isset($activeChallenges) ? $activeChallenges->pluck('hashtag') : []);
 
-        // ── Challenge post validation 
+        // ── Challenge post validation
         function validateChallengePost(event) {
             const tagsInput  = document.getElementById('createTags').value.toLowerCase();
             const content    = document.getElementById('createContent').value.toLowerCase();
@@ -432,7 +461,7 @@
             document.getElementById('createFormError').classList.add('hidden');
         }
 
-        // ── Modal helpers 
+        // ── Modal helpers
         function openModal(modalId) {
             const modal = document.getElementById(modalId);
             const box   = modal.querySelector('.modal-box');
@@ -453,18 +482,23 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // ── Edit modal with time-lock logic 
+        // ── Edit modal with time-lock logic
         function openEditModal(btn) {
-            document.getElementById('editTitle').value   = btn.getAttribute('data-title');
-            document.getElementById('editContent').value = btn.getAttribute('data-content');
-            document.getElementById('editForm').action   = `/community/update/${btn.getAttribute('data-id')}`;
-
             const createdAt = new Date(btn.getAttribute('data-created'));
             const ageMin    = (Date.now() - createdAt.getTime()) / 60000;
+            const isLocked  = ageMin >= 30;
 
-            document.getElementById('editLockWarning').classList.toggle('hidden', ageMin < 30);
+            document.getElementById('editTitle').value   = btn.getAttribute('data-title');
+            document.getElementById('editTitle').disabled = isLocked;
+            
+            document.getElementById('editContent').value = btn.getAttribute('data-content');
+            document.getElementById('editContent').disabled = isLocked;
+            
+            document.getElementById('editForm').action   = `/community/update/${btn.getAttribute('data-id')}`;
 
-            const tagsLocked = ageMin >= 15;
+            document.getElementById('editLockWarning').classList.toggle('hidden', !isLocked);
+
+            const tagsLocked = ageMin >= 15 || isLocked;
             document.getElementById('editTagsLocked').classList.toggle('hidden', !tagsLocked);
             const tagsInput   = document.getElementById('editTags');
             tagsInput.disabled = tagsLocked;
@@ -475,11 +509,27 @@
                 document.getElementById('editTagPreview').innerHTML = '';
             }
 
+            const imgInput = document.querySelector('#editForm input[type="file"]');
+            if (imgInput) imgInput.disabled = isLocked;
+
+            const submitBtn = document.querySelector('#editForm button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = isLocked;
+                submitBtn.classList.toggle('opacity-50', isLocked);
+                submitBtn.classList.toggle('cursor-not-allowed', isLocked);
+            }
+
             closeAllDropdowns();
             openModal('editModal');
         }
 
-        // ── Breakdown / Analytics modal 
+        function openReportModal(postId) {
+            document.getElementById('reportPostId').value = postId;
+            closeAllDropdowns();
+            openModal('reportPostModal');
+        }
+
+        // ── Breakdown / Analytics modal
         async function openBreakdownModal(postId) {
             openModal('breakdownModal');
             const loadingNode  = document.getElementById('breakdownLoading');
@@ -503,7 +553,7 @@
             }
         }
 
-        // ── Dropdown 
+        // ── Dropdown
         function toggleDropdown(id) {
             const dropdown = document.getElementById('dropdown-' + id);
             const isHidden = dropdown.classList.contains('hidden');
@@ -520,7 +570,7 @@
             if (e.target.id && e.target.classList.contains('fixed')) closeModal(e.target.id);
         });
 
-        // ── Image preview 
+        // ── Image preview
         function previewImage(input, textId, imageId) {
             if (input.files && input.files[0]) {
                 const fileName = document.getElementById(textId);
@@ -534,7 +584,7 @@
             }
         }
 
-        // ── Tag helpers 
+        // ── Tag helpers
         function addTag(inputId, tag, previewId) {
             const input = document.getElementById(inputId);
             if (!input) return;

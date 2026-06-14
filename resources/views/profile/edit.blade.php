@@ -9,14 +9,14 @@
 
 <main class="bg-[#fafaf9] min-h-screen py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {{-- Page Header --}}
         <header class="mb-10 border-b border-stone-200 pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
                 <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-emerald-950 font-headline mb-2">Account Settings</h1>
                 <p class="text-stone-500 text-sm">Manage your personal details, security, and view your ReWear impact.</p>
             </div>
-            
+
             {{-- Quick Profile Badge --}}
             <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-full border border-stone-200 shadow-sm w-max">
                 <div class="w-8 h-8 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-bold text-xs">
@@ -28,7 +28,7 @@
                 </div>
             </div>
         </header>
-        
+
         {{-- Warning Notification --}}
         @if($currentUser->warning_count > 0)
             <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-2xl text-sm font-medium flex items-center gap-2">
@@ -38,22 +38,22 @@
         @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-            
+
             {{-- LEFT COLUMN: The Trophy Case (Sticky Sidebar) --}}
             <div class="lg:col-span-4 space-y-6">
                 <div class="sticky top-8 space-y-6">
-                    
+
                     {{-- Unified Impact Card --}}
                     <div class="bg-emerald-950 rounded-3xl p-6 text-emerald-50 relative overflow-hidden shadow-lg border border-emerald-900">
                         <div class="absolute -right-6 -bottom-6 opacity-10 pointer-events-none">
                             <span class="material-symbols-outlined text-[150px] text-emerald-300">eco</span>
                         </div>
-                        
+
                         <h3 class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-6 flex items-center gap-2">
                             <span class="material-symbols-outlined text-sm">psychiatry</span>
                             Lifetime Impact
                         </h3>
-                        
+
                         <div class="space-y-6 relative z-10">
                             {{-- CO2 Stat (Now fully synchronized) --}}
                             <div>
@@ -63,7 +63,7 @@
                                     <span class="text-sm font-bold text-emerald-400">kg</span>
                                 </div>
                             </div>
-                            
+
                             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-emerald-800/50">
                                 {{-- Rank Stat --}}
                                 <div>
@@ -85,7 +85,7 @@
                             <span class="material-symbols-outlined text-emerald-600 text-xl">storefront</span>
                             <h2 class="text-lg font-bold text-emerald-900">Seller Hub</h2>
                         </div>
-                        
+
                         @if($currentUser->isVerifiedSeller())
                             <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center gap-3">
                                 <span class="material-symbols-outlined text-emerald-600 text-2xl">verified</span>
@@ -127,13 +127,16 @@
                             </form>
                         @endif
                     </div>
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200">
+                        @include('profile.partials.voucher-exchange')
+                    </div>
 
                 </div>
             </div>
 
             {{-- RIGHT COLUMN: The Control Room (Forms & History) --}}
             <div class="lg:col-span-8 space-y-8">
-                
+
                 {{-- Challenge History --}}
                 <section class="bg-white shadow-sm rounded-3xl border border-stone-200 overflow-hidden">
                     <div class="p-6 sm:p-8 border-b border-stone-100 flex items-center justify-between">
@@ -143,7 +146,7 @@
                         </div>
                         <span class="bg-stone-100 text-stone-600 text-xs font-bold px-3 py-1 rounded-full">{{ $totalPosts ?? 0 }} Posts</span>
                     </div>
-                    
+
                     <div class="p-6 sm:p-8 bg-stone-50/50">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @if(isset($challengeHistory) && $challengeHistory->isNotEmpty())
@@ -160,7 +163,7 @@
                                             <h4 class="font-bold text-sm text-stone-800 truncate">{{ $post->title }}</h4>
                                             <p class="text-[10px] text-stone-400 font-medium uppercase tracking-widest mb-1.5">{{ $post->created_at->format('M d, Y') }}</p>
                                             <div class="flex flex-wrap gap-1">
-                                                @php 
+                                                @php
                                                     $tagsArray = is_array($post->tags) ? $post->tags : (json_decode($post->tags, true) ?? explode(',', $post->tags));
                                                 @endphp
                                                 @foreach($tagsArray as $tag)

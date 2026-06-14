@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\CarbonVoucher;
 use App\Models\Order;
 use App\Models\Post;
+use App\Models\VoucherRedemption;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,6 +48,18 @@ class ProfileController extends Controller
         // Total Posts count (PBI-23)
         $totalPosts = Post::where('users_id', $userId)->count();
 
+        // Available vouchers for redemption (from RewardsController)
+        $vouchers = CarbonVoucher::where('is_active', true)
+            ->where('quantity_available', '>', 0)
+            ->orderBy('co2_cost')
+            ->get();
+
+        // User's redemption history (from RewardsController)
+        $redemptions = VoucherRedemption::where('user_id', $userId)
+            ->with(['voucher', 'order'])
+            ->latest()
+            ->get();
+
         return view('profile.edit', [
             'user' => $user,
             'totalCo2Saved' => $totalCo2Saved,
@@ -53,6 +67,8 @@ class ProfileController extends Controller
             'myRank' => $myRank,
             'challengeHistory' => $challengeHistory,
             'totalPosts' => $totalPosts,
+            'vouchers' => $vouchers,
+            'redemptions' => $redemptions,
         ]);
     }
 
@@ -83,6 +99,32 @@ class ProfileController extends Controller
         $user->submitSellerRequest('');
 
         return Redirect::route('profile.edit')->with('status', 'seller-applied');
+    }
+
+    public function redeem(Request $request, CarbonVoucher $voucher): RedirectResponse
+    {
+        $user = Auth::user();
+
+        if (!$voucher->is_active || $voucher->quantity_available <= 0) {
+            return back()->with('error', 'This voucher is no longer available.');
+        }
+
+        if ((float) $user->total_co2_saved < $voucher->co2_cost) {
+            return back()->with('error', "You need {$voucher->co2_cost} kg CO₂ saved to redeem this voucher. You currently have " . number_format($user->total_co2_saved, 1) . " kg.");
+        }
+
+        // Deduct CO2 and decrement quantity
+        $user->decrement('total_co2_saved', $voucher->co2_cost);
+        $voucher->decrement('quantity_available');
+
+        VoucherRedemption::create([
+            'user_id'      => $user->id,
+            'voucher_id'   => $voucher->id,
+            'co2_deducted' => $voucher->co2_cost,
+        ]);
+
+        return redirect()->route('profile.edit', ['tab' => 'rewards'])
+            ->with('success', "Voucher code {$voucher->code} redeemed! Discount: Rp " . number_format($voucher->discount_amount, 0, ',', '.') . ". Use it on your next payment.");
     }
 
     /**

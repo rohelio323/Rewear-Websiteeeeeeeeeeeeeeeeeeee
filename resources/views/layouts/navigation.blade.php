@@ -3,17 +3,17 @@
 
         <div class="flex items-center gap-8">
             <a href="{{ url('/') }}" class="text-2xl font-bold tracking-tighter text-emerald-900 font-headline">ReWear</a>
-            
+
             {{-- Main Navigation Links --}}
             <div class="hidden md:flex gap-6">
                 <a href="{{ route('marketplace.index') }}" class="{{ request()->is('marketplace') ? 'text-emerald-900 border-b-2 border-emerald-900 font-bold' : 'text-stone-600' }} pb-1 font-headline text-sm tracking-tight transition-all">Marketplace</a>
-                
+
                 {{-- Community --}}
                 <a href="{{ route('community.index') }}" class="{{ request()->is('community') ? 'text-emerald-900 border-b-2 border-emerald-900 font-bold' : 'text-stone-600' }} pb-1 font-headline text-sm tracking-tight transition-all">Community</a>
-                
+
                 {{-- Challenges --}}
                 <a href="{{ route('challenges.index') }}" class="{{ request()->is('challenges*') ? 'text-emerald-900 border-b-2 border-emerald-900 font-bold' : 'text-stone-600' }} pb-1 font-headline text-sm tracking-tight transition-all">Challenges</a>
-                
+
                 @auth
                 <a href="{{ route('transactions.index') }}" class="{{ request()->routeIs('transactions.*') ? 'text-emerald-900 border-b-2 border-emerald-900 font-bold' : 'text-stone-600' }} pb-1 font-headline text-sm tracking-tight transition-all">Transactions</a>
                 @endauth
@@ -24,6 +24,10 @@
             @auth
                 @if(Auth::user()->role === 'admin')
                     <a href="{{ route('admin.dashboard') }}" class="text-[10px] font-bold text-secondary uppercase border border-secondary/30 px-2 py-2 rounded tracking-widest hover:bg-secondary hover:text-white transition-all">Admin Dashboard</a>
+                @endif
+
+                @if(auth()->user()->role === 'admin' || auth()->user()->is_verified_seller)
+                    <a href="{{ route('reviews.index') }}" class="text-sm font-medium text-stone-600 hover:text-primary transition-colors">My Reviews</a>
                 @endif
 
                 {{-- Wishlist Icon --}}

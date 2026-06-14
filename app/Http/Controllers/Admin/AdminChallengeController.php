@@ -16,21 +16,26 @@ class AdminChallengeController extends Controller
 
     public function store(Request $request)
     {
+        $cleanHashtag = strtolower(str_replace('#', '', $request->hashtag));
+        $request->merge(['hashtag' => $cleanHashtag]);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'hashtag' => 'required|string|max:50|unique:challenges,hashtag', 
             'description' => 'required|string',
-            'start_date' => 'required|date',
+            'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'status' => 'required|in:Active,Draft',
             'reward_points' => 'required|integer|min:0', 
+        ], [
+            'end_date.after_or_equal' => 'Start date cannot be after end date.',
+            'start_date.after_or_equal' => 'Start date cannot be in the past.',
+            'hashtag.unique' => 'Hashtag already taken.',
         ]);
-
-        $cleanHashtag = str_replace('#', '', $request->hashtag);
 
         Challenge::create([
             'title' => $request->title,
-            'hashtag' => strtolower($cleanHashtag),
+            'hashtag' => $request->hashtag,
             'description' => $request->description,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -51,6 +56,9 @@ class AdminChallengeController extends Controller
     {
         $challenge = Challenge::findOrFail($id);
 
+        $cleanHashtag = strtolower(str_replace('#', '', $request->hashtag));
+        $request->merge(['hashtag' => $cleanHashtag]);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'hashtag' => 'required|string|max:50|unique:challenges,hashtag,' . $challenge->id, 
@@ -58,13 +66,14 @@ class AdminChallengeController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reward_points' => 'required|integer|min:0', 
+        ], [
+            'end_date.after_or_equal' => 'Start date cannot be after end date.',
+            'hashtag.unique' => 'Hashtag already taken.',
         ]);
-
-        $cleanHashtag = str_replace('#', '', $request->hashtag);
 
         $challenge->update([
             'title' => $request->title,
-            'hashtag' => strtolower($cleanHashtag),
+            'hashtag' => $request->hashtag,
             'description' => $request->description,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -78,6 +87,12 @@ class AdminChallengeController extends Controller
     public function destroy($id)
     {
         $challenge = Challenge::findOrFail($id);
+
+        $hasSubmissions = \App\Models\Post::where('tags', 'LIKE', '%' . $challenge->hashtag . '%')->exists();
+        if ($hasSubmissions) {
+            return redirect()->back()->with('error', 'Cannot delete challenge with existing submissions.');
+        }
+
         $challenge->delete();
 
         return redirect()->route('challenges.index')->with('success', 'Challenge deleted permanently.');

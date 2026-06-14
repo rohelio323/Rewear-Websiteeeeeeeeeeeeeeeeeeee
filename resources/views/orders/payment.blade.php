@@ -11,12 +11,33 @@
     </div>
 
     {{-- Item + Price --}}
-    <div class="rounded-2xl bg-white border border-stone-200 p-5 mb-4 flex items-center justify-between">
-        <div>
-            <p class="font-semibold text-stone-900">{{ $order->item->item_name }}</p>
-            <p class="text-xs text-stone-400 mt-0.5">Total to pay</p>
+    <div class="rounded-2xl bg-white border border-stone-200 p-5 mb-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="font-semibold text-stone-900">{{ $order->item->item_name }}</p>
+                <p class="text-xs text-stone-400 mt-0.5">Total to pay</p>
+            </div>
+            <p class="text-xl font-bold font-mono text-emerald-900">
+                Rp {{ number_format(max(0, $order->total_price - ($order->discount_amount ?? 0)), 0, ',', '.') }}
+            </p>
         </div>
-        <p class="text-xl font-bold font-mono text-emerald-900">Rp {{ number_format($order->total_price, 0, ',', '.') }}</p>
+
+        @if($order->voucher_redemption_id && $order->discount_amount > 0)
+            <div class="mt-4 pt-4 border-t border-stone-100 flex flex-col gap-1.5">
+                <div class="flex justify-between text-xs text-stone-500">
+                    <span>Subtotal</span>
+                    <span>Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <div class="flex items-center gap-1.5 text-stone-500">
+                        <span class="material-symbols-outlined text-[14px] text-amber-500">local_offer</span>
+                        <span>Voucher</span>
+                        <span class="font-mono text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">{{ $order->voucherRedemption->voucher->code }}</span>
+                    </div>
+                    <span class="text-amber-600 font-bold">-Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</span>
+                </div>
+            </div>
+        @endif
     </div>
 
     {{-- Form --}}

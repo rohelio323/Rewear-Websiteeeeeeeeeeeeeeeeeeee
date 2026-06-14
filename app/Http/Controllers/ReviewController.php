@@ -65,4 +65,26 @@ class ReviewController extends Controller
         return redirect()->route('orders.show', $order)
             ->with('success', 'Thank you for your review!');
     }
+
+    public function index()
+    {
+        $reviews = Auth::user()->reviewsReceivedList()->paginate(10);
+        $avgRating = Auth::user()->averageRating();
+        $totalReviews = Auth::user()->totalReviews();
+
+        return view('reviews.index', compact('reviews', 'avgRating', 'totalReviews'));
+    }
+    
+    public function sellerProfile(\App\Models\User $user)
+    {
+        $reviews = $user->reviewsReceived()
+            ->with(['item', 'buyer'])
+            ->latest()
+            ->paginate(10);
+
+        $avgRating = $user->averageRating();
+        $totalReviews = $user->totalReviews();
+
+        return view('reviews.seller-profile', compact('user', 'reviews', 'avgRating', 'totalReviews'));
+    }
 }

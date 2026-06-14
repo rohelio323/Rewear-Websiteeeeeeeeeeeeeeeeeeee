@@ -17,7 +17,7 @@
         <p class="text-secondary font-bold text-[11px] tracking-[0.2em] uppercase mb-1">Currently Editing</p>
         <h1 class="text-4xl md:text-5xl font-extrabold tracking-tighter text-primary mb-3">Edit Listing</h1>
         <p class="text-on-surface-variant text-sm font-body">{{ $item->item_name }}</p>
-    </header>
+    </header> 
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
 

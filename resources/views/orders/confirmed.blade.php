@@ -77,27 +77,43 @@
         </div>
 
         {{-- Totals --}}
+        @php
+            $itemPrice    = $order->item->price ?? $order->total_price;
+            $discountAmt  = (float) ($order->discount_amount ?? 0);
+            $finalTotal   = max(0, $itemPrice - $discountAmt);
+        @endphp
         <div class="flex flex-col gap-2">
             <div class="flex justify-between text-sm text-stone-500">
                 <span>Subtotal</span>
-                <span>Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+                <span>Rp {{ number_format($itemPrice, 0, ',', '.') }}</span>
             </div>
             <div class="flex justify-between text-sm text-stone-500">
                 <span>Shipping</span>
                 <span class="text-emerald-700 font-medium">Free Shipping</span>
             </div>
+
+            @if($discountAmt > 0)
+                <div class="flex justify-between text-sm">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[14px] text-amber-500">local_offer</span>
+                        <span class="text-stone-600">Voucher Applied</span>
+                    </div>
+                    <span class="text-amber-600 font-bold">-Rp {{ number_format($discountAmt, 0, ',', '.') }}</span>
+                </div>
+            @endif
+
             <div class="flex justify-between text-base font-bold text-stone-900 pt-3 border-t border-stone-100 mt-1">
                 <span>Total</span>
-                <span>Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+                <span>Rp {{ number_format($finalTotal, 0, ',', '.') }}</span>
             </div>
         </div>
-    </div>
+    </div>{{-- end summary card --}}
 
     {{-- Action Buttons --}}
     <div class="flex gap-3 justify-center">
         <a href="{{ route('orders.show', $order) }}"
            class="flex items-center justify-center gap-2 bg-emerald-900 hover:bg-emerald-800 text-white text-sm font-medium px-6 py-2.5 rounded-full transition-colors duration-200">
-            View Order in Dashboard ✦
+            View Order in Dashboard
         </a>
         <a href="{{ route('marketplace.index') }}"
            class="flex items-center justify-center border border-stone-200 text-stone-600 hover:bg-stone-50 text-sm font-medium px-6 py-2.5 rounded-full transition-colors duration-200">
