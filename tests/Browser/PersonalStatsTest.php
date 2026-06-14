@@ -7,16 +7,13 @@ use App\Models\Post;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
-use PHPUnit\Framework\Attributes\TestDox;
 
 class PersonalStatsTest extends DuskTestCase
 {
     use DatabaseTruncation;
 
     /**
-     * Case ID: TC.Stats.23.001
-     * Case Type: Positive
-     * Description: User can view their calculated Total Score (Points) and Leaderboard Rank
+     * TC.Stats.23.001 | User can view their calculated Total Score (Points) and Leaderboard Rank
      */
     public function testUserCanViewTheirTotalScoreAndRank()
     {
@@ -49,9 +46,7 @@ class PersonalStatsTest extends DuskTestCase
     }
 
     /**
-     * Case ID: TC.Stats.23.002
-     * Case Type: Positive
-     * Description: User can view their documented "Challenge History" on the profile page
+     * TC.Stats.23.002 | User can view their documented "Challenge History" on the profile page
      */
     public function testUserCanViewTheirChallengeHistory()
     {
@@ -80,17 +75,16 @@ class PersonalStatsTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($user) {
             $browser->loginAs($user)
                     ->visit('/profile')
+                    ->pause(1000) 
                     ->assertSee('Challenge History')
                     ->assertSee('My Challenge Outfit')
-                    ->assertSee('DENIMWEEK')
+                    ->assertSee('#DENIMWEEK') 
                     ->assertDontSee('Regular Outfit');
         });
     }
 
     /**
-     * Case ID: TC.Stats.23.003
-     * Case Type: Positive
-     * Description: A new user with no posts sees the "No stories yet" empty state
+     * TC.Stats.23.003 | A new user with no posts sees the "No stories yet" empty state
      */
     public function testNewUserSeesEmptyChallengeHistoryState()
     {
