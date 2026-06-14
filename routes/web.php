@@ -41,6 +41,12 @@ Route::delete('/admin/categories/{id}', [CO2Controller::class, 'deleteCategory']
 Route::get('/marketplace', [ItemController::class, 'index'])->name('marketplace.index');
 Route::get('/item/detail/{item}', [ItemController::class, 'show'])->name('items.show');
 Route::get('/community', [PostController::class, 'index'])->name('community.index');
+Route::get('/terms', function () {
+    return view('terms');
+})->name('terms');
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
 
 Route::get('/seller/{user}', [ReviewController::class, 'sellerProfile'])->name('seller.profile');
 

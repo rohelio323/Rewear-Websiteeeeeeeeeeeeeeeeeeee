@@ -132,13 +132,15 @@
                     <a href="#" class="hover:text-primary">Sustainability Impact</a>
                 </nav>
             </div>
+
             <div class="space-y-4">
                 <h4 class="font-bold text-primary uppercase tracking-widest text-xs">Platform</h4>
                 <nav class="flex flex-col space-y-2 text-stone-500">
-                    <a href="#" class="hover:text-primary">Terms of Service</a>
-                    <a href="#" class="hover:text-primary">Privacy Policy</a>
+                    <a href="{{ route('terms') }}" class="hover:text-primary">Terms of Service</a>
+                    <a href="{{ route('privacy') }}" class="hover:text-primary">Privacy Policy</a>
                 </nav>
             </div>
+
             <div class="space-y-4">
                 <h4 class="font-bold text-primary uppercase tracking-widest text-xs">Newsletter</h4>
                 <div class="flex gap-2">

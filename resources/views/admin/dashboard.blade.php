@@ -11,16 +11,7 @@
             <h1 class="text-3xl font-extrabold text-emerald-950 tracking-tight font-headline">System Overview</h1>
             <p class="text-sm text-stone-500 mt-1">Real-time health of the ReWear ecosystem</p>
         </div>
-        <div class="flex flex-wrap items-center gap-3 shrink-0">
-            <button class="flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 rounded-xl text-sm font-bold transition-colors shadow-sm active:scale-95">
-                <span class="material-symbols-outlined text-[18px]">download</span>
-                Export Report
-            </button>
-            <button class="flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-950 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow active:scale-95">
-                <span class="material-symbols-outlined text-[18px]">campaign</span>
-                Announcement
-            </button>
-        </div>
+        
     </div>
 
     {{-- KPI Cards Grid --}}
