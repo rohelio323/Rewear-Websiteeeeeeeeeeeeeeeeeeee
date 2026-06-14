@@ -12,6 +12,7 @@ class AdminModerationController extends Controller
     public function index()
     {
         $reports = Report::with(['reportable', 'reporter'])
+            ->where('status', 'pending')
             ->latest()
             ->paginate(20);
 

@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('image_path')->nullable();
             $table->integer('upvote_count')->default(0);
             $table->foreignId('users_id')->nullable(); 
+            $table->string('status')->default('active');
             $table->string('tags')->nullable();             
             $table->timestamps();
         });

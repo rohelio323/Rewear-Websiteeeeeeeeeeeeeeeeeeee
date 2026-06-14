@@ -17,7 +17,7 @@ class PostController extends Controller {
     public function index()
     {
         // 1. Fetch all the community posts with the user data
-        $posts = Post::with('user')->latest()->get(); 
+        $posts = Post::with('user')->where('status', '!=', 'hidden')->latest()->get();
 
         // 2. Attach the user's vote data to each post
         if (Auth::check()) {
@@ -37,6 +37,7 @@ class PostController extends Controller {
             ->get();
 
         $trendingPosts = Post::with('user')
+            ->where('status', '!=', 'hidden')
             ->where('created_at', '>=', Carbon::now()->startOfWeek())
             ->orderByDesc('upvote_count')
             ->get();

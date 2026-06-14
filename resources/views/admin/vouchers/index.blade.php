@@ -17,7 +17,14 @@
     @if(session('success'))
         <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3 rounded-2xl text-sm">{{ session('success') }}</div>
     @endif
-
+    @if($errors->any())
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-5 py-3 rounded-2xl text-sm">
+            @foreach($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+    
     <div class="bg-white border border-stone-200 rounded-3xl shadow-sm overflow-hidden">
         <table class="w-full text-sm">
             <thead class="bg-stone-50 border-b border-stone-200">
