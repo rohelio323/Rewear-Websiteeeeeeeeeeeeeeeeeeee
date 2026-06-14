@@ -92,7 +92,7 @@ class UserChallengeTest extends DuskTestCase
         $this->browse(function (Browser $browser) use ($challenge) {
             $browser->logout()
                     ->visit('/challenges/' . $challenge->id)
-                    ->assertSee('Guest Challenge'); // Guests can see the challenge
+                    ->assertSee('Guest Challenge'); // Guests CAN see the challenge
         });
     }
 }

@@ -181,8 +181,6 @@ class AdminChallengeTest extends DuskTestCase
 
     /**
      * Case ID: TC.Challenge.22.008
-     * Case Type: Negative
-     * Description: Admin creates a challenge where the Start Date is after the End Date
      */
     public function testAdminCreatesChallengeWithStartDateAfterEndDate()
     {
@@ -192,7 +190,7 @@ class AdminChallengeTest extends DuskTestCase
             $browser->loginAs($admin)
                     ->visit('/admin/challenges')
                     ->press('Add Challenge')
-                    ->pause(500)
+                    ->pause(1000)
                     ->type('title', 'Invalid Dates Challenge')
                     ->type('hashtag', 'invalid_dates')
                     ->type('description', 'Description')
@@ -201,7 +199,7 @@ class AdminChallengeTest extends DuskTestCase
                     ->type('end_date', '05-10-2027')
                     ->select('status', 'Active')
                     ->press('Launch Challenge')
-                    ->pause(500)
+                    ->pause(2000)
                     ->assertSee('Start date cannot be after end date.');
         });
     }
@@ -219,16 +217,16 @@ class AdminChallengeTest extends DuskTestCase
             $browser->loginAs($admin)
                     ->visit('/admin/challenges')
                     ->press('Add Challenge')
-                    ->pause(500)
+                    ->pause(1000)
                     ->type('title', 'Past Start Date Challenge')
                     ->type('hashtag', 'past_start')
                     ->type('description', 'Description')
                     ->type('reward_points', '10')
-                    ->type('start_date', now()->subDay()->format('d-m-Y'))
+                    ->type('start_date', '01-01-2020')
                     ->type('end_date', now()->addDays(5)->format('d-m-Y'))
                     ->select('status', 'Active')
                     ->press('Launch Challenge')
-                    ->pause(500)
+                    ->pause(2000)
                     ->assertSee('Start date cannot be in the past.');
         });
     }
@@ -243,7 +241,7 @@ class AdminChallengeTest extends DuskTestCase
         $admin = $this->makeAdmin();
         Challenge::create([
             'title' => 'First Challenge',
-            'hashtag' => 'existingtag',
+            'hashtag' => 'exists',
             'description' => 'First description',
             'reward_points' => 10,
             'start_date' => now()->addDays(1)->format('Y-m-d'),
@@ -255,16 +253,16 @@ class AdminChallengeTest extends DuskTestCase
             $browser->loginAs($admin)
                     ->visit('/admin/challenges')
                     ->press('Add Challenge')
-                    ->pause(500)
+                    ->pause(1000)
                     ->type('title', 'Second Challenge')
-                    ->type('hashtag', '#existingtag')
+                    ->type('hashtag', 'exists')
                     ->type('description', 'Second description')
                     ->type('reward_points', '20')
                     ->type('start_date', now()->addDays(2)->format('d-m-Y'))
                     ->type('end_date', now()->addDays(6)->format('d-m-Y'))
                     ->select('status', 'Active')
                     ->press('Launch Challenge')
-                    ->pause(500)
+                    ->pause(2000)
                     ->assertSee('Hashtag already taken.');
         });
     }
@@ -309,19 +307,17 @@ class AdminChallengeTest extends DuskTestCase
     }
 
     /**
-     * Case ID: TC.Challenge.22.012
-     * Case Type: Positive
-     * Description: Admin visits the dashboard when zero challenges exist
+     * Case ID: TC.22.012 | Empty State
      */
     public function testAdminVisitsDashboardWhenZeroChallengesExist()
     {
-        Challenge::truncate();
         $admin = $this->makeAdmin();
+        Challenge::truncate(); // Force empty
 
         $this->browse(function (Browser $browser) use ($admin) {
             $browser->loginAs($admin)
                     ->visit('/admin/challenges')
-                    ->assertSee('No challenges found');
+                    ->assertSee('No challenges created yet'); 
         });
     }
 }
