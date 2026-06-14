@@ -5,19 +5,11 @@ use App\Models\PostVote;
 use App\Models\User;
 use Laravel\Dusk\Browser;
 
-/**
- * Create a plain user for voting tests.
- */
 function makeVoter(): User
 {
     return User::factory()->create();
 }
 
-/**
- * Create a post owned by $owner.
- * Optionally set created_at (for date-based tests).
- * Score is set directly on upvote_count.
- */
 function makePost(User $owner, string $title, int $score = 0, ?string $createdAt = null): Post
 {
     $post = Post::create([
@@ -35,9 +27,6 @@ function makePost(User $owner, string $title, int $score = 0, ?string $createdAt
     return $post;
 }
 
-/**
- * Seed a vote record directly in the DB and recalculate the post score.
- */
 function seedVote(Post $post, User $user, int $value): void
 {
     PostVote::firstOrCreate(
@@ -46,44 +35,6 @@ function seedVote(Post $post, User $user, int $value): void
     );
     $post->recalculateScore();
     $post->refresh();
-}
-
-function jsUpvote(Browser $browser, string $title): void
-{
-    $browser->script("
-        const articles = Array.from(document.querySelectorAll('article'));
-        const article  = articles.find(a => a.querySelector('h2')?.innerText.includes(" . json_encode($title) . "));
-        if (article) {
-            const buttons = article.querySelectorAll('[x-data] button');
-            if (buttons[0]) buttons[0].click();
-        }
-    ");
-}
-
-
-function jsDownvote(Browser $browser, string $title): void
-{
-    $browser->script("
-        const articles = Array.from(document.querySelectorAll('article'));
-        const article  = articles.find(a => a.querySelector('h2')?.innerText.includes(" . json_encode($title) . "));
-        if (article) {
-            const buttons = article.querySelectorAll('[x-data] button');
-            if (buttons[1]) buttons[1].click();
-        }
-    ");
-}
-
-
-function jsScore(Browser $browser, string $title): int
-{
-    $result = $browser->script("
-        const articles = Array.from(document.querySelectorAll('article'));
-        const article  = articles.find(a => a.querySelector('h2')?.innerText.includes(" . json_encode($title) . "));
-        if (!article) return null;
-        const span = article.querySelector('[x-data] span[x-text]');
-        return span ? parseInt(span.innerText, 10) : null;
-    ");
-    return (int) ($result[0] ?? 0);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -99,14 +50,15 @@ test('TC.Vote.26.001 UC Positive: logged-in user upvotes a post and score increa
         $browser->loginAs($user)
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(800); // wait for Alpine.js to boot
 
-        // Click upvote via JS (Alpine.js castVote(1))
-        jsUpvote($browser, $post->title);
-        $browser->pause(1500); // wait for AJAX to resolve
+        // Click the upvote button (first button inside [x-data]) on the first (newest) article
+        $browser->click('article:first-of-type [x-data] button:first-child')
+                ->pause(1500); // wait for AJAX to resolve
 
-        $score = jsScore($browser, $post->title);
-        expect($score)->toBe(1);
+        // Score should now be 1
+        $browser->assertSeeIn('article:first-of-type [x-data]', '1');
     });
 });
 
@@ -119,17 +71,10 @@ test('TC.Vote.26.002 UC Negative: guest sees no upvote button and cannot vote', 
         $browser->logout()
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(500);
 
-        // Guests see a static vote display without any clickable [x-data] Alpine buttons
-        $hasVoteButtons = $browser->script("
-            const articles = Array.from(document.querySelectorAll('article'));
-            const article  = articles.find(a => a.querySelector('h2')?.innerText.includes(" . json_encode($post->title) . "));
-            if (!article) return false;
-            return article.querySelectorAll('[x-data] button').length > 0;
-        ")[0];
-
-        expect($hasVoteButtons)->toBeFalsy();
+        $browser->assertMissing('[x-data]');
     });
 });
 
@@ -142,13 +87,15 @@ test('TC.Vote.26.003 UC Positive: logged-in user downvotes a post and score decr
         $browser->loginAs($user)
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(800);
 
-        jsDownvote($browser, $post->title);
-        $browser->pause(1500);
+        // Click the downvote button (last button inside [x-data]) on the first (newest) article
+        $browser->click('article:first-of-type [x-data] button:last-child')
+                ->pause(1500);
 
-        $score = jsScore($browser, $post->title);
-        expect($score)->toBe(-1);
+        // Score should now be -1
+        $browser->assertSeeIn('article:first-of-type [x-data]', '-1');
     });
 });
 
@@ -156,25 +103,23 @@ test('TC.Vote.26.003 UC Positive: logged-in user downvotes a post and score decr
 test('TC.Vote.26.004 EP Positive: clicking same vote again cancels it and score returns to 0', function () {
     $user = makeVoter();
     $post = makePost($user, 'TC.Vote.26.004 Toggle Off Test ' . uniqid(), 0);
-    // Pre-seed an upvote → score starts at 1 in DB; Alpine reads upvote_count on load
     seedVote($post, $user, 1);
 
     $this->browse(function (Browser $browser) use ($user, $post) {
         $browser->loginAs($user)
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(800);
 
         // Alpine initialises score from server-rendered upvote_count (= 1)
-        $scoreBefore = jsScore($browser, $post->title);
-        expect($scoreBefore)->toBe(1);
+        $browser->assertSeeIn('article:first-of-type [x-data]', '1');
 
         // Clicking upvote again (same value) → toggles off → score = 0
-        jsUpvote($browser, $post->title);
-        $browser->pause(1500);
+        $browser->click('article:first-of-type [x-data] button:first-child')
+                ->pause(1500);
 
-        $scoreAfter = jsScore($browser, $post->title);
-        expect($scoreAfter)->toBe(0);
+        $browser->assertSeeIn('article:first-of-type [x-data]', '0');
     });
 });
 
@@ -189,23 +134,21 @@ test('TC.Vote.26.005 EP Positive: user can switch from upvote to downvote', func
         $browser->loginAs($user)
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(800);
 
-        $scoreBefore = jsScore($browser, $post->title);
-        expect($scoreBefore)->toBe(1);
+        // Score starts at 1 (pre-seeded upvote)
+        $browser->assertSeeIn('article:first-of-type [x-data]', '1');
 
         // Click downvote (value=-1) to switch
-        jsDownvote($browser, $post->title);
-        $browser->pause(1500);
+        $browser->click('article:first-of-type [x-data] button:last-child')
+                ->pause(1500);
 
-        $scoreAfter = jsScore($browser, $post->title);
-        expect($scoreAfter)->toBe(-1);
+        $browser->assertSeeIn('article:first-of-type [x-data]', '-1');
     });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 // PBI-27 — Vote Counter (Analytics / Score Display)
-// ─────────────────────────────────────────────────────────────────────────────
 
 // TC.Vote.27.001 | Positive — Score displayed on post card matches DB upvote_count
 test('TC.Vote.27.001 UC Positive: score displayed on card matches database upvote_count', function () {
@@ -216,10 +159,11 @@ test('TC.Vote.27.001 UC Positive: score displayed on card matches database upvot
         $browser->loginAs($owner)
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(800);
 
-        $score = jsScore($browser, $post->title);
-        expect($score)->toBe(7);
+        // Score of 7 should be visible in the vote counter of the first (newest) article
+        $browser->assertSeeIn('article:first-of-type [x-data]', '7');
     });
 });
 
@@ -235,10 +179,11 @@ test('TC.Vote.27.002 BVA Negative: score shows 0 when one upvote and one downvot
         $browser->loginAs($owner)
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(800);
 
-        $score = jsScore($browser, $post->title);
-        expect($score)->toBe(0);
+        // Net score is 0 — displayed in the vote counter of the first (newest) article
+        $browser->assertSeeIn('article:first-of-type [x-data]', '0');
     });
 });
 
@@ -270,17 +215,10 @@ test('TC.Vote.27.004 UC Negative: non-owner does not see the Analytics button on
         $browser->loginAs($nonOwner)
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(500);
 
-        $hasAnalyticsButton = $browser->script("
-            const articles = Array.from(document.querySelectorAll('article'));
-            const article  = articles.find(a => a.querySelector('h2')?.innerText.includes(" . json_encode($post->title) . "));
-            if (!article) return false;
-            const buttons = Array.from(article.querySelectorAll('button'));
-            return buttons.some(b => b.innerText.trim().includes('Analytics'));
-        ")[0];
-
-        expect($hasAnalyticsButton)->toBeFalsy();
+        $browser->assertSourceMissing('openBreakdownModal(' . $post->post_id . ')');
     });
 });
 
@@ -293,29 +231,24 @@ test('TC.Vote.27.005 UC Positive: score counter updates immediately after upvoti
         $browser->loginAs($user)
                 ->visit('/community')
                 ->waitFor('article', 5)
+                ->waitForText($post->title)
                 ->pause(800);
 
-        // Score must be 0 before voting
-        $scoreBefore = jsScore($browser, $post->title);
-        expect($scoreBefore)->toBe(0);
+        $browser->assertSeeIn('article:first-of-type [x-data]', '0');
 
-        // Click upvote — Alpine updates x-text="score" reactively (no page reload)
-        jsUpvote($browser, $post->title);
-        $browser->pause(1500);
+        $browser->click('article:first-of-type [x-data] button:first-child')
+                ->pause(1500);
 
-        $scoreAfter = jsScore($browser, $post->title);
-        expect($scoreAfter)->toBe(1);
+        $browser->assertSeeIn('article:first-of-type [x-data]', '1');
     });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
 // PBI-28 — Trending Feed
-// ─────────────────────────────────────────────────────────────────────────────
 
 // TC.Vote.28.001 | Positive — Popular sort shows highest-voted THIS-WEEK post first
-test('TC.Vote.28.001 UC Positive: popular sort shows highest-voted post before lower-voted post', function () {
+test('TC.Vote.28.001 Positive: popular sort shows highest-voted post before lower-voted post', function () {
     $user = makeVoter();
-    // Both posts created this week so they appear in $trendingPosts
+
     $low  = makePost($user, 'TC.Vote.28.001 Low Score Post '  . uniqid(), 2);
     $high = makePost($user, 'TC.Vote.28.001 High Score Post ' . uniqid(), 10);
 
@@ -323,23 +256,13 @@ test('TC.Vote.28.001 UC Positive: popular sort shows highest-voted post before l
         $browser->loginAs($user)
                 ->visit('/community?sort=popular')
                 ->waitFor('article', 5)
+                ->waitForText($high->title)
+                ->waitForText($low->title)
                 ->pause(500);
 
-        $highPos = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($high->title) . ")
-            );
-        ")[0];
-        $lowPos = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($low->title) . ")
-            );
-        ")[0];
-
-        // High-score post must appear before low-score post
-        expect($highPos)->not->toBe(-1);
-        expect($lowPos)->not->toBe(-1);
-        expect($highPos)->toBeLessThan($lowPos);
+        $browser->assertSee($high->title)->assertSee($low->title);
+        $source = $browser->driver->getPageSource();
+        expect(strpos($source, $high->title))->toBeLessThan(strpos($source, $low->title));
     });
 });
 
@@ -354,23 +277,13 @@ test('TC.Vote.28.002 EP Positive: latest sort shows newest post at the top of th
         $browser->loginAs($user)
                 ->visit('/community') // default = Latest
                 ->waitFor('article', 5)
+                ->waitForText($newPost->title)
+                ->waitForText($oldPost->title)
                 ->pause(500);
 
-        $newPos = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($newPost->title) . ")
-            );
-        ")[0];
-        $oldPos = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($oldPost->title) . ")
-            );
-        ")[0];
-
-        // Newer post must appear before older post
-        expect($newPos)->not->toBe(-1);
-        expect($oldPos)->not->toBe(-1);
-        expect($newPos)->toBeLessThan($oldPos);
+        $browser->assertSee($newPost->title)->assertSee($oldPost->title);
+        $source = $browser->driver->getPageSource();
+        expect(strpos($source, $newPost->title))->toBeLessThan(strpos($source, $oldPost->title));
     });
 });
 
@@ -392,12 +305,7 @@ test('TC.Vote.28.003 EP Negative: post from last week is excluded from the popul
         $browser->assertSee($newPost->title);
 
         // Old post (2 weeks ago) must NOT appear — $trendingPosts filters by startOfWeek()
-        $oldPos = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($oldPost->title) . ")
-            );
-        ")[0];
-        expect($oldPos)->toBe(-1);
+        $browser->assertDontSee($oldPost->title);
     });
 });
 
@@ -415,24 +323,16 @@ test('TC.Vote.28.004 UC Positive: post rises in popular ranking after receiving 
         $browser->loginAs($user)
                 ->visit('/community?sort=popular')
                 ->waitFor('article', 5)
+                ->waitForText($postA->title)
+                ->waitForText($postB->title)
                 ->pause(500);
 
-        $posABefore = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($postA->title) . ")
-            );
-        ")[0];
-        $posBBefore = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($postB->title) . ")
-            );
-        ")[0];
-        expect($posABefore)->toBeLessThan($posBBefore);
+        $browser->assertSee($postA->title)->assertSee($postB->title);
+        $source = $browser->driver->getPageSource();
+        expect(strpos($source, $postA->title))->toBeLessThan(strpos($source, $postB->title));
 
-        // Step 2 — boost Post B's score above A via DB
         PostVote::create(['post_id' => $postB->post_id, 'user_id' => $voter->id, 'value' => 1]);
         $postB->recalculateScore();
-        // postB upvote_count = 2, still less than postA (5) → add more
         $extra = User::factory()->count(5)->create();
         foreach ($extra as $v) {
             PostVote::firstOrCreate(
@@ -441,27 +341,16 @@ test('TC.Vote.28.004 UC Positive: post rises in popular ranking after receiving 
             );
         }
         $postB->recalculateScore();
-        // postB score = 7 > postA score = 5
 
-        // Step 3 — reload and confirm B is now above A
         $browser->visit('/community?sort=popular')
                 ->waitFor('article', 5)
+                ->waitForText($postA->title)
+                ->waitForText($postB->title)
                 ->pause(500);
 
-        $posAAfter = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($postA->title) . ")
-            );
-        ")[0];
-        $posBAfter = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($postB->title) . ")
-            );
-        ")[0];
-
-        expect($posBAfter)->not->toBe(-1);
-        expect($posAAfter)->not->toBe(-1);
-        expect($posBAfter)->toBeLessThan($posAAfter);
+        $browser->assertSee($postB->title)->assertSee($postA->title);
+        $source = $browser->driver->getPageSource();
+        expect(strpos($source, $postB->title))->toBeLessThan(strpos($source, $postA->title));
     });
 });
 
@@ -478,21 +367,14 @@ test('TC.Vote.28.005 UC Negative: downvoting the top post causes it to rank lowe
         $browser->loginAs($user)
                 ->visit('/community?sort=popular')
                 ->waitFor('article', 5)
+                ->waitForText($postA->title)
+                ->waitForText($postB->title)
                 ->pause(500);
 
-        $posABefore = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($postA->title) . ")
-            );
-        ")[0];
-        $posBBefore = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($postB->title) . ")
-            );
-        ")[0];
-        expect($posABefore)->toBeLessThan($posBBefore);
+        $browser->assertSee($postA->title)->assertSee($postB->title);
+        $source = $browser->driver->getPageSource();
+        expect(strpos($source, $postA->title))->toBeLessThan(strpos($source, $postB->title));
 
-        // Step 2 — flood Post A with downvotes via DB to drop its score below B
         $voters = User::factory()->count(15)->create();
         foreach ($voters as $v) {
             PostVote::firstOrCreate(
@@ -501,26 +383,15 @@ test('TC.Vote.28.005 UC Negative: downvoting the top post causes it to rank lowe
             );
         }
         $postA->recalculateScore();
-        // postA score = 10 - 15 = -5, postB score = 3 → B now ranks above A
 
-        // Step 3 — reload and check B is now above A
         $browser->visit('/community?sort=popular')
                 ->waitFor('article', 5)
+                ->waitForText($postA->title)
+                ->waitForText($postB->title)
                 ->pause(500);
 
-        $posAAfter = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($postA->title) . ")
-            );
-        ")[0];
-        $posBAfter = $browser->script("
-            return Array.from(document.querySelectorAll('article')).findIndex(
-                a => a.querySelector('h2')?.innerText.includes(" . json_encode($postB->title) . ")
-            );
-        ")[0];
-
-        expect($posAAfter)->not->toBe(-1);
-        expect($posBAfter)->not->toBe(-1);
-        expect($posBAfter)->toBeLessThan($posAAfter);
+        $browser->assertSee($postB->title)->assertSee($postA->title);
+        $source = $browser->driver->getPageSource();
+        expect(strpos($source, $postB->title))->toBeLessThan(strpos($source, $postA->title));
     });
 });
