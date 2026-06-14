@@ -100,8 +100,10 @@
 
                     {{-- Post Image --}}
                     @if($post->image_path)
-                    <div class="w-full overflow-hidden bg-[#f4f4f1] border-b border-[#e2e3e0] max-h-[440px]">
-                        <img src="{{ asset('storage/' . $post->image_path) }}" alt="Post image" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700">
+                    <div class="w-full flex justify-center overflow-hidden bg-[#f4f4f1] border-b border-[#e2e3e0] max-h-[440px]">
+                        <img src="{{ asset('storage/' . $post->image_path) }}" 
+                            alt="Post image" 
+                            class="h-full max-h-[440px] w-auto object-contain hover:scale-105 transition-transform duration-700">
                     </div>
                     @endif
 
@@ -242,7 +244,7 @@
                 <h4 class="font-headline font-bold text-[#173124] mb-6 uppercase tracking-wider text-xs flex items-center gap-1.5">
                     <span class="material-symbols-outlined text-md">social_leaderboard</span> Top Currator of All Time
                 </h4>
-                <div class="space-y-4">
+                <div class="space-y-2">
                     @forelse($topUser as $index => $user)
                         <div class="flex items-center justify-between bg-white/50 p-2.5 rounded-lg border border-white/40">
                             <div class="flex items-center gap-3">
@@ -388,14 +390,14 @@
             </div>
             <div id="breakdownContent" class="hidden grid grid-cols-2 gap-4 my-4">
                 <div class="bg-[#ccead6]/30 border border-[#b0cdbb]/60 rounded-xl p-4 flex flex-col items-center">
-                    <span class="material-symbols-outlined text-2xl mb-1 text-[#062014] select-none">thumb_up</span>
+                    <span class="material-symbols-outlined text-2xl mb-1 text-[#062014] select-none">arrow_upward</span>
                     <span id="breakdownLikes" class="text-xl font-extrabold text-[#062014] block">0</span>
-                    <span class="text-[10px] font-bold text-[#324c3e] uppercase tracking-wider mt-1">Likes</span>
+                    <span class="text-[10px] font-bold text-[#324c3e] uppercase tracking-wider mt-1">Upvote</span>
                 </div>
                 <div class="bg-[#ffdad6]/60 border border-[#ffdad6] rounded-xl p-4 flex flex-col items-center">
-                    <span class="material-symbols-outlined text-2xl mb-1 text-[#ba1a1a] select-none">thumb_down</span>
+                    <span class="material-symbols-outlined text-2xl mb-1 text-[#ba1a1a] select-none">arrow_downward</span>
                     <span id="breakdownDislikes" class="text-xl font-extrabold text-[#ba1a1a] block">0</span>
-                    <span class="text-[10px] font-bold text-[#ba1a1a] uppercase tracking-wider mt-1">Dislikes</span>
+                    <span class="text-[10px] font-bold text-[#ba1a1a] uppercase tracking-wider mt-1">Downvote</span>
                 </div>
             </div>
         </div>
