@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 @section('title', 'Account Settings & Impact')
 
@@ -72,7 +73,7 @@
                                 </div>
                                 {{-- Score Stat --}}
                                 <div>
-                                    <span class="text-[10px] text-emerald-300/80 uppercase tracking-wider block mb-1">Points</span>
+                                    <span class="text-[10px] text-emerald-300/80 uppercase tracking-wider block mb-1">CO₂ Saved</span>
                                     <span class="text-2xl font-bold text-white">{{ $myScore ?? 0 }}</span>
                                 </div>
                             </div>
@@ -133,7 +134,7 @@
                 </div>
             </div>
 
-            
+
 
             {{-- RIGHT COLUMN: The Control Room (Forms & History) --}}
             <div class="lg:col-span-8 space-y-8">

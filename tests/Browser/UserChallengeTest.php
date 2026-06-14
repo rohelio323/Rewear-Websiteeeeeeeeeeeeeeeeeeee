@@ -7,16 +7,13 @@ use App\Models\Challenge;
 use Illuminate\Foundation\Testing\DatabaseTruncation;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
-use PHPUnit\Framework\Attributes\TestDox;
 
-class UserChallengeEntryTest extends DuskTestCase
+class UserChallengeTest extends DuskTestCase
 {
     use DatabaseTruncation;
 
     /**
-     * Case ID: TC.Challenge.24.001
-     * Case Type: Positive
-     * Description: User can view an active challenge
+     * TC.Challenge.24.001 | User can view an active challenge
      */
     public function testUserCanViewAnActiveChallengeDetailPage()
     {
@@ -41,9 +38,7 @@ class UserChallengeEntryTest extends DuskTestCase
     }
 
     /**
-     * Case ID: TC.Challenge.24.002
-     * Case Type: Positive
-     * Description: User can submit a valid post to an active challenge
+     * TC.Challenge.24.002 | User can submit a valid post to an active challenge
      */
     public function testUserCanSubmitAPostWithAnImageToAnActiveChallenge()
     {
@@ -80,9 +75,7 @@ class UserChallengeEntryTest extends DuskTestCase
     }
 
     /**
-     * Case ID: TC.Challenge.24.003
-     * Case Type: Negative
-     * Description: Unauthenticated user is redirected to the login page when trying to access the challenge detail or submission page
+     * TC.Challenge.24.003 | Unauthenticated user is redirected to the login page when trying to access the challenge detail or submission page
      */
     public function testUnauthenticatedUserIsRedirectedWhenSubmittingToChallenge()
     {

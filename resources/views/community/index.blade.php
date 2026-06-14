@@ -484,16 +484,21 @@
 
         // ── Edit modal with time-lock logic
         function openEditModal(btn) {
-            document.getElementById('editTitle').value   = btn.getAttribute('data-title');
-            document.getElementById('editContent').value = btn.getAttribute('data-content');
-            document.getElementById('editForm').action   = `/community/update/${btn.getAttribute('data-id')}`;
-
             const createdAt = new Date(btn.getAttribute('data-created'));
             const ageMin    = (Date.now() - createdAt.getTime()) / 60000;
+            const isLocked  = ageMin >= 30;
 
-            document.getElementById('editLockWarning').classList.toggle('hidden', ageMin < 30);
+            document.getElementById('editTitle').value   = btn.getAttribute('data-title');
+            document.getElementById('editTitle').disabled = isLocked;
+            
+            document.getElementById('editContent').value = btn.getAttribute('data-content');
+            document.getElementById('editContent').disabled = isLocked;
+            
+            document.getElementById('editForm').action   = `/community/update/${btn.getAttribute('data-id')}`;
 
-            const tagsLocked = ageMin >= 15;
+            document.getElementById('editLockWarning').classList.toggle('hidden', !isLocked);
+
+            const tagsLocked = ageMin >= 15 || isLocked;
             document.getElementById('editTagsLocked').classList.toggle('hidden', !tagsLocked);
             const tagsInput   = document.getElementById('editTags');
             tagsInput.disabled = tagsLocked;
@@ -504,9 +509,20 @@
                 document.getElementById('editTagPreview').innerHTML = '';
             }
 
+            const imgInput = document.querySelector('#editForm input[type="file"]');
+            if (imgInput) imgInput.disabled = isLocked;
+
+            const submitBtn = document.querySelector('#editForm button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = isLocked;
+                submitBtn.classList.toggle('opacity-50', isLocked);
+                submitBtn.classList.toggle('cursor-not-allowed', isLocked);
+            }
+
             closeAllDropdowns();
             openModal('editModal');
         }
+
         function openReportModal(postId) {
             document.getElementById('reportPostId').value = postId;
             closeAllDropdowns();
