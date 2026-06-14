@@ -21,7 +21,7 @@
         @if(session('success'))
             <div class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-800 px-5 py-3.5 rounded-2xl text-sm font-medium shadow-sm">✅ {{ session('success') }}</div>
         @endif
-        
+
         @if ($errors->any())
             <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-5 py-3.5 rounded-2xl text-sm font-medium shadow-sm">
                 <p class="font-bold mb-2">Wait, something went wrong:</p>
@@ -43,14 +43,14 @@
                 </h3>
                 <a href="{{ route('challenges.index') }}" class="text-xs font-bold text-gray-500 hover:text-emerald-700 transition-colors">View All</a>
             </div>
-            
+
             {{-- Horizontal scrolling container --}}
             <div class="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar" style="scrollbar-width: none;">
                 @foreach($activeChallenges as $challenge)
                     <a href="{{ route('challenges.show', $challenge->id) }}" class="snap-start flex-shrink-0 bg-emerald-950 rounded-3xl p-6 w-[300px] relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                         {{-- Background Pattern --}}
                         <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#10b981 1px, transparent 1px); background-size: 20px 20px;"></div>
-                        
+
                         {{-- Content --}}
                         <div class="relative z-10">
                             <span class="inline-block px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-lg text-[10px] font-bold uppercase tracking-wider mb-3 backdrop-blur-sm shadow-sm">
@@ -70,7 +70,7 @@
 
         <div class="flex flex-col lg:flex-row gap-8">
             <div class="flex-1">
-                
+
                 <div class="bg-white p-4 rounded-3xl shadow-sm mb-8 border border-gray-100 flex gap-3 cursor-pointer hover:bg-gray-50 transition items-center group" onclick="openModal('createModal')">
                     <div class="w-10 h-10 bg-emerald-100 rounded-full shrink-0 flex items-center justify-center overflow-hidden">
                         <span class="text-emerald-800 font-bold text-sm">{{ substr(Auth::user()->name ?? 'U', 0, 1) }}</span>
@@ -92,17 +92,17 @@
                                 <p class="text-[10px] text-gray-400 uppercase tracking-widest">{{ $post->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
-                        
+
                         @auth
-                            @if(Auth::id() == $post->users_id || Auth::id() == 1) 
+                            @if(Auth::id() == $post->users_id || Auth::id() == 1)
                             <div>
                                 <button onclick="toggleDropdown({{ $post->post_id }})" class="kebab-button text-gray-400 hover:text-gray-800 font-bold text-xl px-2 pb-2 transition">⋮</button>
-                                
+
                                 <div id="dropdown-{{ $post->post_id }}" class="dropdown-menu hidden absolute right-0 top-8 w-36 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-20">
-                                    <button onclick="openEditModal(this)" 
-                                            data-id="{{ $post->post_id }}" 
-                                            data-title="{{ $post->title }}" 
-                                            data-content="{{ $post->content }}" 
+                                    <button onclick="openEditModal(this)"
+                                            data-id="{{ $post->post_id }}"
+                                            data-title="{{ $post->title }}"
+                                            data-content="{{ $post->content }}"
                                             data-tags="{{ is_array($post->tags) ? implode(', ', $post->tags) : (is_string($post->tags) ? $post->tags : '') }}"
                                             class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 font-semibold border-b border-gray-50">
                                         ✏️ Edit Post
@@ -121,11 +121,11 @@
 
                     <h3 class="text-xl font-bold mb-2 text-emerald-950">{{ $post->title }}</h3>
                     <p class="text-gray-600 text-sm mb-4 leading-relaxed whitespace-pre-line">{{ $post->content }}</p>
-                    
+
                     {{-- Render Tags on Post --}}
                     @if(!empty($post->tags))
                     <div class="flex flex-wrap gap-1.5 mb-4">
-                        @php 
+                        @php
                             $tagsArray = is_array($post->tags) ? $post->tags : (json_decode($post->tags, true) ?? explode(',', $post->tags));
                         @endphp
                         @foreach($tagsArray as $tag)
@@ -146,21 +146,21 @@
 
                     <div class="flex items-center justify-between border-t border-gray-50 pt-4 mt-2">
                         <div class="flex gap-4">
-                            
+
                             {{-- Integrated Teammate's Alpine JS Voting System! --}}
                             @auth
                                 @php
-                                    $currentVote = $post->my_vote ?? 0; 
+                                    $currentVote = $post->my_vote ?? 0;
                                 @endphp
-                                <div x-data="{ 
-                                        currentVote: {{ $currentVote }}, 
+                                <div x-data="{
+                                        currentVote: {{ $currentVote }},
                                         score: {{ $post->upvote_count ?? 0 }},
                                         castVote(value) {
                                             let targetValue = value;
                                             if (this.currentVote === value) {
                                                 this.score -= value;
                                                 this.currentVote = 0;
-                                                targetValue = value === 1 ? -1 : 1; 
+                                                targetValue = value === 1 ? -1 : 1;
                                             } else {
                                                 this.score += (this.currentVote === 0) ? value : (value * 2);
                                                 this.currentVote = value;
@@ -174,9 +174,9 @@
                                                 body: JSON.stringify({ value: value })
                                             });
                                         }
-                                    }" 
+                                    }"
                                     class="flex items-center gap-1 bg-gray-50 rounded-full p-1 border border-gray-100">
-                                    
+
                                     <button @click="castVote(1)" type="button" class="p-1.5 rounded-full transition-all flex items-center group" :class="currentVote === 1 ? 'bg-emerald-100 text-emerald-800' : 'hover:bg-emerald-50 text-gray-400 hover:text-emerald-700'">
                                         <span class="material-symbols-outlined text-sm font-bold">arrow_upward</span>
                                     </button>
@@ -198,9 +198,6 @@
                             @endauth
 
                         </div>
-                        <span class="text-gray-400 hover:text-emerald-800 transition cursor-pointer text-xs font-bold flex items-center gap-1">
-                            🔗 Share
-                        </span>
                     </div>
                 </div>
                 @empty
@@ -239,7 +236,7 @@
                 @csrf
                 <input type="text" name="title" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-800 focus:outline-none font-bold placeholder-gray-400" placeholder="Give your story a title..." required>
                 <textarea name="content" rows="3" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-800 focus:outline-none resize-none placeholder-gray-400" placeholder="Share your sustainable tips..." required></textarea>
-                
+
                 {{-- Hashtag Tag Input --}}
                 <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-4">
                     <label class="block text-xs font-bold text-emerald-800 uppercase tracking-widest mb-2">
@@ -265,7 +262,7 @@
                            class="w-full bg-white border border-emerald-200 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-emerald-700 focus:outline-none placeholder-gray-400"
                            placeholder="or type manually: rewear30days, slowfashion"
                            oninput="this.value=this.value.toLowerCase(); previewHashtags(this.value, 'createTagPreview')">
-                    
+
                     <div id="createTagPreview" class="mt-2 space-y-1.5"></div>
                 </div>
 
@@ -290,11 +287,11 @@
             <button type="button" onclick="closeModal('editModal')" class="absolute top-5 right-6 text-gray-400 hover:text-red-500 text-xl font-bold transition z-10">✕</button>
             <h2 class="text-2xl font-bold mb-6 text-emerald-950">Edit Post</h2>
             <form id="editForm" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
-                @csrf 
+                @csrf
                 @method('PUT')
                 <input type="text" id="editTitle" name="title" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-800 focus:outline-none font-bold" required>
                 <textarea id="editContent" name="content" rows="3" class="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-800 focus:outline-none resize-none" required></textarea>
-                
+
                 {{-- Edit Hashtag Tag Input --}}
                 <div class="bg-emerald-50/60 border border-emerald-100 rounded-xl p-4">
                     <label class="block text-xs font-bold text-emerald-800 uppercase tracking-widest mb-2"># Tags</label>
@@ -323,11 +320,11 @@
     <script>
         const CSRF = document.querySelector('meta[name="csrf-token"]')?.content;
         const LOOKUP_URL = '{{ route("community.hashtag.lookup") }}';
-        
+
         const lookupCache = {};
         let lookupTimer = null;
 
-        function openModal(modalId) { 
+        function openModal(modalId) {
             const modal = document.getElementById(modalId);
             const box = modal.querySelector('.modal-box');
             modal.classList.remove('hidden');
@@ -338,7 +335,7 @@
             }, 10);
         }
 
-        function closeModal(modalId) { 
+        function closeModal(modalId) {
             const modal = document.getElementById(modalId);
             const box = modal.querySelector('.modal-box');
             modal.classList.add('opacity-0');
@@ -351,7 +348,7 @@
             const id = btn.getAttribute('data-id');
             document.getElementById('editTitle').value = btn.getAttribute('data-title');
             document.getElementById('editContent').value = btn.getAttribute('data-content');
-            
+
             // Populate existing tags
             const existingTags = btn.getAttribute('data-tags') || '';
             document.getElementById('editTags').value = existingTags;
@@ -369,7 +366,7 @@
         function toggleDropdown(id) {
             const dropdown = document.getElementById('dropdown-' + id);
             const isHidden = dropdown.classList.contains('hidden');
-            closeAllDropdowns(); 
+            closeAllDropdowns();
             if (isHidden) dropdown.classList.remove('hidden');
         }
 
@@ -440,7 +437,7 @@
                            </div>`
                     ).join('');
                 } catch (error) {
-                    preview.innerHTML = tags.map(tag => 
+                    preview.innerHTML = tags.map(tag =>
                         `<div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">
                             <span class="text-gray-600 font-mono text-xs">#${tag}</span>
                         </div>`
