@@ -193,9 +193,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     const ctx        = document.getElementById('trendChart').getContext('2d');
     const emptyState = document.getElementById('chartEmptyState');
-    const CHART_DATA = @json($chartJson); // all periods preloaded — no AJAX needed
+    const CHART_DATA = @json($chartJson); 
 
-    // --- Gradient fill ---
+
     function makeGradient() {
         const g = ctx.createLinearGradient(0, 0, 0, 240);
         g.addColorStop(0, 'rgba(6, 78, 59, 0.15)');
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return g;
     }
 
-    // --- Init chart (default: 30 days) ---
+
     const chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -265,7 +265,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // --- Switch to a preloaded period (instant, no fetch) ---
     function switchChart(period) {
         const dataset   = CHART_DATA[period];
         if (!dataset) return;
@@ -284,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
         emptyState.classList.toggle('hidden', !allZero);
     }
 
-    // --- Active button styling ---
+
     function setActiveBtn(activeEl) {
         document.querySelectorAll('.period-btn').forEach(btn => {
             if (btn === activeEl) btn.setAttribute('data-active', 'true');
@@ -292,7 +291,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // --- Wire buttons ---
     document.querySelectorAll('.period-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             setActiveBtn(this);

@@ -238,10 +238,15 @@
         <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <h3 class="text-xl font-bold text-emerald-900 mb-6">Summary</h3>
 
+        @php
+            $itemPrice    = $order->item->price ?? $order->total_price;
+            $discountAmt  = (float) ($order->discount_amount ?? 0);
+            $finalTotal   = max(0, $itemPrice - $discountAmt);
+        @endphp
             <div class="space-y-4">
                 <div class="flex justify-between text-stone-600 text-sm md:text-base">
                     <span>Subtotal</span>
-                    <span class="font-medium">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+                    <span class="font-medium">Rp {{ number_format($itemPrice, 0, ',', '.') }}</span>
                 </div>
 
                 {{-- Hover Tooltip for Carbon Offset --}}
@@ -257,14 +262,18 @@
                 </div>
 
                 {{-- Voucher Discount Row --}}
-                @if($order->voucher_redemption_id && $order->discount_amount > 0)
+                @if($discountAmt > 0)
                     <div class="flex justify-between text-stone-600 items-center text-sm md:text-base">
                         <div class="flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-[14px] text-amber-500">local_offer</span>
                             <span>Voucher</span>
-                            <span class="font-mono text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">{{ $order->voucherRedemption->voucher->code }}</span>
+                            @if($order->voucherRedemption)
+                                <span class="font-mono text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">{{ $order->voucherRedemption->voucher->code }}</span>
+                            @else
+                                <span class="font-mono text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">APPLIED</span>
+                            @endif
                         </div>
-                        <span class="text-amber-600 font-bold">-Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</span>
+                        <span class="text-amber-600 font-bold">-Rp {{ number_format($discountAmt, 0, ',', '.') }}</span>
                     </div>
                 @endif
 
@@ -272,7 +281,7 @@
                 <div class="flex justify-between items-baseline">
                     <span class="font-bold text-stone-900 text-lg">Total</span>
                     <span class="text-2xl font-black text-emerald-900">
-                        Rp {{ number_format(max(0, $order->total_price - ($order->discount_amount ?? 0)), 0, ',', '.') }}
+                        Rp {{ number_format($finalTotal, 0, ',', '.') }}
                     </span>
                 </div>
             </div>
@@ -336,19 +345,12 @@
                             </a>
                         @endif
                     @endif
-
+                    
                     @if($order->status !== 'pending')
-                        <a href="{{ route('marketplace.index') }}" class="w-full py-3.5 bg-transparent border-2 border-stone-200 text-stone-600 font-bold rounded-full text-sm hover:bg-stone-50 transition-colors text-center block">
+                        <a href="{{ route('marketplace.index') }}" class="w-full sm:w-auto px-8 py-3.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-600 font-bold rounded-xl text-sm transition-colors text-center block active:scale-95">
                             Back to Marketplace
                         </a>
                     @endif
-                @endif
-
-                @if($order->status !== 'pending')
-                    <a href="{{ route('marketplace.index') }}" class="w-full sm:w-auto px-8 py-3.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-600 font-bold rounded-xl text-sm transition-colors text-center block active:scale-95">
-                        Back to Marketplace
-                    </a>
-                @endif
             </div>
 
             @if(Auth::id() === $order->users_id && $order->status === 'payment_confirmed')

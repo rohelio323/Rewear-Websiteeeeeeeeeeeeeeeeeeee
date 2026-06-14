@@ -153,9 +153,6 @@ class OrderController extends Controller
 
             $order->item->update(['status' => 'sold']);
 
-            // Keep order_id on the redemption so the history view can detect "Used" status
-            // by checking the related order's status. Only null the FK on the order side
-            // (orders.voucher_redemption_id) so the order record is clean going forward.
             if ($order->voucher_redemption_id) {
                 $order->update(['voucher_redemption_id' => null]);
             }
