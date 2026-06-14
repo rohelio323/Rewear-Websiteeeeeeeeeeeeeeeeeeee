@@ -86,12 +86,22 @@
                 <span>Shipping</span>
                 <span class="text-emerald-700 font-medium">Free Shipping</span>
             </div>
+
+            @if($order->discount_amount > 0)
+                <div class="flex justify-between text-sm text-stone-500">
+                    <div class="flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-[14px] text-amber-500">local_offer</span>
+                        <span>Voucher Applied</span>
+                    </div>
+                    <span class="text-amber-600 font-bold">-Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</span>
+                </div>
+            @endif
+
             <div class="flex justify-between text-base font-bold text-stone-900 pt-3 border-t border-stone-100 mt-1">
                 <span>Total</span>
-                <span>Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+                <span>Rp {{ number_format(max(0, $order->total_price - ($order->discount_amount ?? 0)), 0, ',', '.') }}</span>
             </div>
         </div>
-    </div>
 
     {{-- Action Buttons --}}
     <div class="flex gap-3 justify-center">

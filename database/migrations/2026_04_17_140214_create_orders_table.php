@@ -16,7 +16,9 @@ return new class extends Migration
             $table->decimal('total_price', 12, 2);
             $table->decimal('co2_saved_amount', 8, 2)->default(0.00);
             $table->string('payment_reference')->nullable();
-            $table->foreignId('users_id')->constrained('users')->onDelete('cascade'); 
+            $table->foreignId('users_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('voucher_redemption_id')->nullable()->constrained('voucher_redemptions');
+            $table->decimal('discount_amount', 12, 2)->default(0);
             $table->timestamps();
         });
     }

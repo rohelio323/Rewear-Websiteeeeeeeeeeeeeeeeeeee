@@ -11,11 +11,11 @@
     </div>
 
     <div class="flex flex-col gap-8">
-        
+
         {{-- Status Tracker --}}
         <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <h3 class="text-xl font-bold text-emerald-900 mb-6 md:mb-8">Order Status</h3>
-            
+
             <div class="flex items-center w-full pb-12 pt-2 px-4 md:px-8">
                 @php
                     $statuses = ['pending', 'payment_confirmed', 'shipped', 'completed'];
@@ -121,24 +121,24 @@
             <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
                 <span class="material-symbols-outlined text-[200px] text-emerald-300">eco</span>
             </div>
-            
+
             <div class="relative z-10">
                 <h3 class="font-bold text-xs uppercase tracking-widest text-emerald-400 mb-4">Environmental Impact</h3>
-                
+
                 <div class="mb-8">
                     <p class="text-5xl md:text-6xl font-black text-white mb-2 tracking-tight">{{ number_format($order->co2_saved_amount, 1) }} kg</p>
                     <p class="text-emerald-400 text-sm font-bold uppercase tracking-widest">CO₂ Saved</p>
                 </div>
-                
+
                 {{-- Refined Quote Box --}}
                 <div class="text-sm leading-relaxed text-emerald-50 max-w-3xl bg-emerald-900/50 p-6 rounded-2xl border border-emerald-800/50 backdrop-blur-sm shadow-inner">
                     @if($order->item->category && $order->item->category->reference_note)
                         <p class="mb-4 italic text-emerald-100">"{{ $order->item->category->reference_note }}"</p>
-                        
+
                         <div class="flex items-center flex-wrap gap-3 pt-4 border-t border-emerald-800/60">
-                            <span class="text-emerald-500 font-bold">—</span>
+                            <span class="text-emerald-500 font-bold">-</span>
                             <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">{{ $order->item->category->category_name }} Data</p>
-                            
+
                             @if(!empty($order->item->category->reference_url))
                                 <span class="w-1 h-1 rounded-full bg-emerald-600"></span>
                                 <a href="{{ $order->item->category->reference_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:text-white transition-colors underline decoration-emerald-500/30 underline-offset-4">
@@ -148,9 +148,9 @@
                         </div>
                     @else
                         <p class="mb-4 text-emerald-100">By choosing this pre-loved item, you've saved the equivalent emissions of driving roughly <span class="font-bold text-white">{{ number_format($order->co2_saved_amount * 4) }}km</span> in a standard passenger car. You are actively extending the life cycle of a premium garment!</p>
-                        
+
                         <div class="flex items-center flex-wrap gap-3 pt-4 border-t border-emerald-800/60">
-                            <span class="text-emerald-500 font-bold">—</span>
+                            <span class="text-emerald-500 font-bold">-</span>
                             <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">EPA Equivalency Estimate</p>
                             <span class="w-1 h-1 rounded-full bg-emerald-600"></span>
                             <a href="https://www.epa.gov/energy/greenhouse-gas-equivalencies-calculator" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 hover:text-white transition-colors underline decoration-emerald-500/30 underline-offset-4">
@@ -162,16 +162,88 @@
             </div>
         </div>
 
+        {{-- Voucher Redemption --}}
+        @if(Auth::id() === $order->buyer_id && $order->status === 'pending' && isset($redemptions))
+            <section class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="material-symbols-outlined text-amber-500">redeem</span>
+                    <h2 class="text-xl font-bold text-emerald-900">Apply Voucher</h2>
+                </div>
+
+                @if($redemptions->isEmpty())
+                    <div class="bg-stone-50 rounded-xl border border-stone-100 p-8 text-center">
+                        <span class="material-symbols-outlined text-4xl text-stone-300 mb-2">card_giftcard</span>
+                        <p class="text-sm font-bold text-stone-600">No vouchers redeemed yet</p>
+                        <a href="{{ route('profile.edit', ['tab' => 'rewards']) }}"
+                           class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:text-emerald-900 underline decoration-emerald-500/30 underline-offset-4 mt-3">
+                            Redeem your CO₂ savings
+                            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                        </a>
+                    </div>
+                @else
+                    <form method="POST" action="{{ route('orders.applyVoucher', $order) }}">
+                        @csrf
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            @foreach($redemptions as $redemption)
+                                <label class="cursor-pointer block">
+                                    <input type="radio" name="redemption_id" value="{{ $redemption->id }}"
+                                           class="peer sr-only" {{ $order->voucher_redemption_id === $redemption->id ? 'checked' : '' }}>
+                                    <div class="bg-gradient-to-br from-amber-50 via-white to-stone-50 border-2 border-stone-200 rounded-xl p-5 transition-all hover:border-amber-300 peer-checked:border-amber-500 peer-checked:shadow-md">
+                                        <div class="flex items-start gap-2 mb-4">
+                                            <span class="material-symbols-outlined text-amber-500 text-[20px]">local_offer</span>
+                                            <div>
+                                                <p class="text-[10px] font-bold uppercase tracking-widest text-amber-700">Discount</p>
+                                                <p class="text-2xl font-black text-stone-900 leading-tight mt-0.5">
+                                                    Rp {{ number_format($redemption->voucher->discount_amount, 0, ',', '.') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="relative my-3">
+                                            <div class="absolute w-3 h-3 rounded-full bg-stone-50 -left-[26px] -top-[5px]"></div>
+                                            <div class="absolute w-3 h-3 rounded-full bg-stone-50 -right-[26px] -top-[5px]"></div>
+                                            <div class="border-t border-dashed border-stone-300"></div>
+                                        </div>
+                                        <div class="flex items-end justify-between pt-1">
+                                            <div>
+                                                <p class="text-[9px] font-bold text-stone-500 uppercase tracking-widest">Code</p>
+                                                <p class="font-mono text-sm font-bold text-stone-900 tracking-wider">{{ $redemption->voucher->code }}</p>
+                                            </div>
+                                            <p class="text-[10px] font-medium text-stone-400">
+                                                {{ number_format($redemption->co2_deducted, 1) }} kg CO₂
+                                            </p>
+                                        </div>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <div class="flex justify-end gap-3 mt-6 pt-6 border-t border-stone-100">
+                            @if($order->voucher_redemption_id)
+                                <button type="submit" formaction="{{ route('orders.removeVoucher', $order) }}"
+                                        class="px-6 py-3 bg-white border border-stone-200 text-stone-600 font-bold rounded-xl text-sm hover:bg-stone-50 transition-colors active:scale-95">
+                                    Remove
+                                </button>
+                            @endif
+                            <button type="submit"
+                                    class="px-6 py-3 bg-emerald-900 text-white font-bold rounded-xl text-sm shadow-md hover:bg-emerald-800 transition-colors active:scale-95">
+                                Apply Voucher
+                            </button>
+                        </div>
+                    </form>
+                @endif
+            </section>
+        @endif
+
         {{-- Summary & Actions --}}
         <div class="bg-white p-6 md:p-8 rounded-2xl border border-stone-200 shadow-sm">
             <h3 class="text-xl font-bold text-emerald-900 mb-6">Summary</h3>
-            
+
             <div class="space-y-4">
                 <div class="flex justify-between text-stone-600 text-sm md:text-base">
                     <span>Subtotal</span>
                     <span class="font-medium">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
                 </div>
-                
+
                 {{-- Hover Tooltip for Carbon Offset --}}
                 <div class="flex justify-between text-stone-600 items-center group relative text-sm md:text-base">
                     <div class="flex items-center gap-1.5 cursor-help">
@@ -184,10 +256,24 @@
                     <span class="text-emerald-600 font-bold tracking-wide">Free</span>
                 </div>
 
+                {{-- Voucher Discount Row --}}
+                @if($order->voucher_redemption_id && $order->discount_amount > 0)
+                    <div class="flex justify-between text-stone-600 items-center text-sm md:text-base">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[14px] text-amber-500">local_offer</span>
+                            <span>Voucher</span>
+                            <span class="font-mono text-[10px] font-bold text-stone-400 bg-stone-100 px-2 py-0.5 rounded">{{ $order->voucherRedemption->voucher->code }}</span>
+                        </div>
+                        <span class="text-amber-600 font-bold">-Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</span>
+                    </div>
+                @endif
+
                 <div class="h-px bg-stone-200 my-4"></div>
                 <div class="flex justify-between items-baseline">
                     <span class="font-bold text-stone-900 text-lg">Total</span>
-                    <span class="text-2xl font-black text-emerald-900">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+                    <span class="text-2xl font-black text-emerald-900">
+                        Rp {{ number_format(max(0, $order->total_price - ($order->discount_amount ?? 0)), 0, ',', '.') }}
+                    </span>
                 </div>
             </div>
 
@@ -273,7 +359,7 @@
                             <h3 class="text-lg font-bold text-emerald-900">Enter Shipment Details</h3>
                         </div>
                         <p class="text-sm text-stone-500 mb-6">Provide the tracking details and upload proof of shipment. The buyer will be notified immediately.</p>
-                        
+
                         <form method="POST" action="{{ route('orders.ship', $order) }}" enctype="multipart/form-data" class="flex flex-col gap-5">
                             @csrf
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

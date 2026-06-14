@@ -82,7 +82,8 @@
                 ['route' => 'admin.dashboard',          'label' => 'Dashboard',         'icon' => 'dashboard'],
                 ['route' => 'admin.users.index',        'label' => 'Users',             'icon' => 'group'],
                 ['route' => 'admin.co2.index',          'label' => 'CO2 Categories',    'icon' => 'eco'],
-                ['route' => 'admin.moderation.index',   'label' => 'Moderation',        'icon' => 'gavel'], 
+                ['route' => 'admin.moderation.index',   'label' => 'Moderation',        'icon' => 'gavel'],
+                ['route' => 'admin.vouchers.index',    'label' => 'CO2 Vouchers', 'icon' => 'redeem'],
             ];
         @endphp
 
@@ -100,7 +101,7 @@
 
         @php
             $contentLinks = [
-                ['route' => 'admin.challenges.index',   'label' => 'Challenges',        'icon' => 'emoji_events'], 
+                ['route' => 'admin.challenges.index',   'label' => 'Challenges',        'icon' => 'emoji_events'],
             ];
         @endphp
 

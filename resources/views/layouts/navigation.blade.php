@@ -3,17 +3,17 @@
 
         <div class="flex items-center gap-8">
             <a href="{{ url('/') }}" class="text-2xl font-bold tracking-tighter text-emerald-900 font-headline">ReWear</a>
-            
+
             {{-- Main Navigation Links --}}
             <div class="hidden md:flex gap-6">
                 <a href="{{ route('marketplace.index') }}" class="{{ request()->is('marketplace') ? 'text-emerald-900 border-b-2 border-emerald-900 font-bold' : 'text-stone-600' }} pb-1 font-headline text-sm tracking-tight transition-all">Marketplace</a>
-                
+
                 {{-- Community --}}
                 <a href="{{ route('community.index') }}" class="{{ request()->is('community') ? 'text-emerald-900 border-b-2 border-emerald-900 font-bold' : 'text-stone-600' }} pb-1 font-headline text-sm tracking-tight transition-all">Community</a>
-                
+
                 {{-- Challenges --}}
                 <a href="{{ route('challenges.index') }}" class="{{ request()->is('challenges*') ? 'text-emerald-900 border-b-2 border-emerald-900 font-bold' : 'text-stone-600' }} pb-1 font-headline text-sm tracking-tight transition-all">Challenges</a>
-                
+
                 @auth
                 <a href="{{ route('transactions.index') }}" class="{{ request()->routeIs('transactions.*') ? 'text-emerald-900 border-b-2 border-emerald-900 font-bold' : 'text-stone-600' }} pb-1 font-headline text-sm tracking-tight transition-all">Transactions</a>
                 @endauth

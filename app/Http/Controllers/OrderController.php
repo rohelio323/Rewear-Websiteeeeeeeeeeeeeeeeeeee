@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Item;
+use App\Models\VoucherRedemption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -52,8 +53,74 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         $this->authorizeOrder($order);
-        $order->load(['item.category', 'buyer', 'seller', 'review']);
-        return view('orders.show', compact('order'));
+        $order->load(['item.category', 'buyer', 'seller', 'review', 'voucherRedemption.voucher']);
+
+        $redemptions = collect();
+
+        if ($order->buyer_id === Auth::id() && $order->status === 'pending') {
+            $redemptions = VoucherRedemption::where('user_id', Auth::id())
+                ->where(function ($q) use ($order) {
+                    $q->whereNull('order_id')->orWhere('order_id', $order->id);
+                })
+                ->with('voucher')
+                ->latest()
+                ->get();
+        }
+
+        return view('orders.show', compact('order', 'redemptions'));
+    }
+
+    public function applyVoucher(Request $request, Order $order)
+    {
+        abort_unless($order->buyer_id === Auth::id(), 403);
+        abort_unless($order->status === 'pending', 403);
+
+        $request->validate([
+            'redemption_id' => 'required|exists:voucher_redemptions,id',
+        ]);
+
+        $redemption = VoucherRedemption::where('user_id', Auth::id())
+            ->where('id', $request->redemption_id)
+            ->where(function ($q) use ($order) {
+                $q->whereNull('order_id')->orWhere('order_id', $order->id);
+            })
+            ->with('voucher')
+            ->first();
+
+        if (!$redemption) {
+            return back()->with('error', 'Voucher not available.');
+        }
+
+        DB::transaction(function () use ($order, $redemption) {
+            // If a different voucher was previously applied, release it
+            if ($order->voucher_redemption_id && $order->voucher_redemption_id !== $redemption->id) {
+                VoucherRedemption::where('id', $order->voucher_redemption_id)->update(['order_id' => null]);
+            }
+
+            $redemption->update(['order_id' => $order->id]);
+
+            $order->update([
+                'voucher_redemption_id' => $redemption->id,
+                'discount_amount'       => $redemption->voucher->discount_amount,
+            ]);
+        });
+
+        return back()->with('success', 'Voucher applied!');
+    }
+
+    public function removeVoucher(Order $order)
+    {
+        abort_unless($order->buyer_id === Auth::id(), 403);
+        abort_unless($order->status === 'pending', 403);
+
+        if ($order->voucher_redemption_id) {
+            DB::transaction(function () use ($order) {
+                VoucherRedemption::where('id', $order->voucher_redemption_id)->update(['order_id' => null]);
+                $order->update(['voucher_redemption_id' => null, 'discount_amount' => 0]);
+            });
+        }
+
+        return back()->with('success', 'Voucher removed.');
     }
 
     public function paymentForm(Order $order)
@@ -77,13 +144,22 @@ class OrderController extends Controller
 
         $path = $request->file('payment_proof')->store('payment_proofs', 'public');
 
-        $order->update([
-            'status'            => 'payment_confirmed',
-            'payment_reference' => $request->bank_name . ' — ' . $request->payment_reference,
-            'payment_proof'     => $path,
-        ]);
+        DB::transaction(function () use ($order, $request, $path) {
+            $order->update([
+                'status'            => 'payment_confirmed',
+                'payment_reference' => $request->bank_name . ' - ' . $request->payment_reference,
+                'payment_proof'     => $path,
+            ]);
 
-        $order->item->update(['status' => 'sold']);
+            $order->item->update(['status' => 'sold']);
+
+            // Keep order_id on the redemption so the history view can detect "Used" status
+            // by checking the related order's status. Only null the FK on the order side
+            // (orders.voucher_redemption_id) so the order record is clean going forward.
+            if ($order->voucher_redemption_id) {
+                $order->update(['voucher_redemption_id' => null]);
+            }
+        });
 
         return redirect()->route('orders.confirmed', $order);
     }
@@ -91,7 +167,7 @@ class OrderController extends Controller
     public function confirmed(Order $order)
     {
         $this->authorizeOrder($order);
-        $order->load(['item.category', 'buyer', 'seller']);
+        $order->load(['item.category', 'buyer', 'seller', 'voucherRedemption.voucher']);
         return view('orders.confirmed', compact('order'));
     }
 
@@ -118,7 +194,7 @@ class OrderController extends Controller
 
         $order->update([
             'status'          => 'shipped',
-            'tracking_number' => $request->courier_name . ' — ' . $request->tracking_number,
+            'tracking_number' => $request->courier_name . ' - ' . $request->tracking_number,
             'shipping_proof'  => $path,
         ]);
 
@@ -131,13 +207,10 @@ class OrderController extends Controller
         abort_unless($order->status === 'shipped', 403);
 
         DB::transaction(function () use ($order) {
-            // 1. Update order status
             $order->update(['status' => 'completed']);
 
-            // 2. Add CO2 points to the buyer
             $buyer = $order->buyer;
             if ($buyer) {
-                // Ensure we use the value stored on the order at time of purchase
                 $buyer->total_co2_saved += $order->co2_saved_amount;
                 $buyer->save();
             }
@@ -155,8 +228,11 @@ class OrderController extends Controller
         }
 
         DB::transaction(function () use ($order) {
+            if ($order->voucher_redemption_id) {
+                VoucherRedemption::where('id', $order->voucher_redemption_id)->update(['order_id' => null]);
+            }
             $order->item->update(['status' => 'available']);
-            $order->update(['status' => 'cancelled']);
+            $order->update(['status' => 'cancelled', 'voucher_redemption_id' => null, 'discount_amount' => 0]);
         });
 
         return redirect()->route('marketplace.index')->with('success', 'Order cancelled. Item is back on the marketplace.');
