@@ -28,6 +28,9 @@ Route::get('/marketplace', [ItemController::class, 'index'])->name('marketplace.
 Route::get('/item/detail/{item}', [ItemController::class, 'show'])->name('items.show');
 Route::get('/community', [PostController::class, 'index'])->name('community.index');
 
+// Public Seller Profile
+Route::get('/seller/{user}', [ReviewController::class, 'sellerProfile'])->name('seller.profile');
+
 // Challenges
 Route::get('/challenges', [App\Http\Controllers\ChallengeController::class, 'index'])->name('challenges.index');
 Route::get('/challenges/{challenge}', [App\Http\Controllers\ChallengeController::class, 'show'])->name('challenges.show');
@@ -63,6 +66,9 @@ Route::middleware('auth')->group(function () {
     // Reviews
     Route::get('/orders/{order}/review', [ReviewController::class, 'create'])->name('reviews.create');
     Route::post('/orders/{order}/review', [ReviewController::class, 'store'])->name('reviews.store');
+
+    // Seller review list
+    Route::get('/my-reviews', [ReviewController::class, 'index'])->name('reviews.index');
 
     Route::post('/reports', [ReportsController::class, 'store'])->name('reports.store');
 });
