@@ -70,7 +70,6 @@
                             <p class="text-[10px] text-[#424844] font-medium uppercase tracking-widest mt-0.5">{{ $post->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
-
                     {{-- Kebab menu --}}
                     @auth
                         @if(Auth::id() == $post->users_id)
