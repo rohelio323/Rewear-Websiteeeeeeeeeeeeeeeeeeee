@@ -80,13 +80,29 @@
                     <h2 class="text-lg font-bold text-stone-900 font-headline">Marketplace Activity</h2>
                     <p class="text-sm text-stone-500">New listings over time</p>
                 </div>
-                <div class="flex items-center gap-2 px-3 py-1.5 bg-stone-50 rounded-lg border border-stone-100">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-800"></span>
-                    <span class="text-xs font-semibold text-stone-600">Listings</span>
+                <div class="flex items-center gap-2">
+                    {{-- Period toggles --}}
+                    <div class="flex items-center bg-stone-100 rounded-lg p-0.5" id="periodToggle">
+                        <button data-period="7"  class="period-btn px-3 py-1 rounded-md text-xs font-bold transition-all">7 Days</button>
+                        <button data-period="30" class="period-btn px-3 py-1 rounded-md text-xs font-bold transition-all" data-active="true">30 Days</button>
+                        <button data-period="q1" class="period-btn px-3 py-1 rounded-md text-xs font-bold transition-all">Q1</button>
+                        <button data-period="q2" class="period-btn px-3 py-1 rounded-md text-xs font-bold transition-all">Q2</button>
+                        <button data-period="q3" class="period-btn px-3 py-1 rounded-md text-xs font-bold transition-all">Q3</button>
+                        <button data-period="q4" class="period-btn px-3 py-1 rounded-md text-xs font-bold transition-all">Q4</button>
+                    </div>
+                    {{-- Legend badge --}}
+                    <div class="flex items-center gap-2 px-3 py-1.5 bg-stone-50 rounded-lg border border-stone-100">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-800"></span>
+                        <span class="text-xs font-semibold text-stone-600">Listings</span>
+                    </div>
                 </div>
             </div>
             <div class="relative w-full h-[240px]">
                 <canvas id="trendChart"></canvas>
+                <div id="chartEmptyState" class="absolute inset-0 flex flex-col items-center justify-center gap-2 pointer-events-none hidden">
+                    <span class="material-symbols-outlined text-[36px] text-stone-300">bar_chart</span>
+                    <p class="text-xs font-semibold text-stone-400">No listing data for this period</p>
+                </div>
             </div>
         </div>
 
@@ -155,34 +171,57 @@
 @endsection
 
 @push('scripts')
+<style>
+.period-btn {
+    color: #78716c;
+    background: transparent;
+    border: 2px solid transparent;
+}
+.period-btn:hover {
+    color: #1c1917;
+}
+.period-btn[data-active="true"] {
+    background: #ffffff;
+    color: #064e3b;
+    font-weight: 700;
+    border: 2px solid #064e3b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('trendChart').getContext('2d');
-    let gradient = ctx.createLinearGradient(0, 0, 0, 240);
-    gradient.addColorStop(0, 'rgba(6, 78, 59, 0.15)');
-    gradient.addColorStop(1, 'rgba(6, 78, 59, 0)');
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx        = document.getElementById('trendChart').getContext('2d');
+    const emptyState = document.getElementById('chartEmptyState');
+    const CHART_DATA = @json($chartJson); // all periods preloaded — no AJAX needed
 
-    new Chart(ctx, {
+    // --- Gradient fill ---
+    function makeGradient() {
+        const g = ctx.createLinearGradient(0, 0, 0, 240);
+        g.addColorStop(0, 'rgba(6, 78, 59, 0.15)');
+        g.addColorStop(1, 'rgba(6, 78, 59, 0)');
+        return g;
+    }
+
+    // --- Init chart (default: 30 days) ---
+    const chart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: @json($trendLabels),
-            datasets: [
-                {
-                    label: 'New Listings',
-                    data: @json($trendData),
-                    borderColor: '#064e3b',
-                    backgroundColor: gradient,
-                    borderWidth: 2.5,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#ffffff',
-                    pointBorderColor: '#064e3b',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                }
-            ]
+            datasets: [{
+                label: 'New Listings',
+                data: @json($trendData),
+                borderColor: '#064e3b',
+                backgroundColor: makeGradient(),
+                borderWidth: 2.5,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: '#064e3b',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+            }]
         },
         options: {
             responsive: true,
@@ -202,20 +241,63 @@ document.addEventListener('DOMContentLoaded', function() {
                 x: {
                     grid: { display: false },
                     ticks: { font: { family: 'monospace', size: 11 }, color: '#a8a29e' },
-                    border: { display: false }
+                    border: { display: false },
+                    title: {
+                        display: false, text: 'Month',
+                        font: { family: 'sans-serif', size: 11, weight: '600' },
+                        color: '#78716c', padding: { top: 6 },
+                    },
                 },
                 y: {
                     beginAtZero: true,
                     ticks: { stepSize: 1, font: { family: 'monospace', size: 11 }, color: '#a8a29e' },
                     grid: { color: '#f5f5f4', drawBorder: false },
-                    border: { display: false }
+                    border: { display: false },
+                    title: {
+                        display: false, text: 'Quantity',
+                        font: { family: 'sans-serif', size: 11, weight: '600' },
+                        color: '#78716c', padding: { bottom: 4 },
+                    },
                 }
             },
-            interaction: {
-                intersect: false,
-                mode: 'index',
-            },
+            interaction: { intersect: false, mode: 'index' },
+            animation: { duration: 400 },
         }
+    });
+
+    // --- Switch to a preloaded period (instant, no fetch) ---
+    function switchChart(period) {
+        const dataset   = CHART_DATA[period];
+        if (!dataset) return;
+
+        const isQuartal = ['q1', 'q2', 'q3', 'q4'].includes(period);
+
+        chart.data.labels                       = dataset.labels;
+        chart.data.datasets[0].data             = dataset.data;
+        chart.data.datasets[0].backgroundColor  = makeGradient();
+        chart.options.scales.x.title.display    = isQuartal;
+        chart.options.scales.y.title.display    = isQuartal;
+        chart.options.scales.y.suggestedMax     = isQuartal ? 3 : undefined;
+        chart.update();
+
+        const allZero = dataset.data.every(v => v === 0 || v === null);
+        emptyState.classList.toggle('hidden', !allZero);
+    }
+
+    // --- Active button styling ---
+    function setActiveBtn(activeEl) {
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            if (btn === activeEl) btn.setAttribute('data-active', 'true');
+            else                  btn.removeAttribute('data-active');
+        });
+    }
+
+    // --- Wire buttons ---
+    document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            setActiveBtn(this);
+            switchChart(this.dataset.period);
+        });
     });
 });
 </script>
