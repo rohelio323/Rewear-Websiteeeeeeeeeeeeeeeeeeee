@@ -11,7 +11,7 @@ class CO2Controller extends Controller
     public function index() 
     {
         $categories = Category::all();
-        return view('admin.categories', compact('categories'));
+        return view('admin.co2.index', compact('categories'));
     }
     
     /**
