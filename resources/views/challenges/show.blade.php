@@ -26,15 +26,40 @@
             </span>
             <h1 class="text-4xl md:text-5xl font-extrabold font-headline mb-4">{{ $challenge->title }}</h1>
             <p class="text-lg text-stone-300 max-w-2xl mb-6">{{ $challenge->description }}</p>
-            <div class="flex items-center gap-2 text-sm font-mono text-emerald-400 font-bold">
-                <span class="material-symbols-outlined text-[18px]">timer</span>
-                Submissions close {{ \Carbon\Carbon::parse($challenge->end_date)->format('F j, Y') }}
+            
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-2">
+                <div class="flex items-center gap-2 text-sm font-mono text-emerald-400 font-bold">
+                    <span class="material-symbols-outlined text-[18px]">timer</span>
+                    Submissions close {{ \Carbon\Carbon::parse($challenge->end_date)->format('F j, Y') }}
+                </div>
+                
+                <div class="hidden sm:block text-stone-600">|</div>
+
+                <div>
+                    <span class="inline-block bg-white text-stone-900 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm">
+                        Tag: #{{ $challenge->hashtag }}
+                    </span>
+                </div>
             </div>
-            <div class="mt-4">
-                <span class="inline-block bg-white text-stone-900 px-4 py-2 rounded-full text-sm font-bold shadow-sm">
-                    Tag: #{{ $challenge->hashtag }}
-                </span>
+
+            {{-- NEW: Reward Badge (Dark Theme) --}}
+            @if($challenge->reward_points > 0)
+            <div class="mt-6 inline-flex items-center gap-4 p-3 pr-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 backdrop-blur-md shadow-lg">
+                <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+                    <span class="material-symbols-outlined text-[20px]">stars</span>
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500/80 mb-0.5">Challenge Reward</p>
+                    <p class="text-base font-extrabold text-amber-400 font-headline leading-none">
+                        +{{ $challenge->reward_points }} Points
+                        @if($challenge->reward_description)
+                            <span class="text-xs font-medium text-amber-200/80 ml-1 font-body">({{ $challenge->reward_description }})</span>
+                        @endif
+                    </p>
+                </div>
             </div>
+            @endif
+
         </div>
     </div>
 
@@ -61,7 +86,6 @@
                         <textarea name="content" required rows="3" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white transition-colors resize-none" placeholder="How did you upcycle this item?"></textarea>
                     </div>
 
-                    {{-- Extra Tags Input (Optional since Controller auto-injects the challenge hashtag) --}}
                     <div>
                         <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-1 font-label">Extra Tags (Optional)</label>
                         <input type="text" name="tags" class="w-full px-4 py-3 border border-stone-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-stone-50 focus:bg-white transition-colors" placeholder="e.g., vintage, slowfashion">
@@ -99,7 +123,6 @@
                     @foreach($posts as $post)
                         <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm group">
                             <div class="aspect-square bg-stone-100 relative overflow-hidden">
-                                {{-- Asset loads the image safely from your storage folder --}}
                                 <img src="{{ asset('storage/' . $post->image_path) }}" alt="{{ $post->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                             </div>
                             <div class="p-5">

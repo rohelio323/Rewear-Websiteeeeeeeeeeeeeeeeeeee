@@ -60,20 +60,20 @@
         <div class="flex flex-wrap gap-3">
             <form action="{{ route('admin.moderation.hide', $report) }}" method="POST">
                 @csrf
-                <button class="px-6 py-3 bg-amber-50 border border-amber-200 text-amber-700 font-bold text-sm rounded-xl hover:bg-amber-100 transition">🙈 Hide Content</button>
+                <button class="inline-flex items-center gap-2 px-6 py-3 bg-amber-50 border border-amber-200 text-amber-700 font-bold text-sm rounded-xl hover:bg-amber-100 transition"><span class="material-symbols-outlined text-[16px]">visibility_off</span> Hide Content</button>
             </form>
             <form action="{{ route('admin.moderation.warn', $report) }}" method="POST">
                 @csrf
-                <button class="px-6 py-3 bg-orange-50 border border-orange-200 text-orange-700 font-bold text-sm rounded-xl hover:bg-orange-100 transition">⚠️ Warn User</button>
+                <button class="inline-flex items-center gap-2 px-6 py-3 bg-orange-50 border border-orange-200 text-orange-700 font-bold text-sm rounded-xl hover:bg-orange-100 transition"><span class="material-symbols-outlined text-[16px]">warning</span> Warn User</button>
             </form>
             <form action="{{ route('admin.moderation.delete', $report) }}" method="POST"
                   onsubmit="return confirm('Permanently delete this content?')">
                 @csrf
-                <button class="px-6 py-3 bg-red-50 border border-red-200 text-red-600 font-bold text-sm rounded-xl hover:bg-red-100 transition">🗑️ Delete Content</button>
+                <button class="inline-flex items-center gap-2 px-6 py-3 bg-red-50 border border-red-200 text-red-600 font-bold text-sm rounded-xl hover:bg-red-100 transition"><span class="material-symbols-outlined text-[16px]">delete</span> Delete Content</button>
             </form>
             <form action="{{ route('admin.moderation.dismiss', $report) }}" method="POST">
                 @csrf
-                <button class="px-6 py-3 bg-stone-50 border border-stone-200 text-stone-600 font-bold text-sm rounded-xl hover:bg-stone-100 transition">✓ Dismiss</button>
+                <button class="inline-flex items-center gap-2 px-6 py-3 bg-stone-50 border border-stone-200 text-stone-600 font-bold text-sm rounded-xl hover:bg-stone-100 transition"><span class="material-symbols-outlined text-[16px]">check</span> Dismiss</button>
             </form>
         </div>
     @endif

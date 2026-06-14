@@ -39,4 +39,28 @@ class PostVoteController extends Controller
 
         return redirect()->back();
     }
+
+    public function details($id) {
+        $post = Post::findOrFail($id);
+
+        // Security Check: Only allow the post owner (or admin ID 1) to view the breakdown
+        if (Auth::id() !== $post->users_id && Auth::id() !== 1) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Aggregate upvotes (value = 1)
+        $likes = PostVote::where('post_id', $post->post_id)
+            ->where('value', 1)
+            ->count();
+
+        // Aggregate downvotes (value = -1)
+        $dislikes = PostVote::where('post_id', $post->post_id)
+            ->where('value', -1)
+            ->count();
+
+        return response()->json([
+            'likes' => $likes,
+            'dislikes' => $dislikes
+        ]);
+    }
 }

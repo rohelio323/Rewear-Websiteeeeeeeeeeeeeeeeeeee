@@ -131,10 +131,19 @@ class OrderController extends Controller
         abort_unless($order->status === 'shipped', 403);
 
         DB::transaction(function () use ($order) {
+            // 1. Update order status
             $order->update(['status' => 'completed']);
+
+            // 2. Add CO2 points to the buyer
+            $buyer = $order->buyer;
+            if ($buyer) {
+                // Ensure we use the value stored on the order at time of purchase
+                $buyer->total_co2_saved += $order->co2_saved_amount;
+                $buyer->save();
+            }
         });
 
-        return redirect()->route('orders.confirmed', $order)->with('success', 'Order completed!');
+        return redirect()->route('orders.show', $order)->with('success', 'Order completed and CO2 points added to your profile!');
     }
 
     public function cancel(Order $order)

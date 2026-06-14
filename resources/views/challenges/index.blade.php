@@ -29,7 +29,20 @@
                 {{-- Content --}}
                 <div class="p-6 flex-grow flex flex-col">
                     <h3 class="text-xl font-extrabold text-stone-900 font-headline mb-2">{{ $challenge->title }}</h3>
-                    <p class="text-sm text-stone-600 mb-6 flex-grow">{{ Str::limit($challenge->description, 120) }}</p>
+                    <p class="text-sm text-stone-600 mb-4 flex-grow">{{ Str::limit($challenge->description, 120) }}</p>
+                    
+                    {{-- NEW: Compact Reward Badge --}}
+                    @if($challenge->reward_points > 0)
+                        <div class="mb-5 flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-100 shadow-sm self-start">
+                            <span class="material-symbols-outlined text-[18px] text-amber-500">stars</span>
+                            <span class="text-xs font-extrabold text-amber-900">
+                                +{{ $challenge->reward_points }} Points
+                                @if($challenge->reward_description)
+                                    <span class="font-medium text-amber-700 ml-0.5">({{ $challenge->reward_description }})</span>
+                                @endif
+                            </span>
+                        </div>
+                    @endif
                     
                     <div class="flex items-center justify-between mt-auto pt-4 border-t border-stone-100">
                         <div class="flex items-center gap-2 text-xs font-bold text-stone-500 font-mono">

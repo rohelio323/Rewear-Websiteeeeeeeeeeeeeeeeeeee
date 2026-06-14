@@ -2,6 +2,11 @@
 @section('title', 'Account Settings & Impact')
 
 @section('content')
+{{-- Fetch the absolute latest database record to prevent stale session data --}}
+@php
+    $currentUser = auth()->user()->fresh();
+@endphp
+
 <main class="bg-[#fafaf9] min-h-screen py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -15,14 +20,22 @@
             {{-- Quick Profile Badge --}}
             <div class="flex items-center gap-3 bg-white px-4 py-2 rounded-full border border-stone-200 shadow-sm w-max">
                 <div class="w-8 h-8 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center font-bold text-xs">
-                    {{ substr(auth()->user()->name ?? 'U', 0, 1) }}
+                    {{ substr($currentUser->name ?? 'U', 0, 1) }}
                 </div>
                 <div class="text-sm">
-                    <p class="font-bold text-emerald-950 leading-none">{{ auth()->user()->name }}</p>
-                    <p class="text-[10px] text-stone-400 mt-0.5">{{ auth()->user()->email }}</p>
+                    <p class="font-bold text-emerald-950 leading-none">{{ $currentUser->name }}</p>
+                    <p class="text-[10px] text-stone-400 mt-0.5">{{ $currentUser->email }}</p>
                 </div>
             </div>
         </header>
+        
+        {{-- Warning Notification --}}
+        @if($currentUser->warning_count > 0)
+            <div class="mb-6 bg-amber-50 border border-amber-200 text-amber-800 px-5 py-3 rounded-2xl text-sm font-medium flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-600 text-base">warning</span>
+                Your account has <strong class="mx-1">{{ $currentUser->warning_count }} warning{{ $currentUser->warning_count > 1 ? 's' : '' }}</strong> for violating community standards. Please review our guidelines.
+            </div>
+        @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
             
@@ -42,11 +55,11 @@
                         </h3>
                         
                         <div class="space-y-6 relative z-10">
-                            {{-- CO2 Stat --}}
+                            {{-- CO2 Stat (Now fully synchronized) --}}
                             <div>
                                 <span class="text-xs text-emerald-300/80 uppercase tracking-wider block mb-1">CO₂ Saved</span>
                                 <div class="flex items-baseline gap-1">
-                                    <span class="text-4xl font-black text-white tracking-tighter">{{ number_format(auth()->user()->total_co2_saved, 2) }}</span>
+                                    <span class="text-4xl font-black text-white tracking-tighter">{{ number_format($currentUser->total_co2_saved, 2) }}</span>
                                     <span class="text-sm font-bold text-emerald-400">kg</span>
                                 </div>
                             </div>
@@ -73,7 +86,7 @@
                             <h2 class="text-lg font-bold text-emerald-900">Seller Hub</h2>
                         </div>
                         
-                        @if(auth()->user()->isVerifiedSeller())
+                        @if($currentUser->isVerifiedSeller())
                             <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center gap-3">
                                 <span class="material-symbols-outlined text-emerald-600 text-2xl">verified</span>
                                 <div>
@@ -81,22 +94,22 @@
                                     <p class="text-xs text-emerald-600 mt-0.5">Your store is active.</p>
                                 </div>
                             </div>
-                        @elseif(auth()->user()->hasPendingSellerRequest())
+                        @elseif($currentUser->hasPendingSellerRequest())
                             <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-center gap-3">
                                 <span class="material-symbols-outlined text-amber-600 text-2xl">schedule</span>
                                 <div>
                                     <p class="font-bold text-amber-800 text-sm">Application Pending</p>
-                                    <p class="text-[10px] text-amber-600 uppercase tracking-widest mt-0.5">Submitted {{ auth()->user()->seller_requested_at?->diffForHumans() }}</p>
+                                    <p class="text-[10px] text-amber-600 uppercase tracking-widest mt-0.5">Submitted {{ $currentUser->seller_requested_at?->diffForHumans() }}</p>
                                 </div>
                             </div>
-                        @elseif(auth()->user()->wasRejectedAsSeller())
+                        @elseif($currentUser->wasRejectedAsSeller())
                             <div class="bg-red-50 border border-red-100 rounded-2xl p-4 mb-3">
                                 <div class="flex items-center gap-2 mb-2">
                                     <span class="material-symbols-outlined text-red-600 text-sm">cancel</span>
                                     <p class="font-bold text-red-800 text-sm">Application Rejected</p>
                                 </div>
-                                @if(auth()->user()->seller_rejection_note)
-                                    <p class="text-xs text-red-600/80 mb-3 bg-white/50 p-2 rounded-lg">{{ auth()->user()->seller_rejection_note }}</p>
+                                @if($currentUser->seller_rejection_note)
+                                    <p class="text-xs text-red-600/80 mb-3 bg-white/50 p-2 rounded-lg">{{ $currentUser->seller_rejection_note }}</p>
                                 @endif
                                 <form method="POST" action="{{ route('seller.apply.submit') }}">
                                     @csrf
