@@ -98,16 +98,33 @@
                              alt="{{ $item->user->name }}">
                     </div>
                     <div>
-                        <div class="font-bold text-sm text-primary flex items-center gap-1">
+                        {{-- Seller name now clickable → opens seller profile in new tab --}}
+                        <a href="{{ route('seller.profile', $item->user) }}" target="_blank"
+                           class="font-bold text-sm text-primary flex items-center gap-1 hover:underline">
                             {{ $item->user->name }}
                             <span class="material-symbols-outlined text-emerald-600 text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
-                        </div>
+                        </a>
                         <div class="flex items-center text-[11px] text-on-surface-variant gap-2">
                             <span class="flex items-center gap-0.5">
                                 <span class="material-symbols-outlined text-[12px]">location_on</span> {{ $item->city ?? 'Indonesia' }}
                             </span>
                         </div>
                     </div>
+                </div>
+
+                {{-- PBI-39: Seller Rating Badge --}}
+                @php
+                    $avgRating = $item->user->averageRating();
+                    $totalReviews = $item->user->totalReviews();
+                @endphp
+                <div class="flex items-center gap-1.5">
+                    @if($totalReviews > 0)
+                        <span class="material-symbols-outlined text-amber-500 text-base" style="font-variation-settings: 'FILL' 1;">star</span>
+                        <span class="text-sm font-bold text-primary">{{ $avgRating }}</span>
+                        <span class="text-xs text-on-surface-variant">({{ $totalReviews }})</span>
+                    @else
+                        <span class="text-xs text-on-surface-variant italic">No reviews yet</span>
+                    @endif
                 </div>
             </div>
 
@@ -134,7 +151,6 @@
                     </form>
                 @endif
 
-                {{-- PBI-29: Report button — only visible to users who don't own the item --}}
                 @if(auth()->id() !== $item->users_id)
                     <button onclick="document.getElementById('itemReportModal').classList.remove('hidden')"
                         class="mt-3 w-full text-center text-xs text-stone-400 hover:text-red-500 transition py-1">

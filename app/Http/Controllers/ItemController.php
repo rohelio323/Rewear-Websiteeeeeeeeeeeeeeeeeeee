@@ -29,6 +29,8 @@ class ItemController extends Controller
             ->limit(4)
             ->get();
 
+        $item->load('user');
+
         return view('items.show', compact('item', 'similarItems'));
     }
 
@@ -140,4 +142,3 @@ class ItemController extends Controller
         return redirect()->route('marketplace.index')->with('success', 'Listing deleted successfully.');
     }
 }
-
