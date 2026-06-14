@@ -54,60 +54,6 @@
         </div>
     @endif
 
-    @if (session('error'))
-        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
-                    <span class="material-symbols-outlined text-[18px]">error</span>
-                </div>
-                <p class="text-sm font-bold text-red-800 font-headline">{{ session('error') }}</p>
-            </div>
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 shadow-sm">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
-                    <span class="material-symbols-outlined text-[18px]">error</span>
-                </div>
-                <p class="text-sm font-bold text-red-800 font-headline">There were some problems with your input:</p>
-            </div>
-            <ul class="list-disc list-inside text-sm text-red-700 space-y-1 ml-11">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
-                    <span class="material-symbols-outlined text-[18px]">error</span>
-                </div>
-                <p class="text-sm font-bold text-red-800 font-headline">{{ session('error') }}</p>
-            </div>
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 shadow-sm">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
-                    <span class="material-symbols-outlined text-[18px]">error</span>
-                </div>
-                <p class="text-sm font-bold text-red-800 font-headline">There were some problems with your input:</p>
-            </div>
-            <ul class="list-disc list-inside text-sm text-red-700 space-y-1 ml-11">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
     {{-- Data Table --}}
     <div class="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
@@ -134,7 +80,7 @@
                                     @if($challenge->reward_points > 0)
                                         <span class="inline-flex mt-2 items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md shadow-sm">
                                             <span class="material-symbols-outlined text-[12px] text-amber-500">stars</span> 
-                                            +{{ $challenge->reward_points }} Points
+                                            +{{ $challenge->reward_points }} CO₂ Saved
                                         </span>
                                     @endif
                                 </div>
@@ -191,7 +137,7 @@
                             <div class="w-20 h-20 mx-auto bg-stone-50 rounded-full flex items-center justify-center mb-4 border border-stone-100 shadow-inner">
                                 <span class="material-symbols-outlined text-4xl text-stone-300">emoji_events</span>
                             </div>
-                            <p class="font-bold text-stone-600 text-base mb-1">No challenges found</p>
+                            <p class="font-bold text-stone-600 text-base mb-1">No challenges created yet</p>
                             <p class="text-sm text-stone-400 max-w-sm mx-auto mb-4">Start engaging your users by creating the first community challenge.</p>
                             <button @click="showAddModal = true" class="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors">
                                 + Create your first challenge
@@ -243,7 +189,7 @@
                         
                         {{-- REWARDS SECTION --}}
                         <div class="mb-6">
-                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Reward (CO₂ Points)</label>
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Reward (CO₂ Saved)</label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 text-[18px]">eco</span>
                                 <input type="number" name="reward_points" 
@@ -323,7 +269,7 @@
 
                         {{-- REWARDS SECTION --}}
                         <div class="mb-6">
-                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Reward (CO₂ Points)</label>
+                            <label class="block text-[11px] font-bold uppercase tracking-widest text-stone-500 mb-2 font-label">Reward (CO₂ Saved)</label>
                             <div class="relative">
                                 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 text-[18px]">eco</span>
                                 <input type="number" name="reward_points" 
