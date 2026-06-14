@@ -104,6 +104,11 @@ class PostController extends Controller {
     public function update(Request $request, $id) {
         $post = Post::findOrFail($id);
 
+        // Enforce the 30-minute post edit window
+        if ($post->created_at->diffInMinutes(now()) >= 30) {
+            return redirect()->route('community.index')->with('error', 'This post is outside its 30-minute edit window and can no longer be edited.');
+        }
+
         // --- CHALLENGE HASHTAG DETECTION ---
         $activeHashtags = Challenge::where('is_active', true)->pluck('hashtag')->toArray();
         $textToCheck = strtolower($request->content . ' ' . $request->tags);
