@@ -21,8 +21,7 @@ class ProfileController extends Controller
         $user = $request->user();
         $userId = $user->id;
 
-        $totalCo2Saved = Order::where('buyer_id', $userId)
-                              ->sum('co2_saved_amount');
+        $totalCo2Saved = $user->total_co2_saved;
 
         // Calculate Total Score (PBI-23)
         $myScore = Post::where('users_id', $userId)->sum('upvote_count');

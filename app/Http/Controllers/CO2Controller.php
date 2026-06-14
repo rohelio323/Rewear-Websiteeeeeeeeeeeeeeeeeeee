@@ -73,7 +73,15 @@ class CO2Controller extends Controller
             return redirect()->back()->with('error', 'Category not found.');
         }
 
-        $category->delete();
+        try {
+            $category->delete();
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Check for foreign key constraint violation
+            if ($e->getCode() == 23000 || str_contains($e->getMessage(), 'foreign key constraint')) {
+                return redirect()->back()->with('error', 'Cannot delete this category because it is still in use by one or more items.');
+            }
+            throw $e;
+        }
 
         return redirect()->back()->with('success', 'Category deleted successfully!');
     }
