@@ -17,6 +17,8 @@ class Order extends Model
         'payment_proof',
         'tracking_number',
         'shipping_proof',
+        'voucher_redemption_id',
+        'discount_amount',
     ];
 
     protected function casts(): array
@@ -24,6 +26,7 @@ class Order extends Model
         return [
             'total_price' => 'decimal:2',
             'co2_saved_amount' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
         ];
     }
 
@@ -44,6 +47,11 @@ class Order extends Model
 
     public function review()
     {
-    return $this->hasOne(Review::class);
+        return $this->hasOne(Review::class);
+    }
+
+    public function voucherRedemption()
+    {
+        return $this->belongsTo(VoucherRedemption::class, 'voucher_redemption_id');
     }
 }

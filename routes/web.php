@@ -42,6 +42,8 @@ Route::middleware('auth')->group(function () {
     // Orders
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/voucher', [OrderController::class, 'applyVoucher'])->name('orders.applyVoucher');
+    Route::post('/orders/{order}/voucher/remove', [OrderController::class, 'removeVoucher'])->name('orders.removeVoucher');
     Route::get('/orders/{order}/payment', [OrderController::class, 'paymentForm'])->name('orders.payment');
     Route::post('/orders/{order}/confirm-payment', [OrderController::class, 'confirmPayment'])->name('orders.confirmPayment');
     Route::get('/orders/{order}/confirmed', [OrderController::class, 'confirmed'])->name('orders.confirmed');
@@ -61,6 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/favorites', [WishlistController::class, 'index'])->name('favorites.index');
     Route::post('/favorites/{item}/toggle', [WishlistController::class, 'toggle'])->name('favorites.toggle');
 
+    Route::post('/rewards/redeem/{voucher}', [ProfileController::class, 'redeem'])->name('rewards.redeem')->middleware('auth');
 
     // ===== PBI-38: Reviews =====
     Route::get('/orders/{order}/review', [ReviewController::class, 'create'])->name('reviews.create');
@@ -95,6 +98,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/moderation/{report}/delete',  [\App\Http\Controllers\Admin\AdminModerationController::class, 'delete'])->name('moderation.delete');
     Route::post('/moderation/{report}/dismiss', [\App\Http\Controllers\Admin\AdminModerationController::class, 'dismiss'])->name('moderation.dismiss');
     Route::post('/moderation/{report}/warn',    [\App\Http\Controllers\Admin\AdminModerationController::class, 'warn'])->name('moderation.warn');
+    Route::resource('vouchers', \App\Http\Controllers\Admin\AdminVoucherController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('/challenges', [App\Http\Controllers\Admin\AdminChallengeController::class, 'index'])->name('challenges.index');
     Route::post('/challenges', [App\Http\Controllers\Admin\AdminChallengeController::class, 'store'])->name('challenges.store');
     Route::get('/challenges/{id}/edit', [App\Http\Controllers\Admin\AdminChallengeController::class, 'edit'])->name('challenges.edit');
