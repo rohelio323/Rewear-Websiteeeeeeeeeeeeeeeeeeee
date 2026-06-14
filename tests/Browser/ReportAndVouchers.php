@@ -18,7 +18,7 @@ test('TC.Report.29.001 - Positive (UC): Logged-in buyer sees report flag button 
         $item   = Item::where('users_id', $seller->id)->firstOrFail();
 
         $browser->loginAs($buyer)
-            ->visit('/items/' . $item->id)
+            ->visit('/item/detail/' . $item->id)
             ->assertPresent('button[title="Report this listing"]');
     });
 });
@@ -28,7 +28,8 @@ test('TC.Report.29.002 - Negative (EP): Guest user does not see report button on
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
         $item   = Item::where('users_id', $seller->id)->firstOrFail();
 
-        $browser->visit('/items/' . $item->id)
+        $browser->logout()
+            ->visit('/item/detail/' . $item->id)
             ->assertMissing('button[title="Report this listing"]');
     });
 });
@@ -40,7 +41,7 @@ test('TC.Report.29.003 - Positive (UC): Clicking flag icon opens the item report
         $item   = Item::where('users_id', $seller->id)->firstOrFail();
 
         $browser->loginAs($buyer)
-            ->visit('/items/' . $item->id)
+            ->visit('/item/detail/' . $item->id)
             ->click('button[title="Report this listing"]')
             ->waitFor('#itemReportModal', 3)
             ->assertVisible('#itemReportModal');
@@ -61,11 +62,12 @@ test('TC.Report.29.004 - Positive (UC): User successfully submits an item report
             ->delete();
 
         $browser->loginAs($buyer)
-            ->visit('/items/' . $item->id)
+            ->visit('/item/detail/' . $item->id)
             ->click('button[title="Report this listing"]')
             ->waitFor('#itemReportModal', 3)
             ->type('textarea[name="reason"]', 'This item looks like a scam.')
             ->press('Submit Report')
+            ->pause(1000)
             ->assertSee('Report submitted');
     });
 });
@@ -77,12 +79,12 @@ test('TC.Report.29.005 - Negative (EP): System rejects item report submission wi
         $item   = Item::where('users_id', $seller->id)->firstOrFail();
 
         $browser->loginAs($buyer)
-            ->visit('/items/' . $item->id)
+            ->visit('/item/detail/' . $item->id)
             ->click('button[title="Report this listing"]')
             ->waitFor('#itemReportModal', 3)
             ->press('Submit Report')
             // HTML5 required attribute blocks submission; user stays on item page
-            ->assertPathIs('/items/' . $item->id);
+            ->assertPathIs('/item/detail/' . $item->id);
     });
 });
 
@@ -99,11 +101,12 @@ test('TC.Report.29.006 - Positive (BVA): Item report accepted with exactly 1000 
             ->delete();
 
         $browser->loginAs($buyer)
-            ->visit('/items/' . $item->id)
+            ->visit('/item/detail/' . $item->id)
             ->click('button[title="Report this listing"]')
             ->waitFor('#itemReportModal', 3)
             ->type('textarea[name="reason"]', str_repeat('a', 1000))
             ->press('Submit Report')
+            ->pause(1000)
             ->assertSee('Report submitted');
     });
 });
@@ -115,7 +118,7 @@ test('TC.Report.29.007 - Negative (BVA): Item report rejected with 1001 characte
         $item   = Item::where('users_id', $seller->id)->firstOrFail();
 
         $browser->loginAs($buyer)
-            ->visit('/items/' . $item->id)
+            ->visit('/item/detail/' . $item->id)
             ->click('button[title="Report this listing"]')
             ->waitFor('#itemReportModal', 3)
             ->type('textarea[name="reason"]', str_repeat('a', 1001))
@@ -142,11 +145,12 @@ test('TC.Report.29.008 - Negative (EP): User cannot submit duplicate pending rep
         );
 
         $browser->loginAs($buyer)
-            ->visit('/items/' . $item->id)
+            ->visit('/item/detail/' . $item->id)
             ->click('button[title="Report this listing"]')
             ->waitFor('#itemReportModal', 3)
             ->type('textarea[name="reason"]', 'Trying to report again.')
             ->press('Submit Report')
+            ->pause(1000)
             ->assertSee('You have already reported this content.');
     });
 });
@@ -198,6 +202,7 @@ test('TC.Report.29.010 - Positive (UC): Admin can dismiss a pending item report'
             ->visit('/admin/moderation')
             ->assertSee($uniqueReason)
             ->press('Dismiss')
+            ->pause(1000)
             ->assertDontSee($uniqueReason);
     });
 });
@@ -210,7 +215,12 @@ test('TC.Report.30.001 - Positive (UC): Logged-in user sees report option in com
     $this->browse(function (Browser $browser) {
         $buyer  = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post   = Post::where('users_id', $seller->id)->firstOrFail();
+        $post   = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 1',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId = $post->post_id;
 
         $browser->loginAs($buyer)
@@ -223,7 +233,8 @@ test('TC.Report.30.001 - Positive (UC): Logged-in user sees report option in com
 
 test('TC.Report.30.002 - Negative (EP): Guest user does not see the kebab menu on community posts', function () {
     $this->browse(function (Browser $browser) {
-        $browser->visit('/community')
+        $browser->logout()
+            ->visit('/community')
             ->assertMissing('.kebab-button');
     });
 });
@@ -232,7 +243,12 @@ test('TC.Report.30.003 - Positive (UC): Clicking Report in kebab menu opens the 
     $this->browse(function (Browser $browser) {
         $buyer  = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post   = Post::where('users_id', $seller->id)->firstOrFail();
+        $post   = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 2',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId = $post->post_id;
 
         $browser->loginAs($buyer)
@@ -250,7 +266,12 @@ test('TC.Report.30.004 - Positive (UC): User successfully submits a post report 
     $this->browse(function (Browser $browser) {
         $buyer  = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post   = Post::where('users_id', $seller->id)->firstOrFail();
+        $post   = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 3',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId = $post->post_id;
 
         // Remove any prior pending report
@@ -269,6 +290,7 @@ test('TC.Report.30.004 - Positive (UC): User successfully submits a post report 
             ->pause(400)
             ->type('textarea[name="reason"]', 'This post promotes non-sustainable fast fashion.')
             ->press('Submit Report')
+            ->pause(1000)
             ->assertSee('Report submitted');
     });
 });
@@ -277,7 +299,12 @@ test('TC.Report.30.005 - Negative (EP): System rejects post report submission wi
     $this->browse(function (Browser $browser) {
         $buyer  = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post   = Post::where('users_id', $seller->id)->firstOrFail();
+        $post   = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 4',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId = $post->post_id;
 
         $browser->loginAs($buyer)
@@ -297,7 +324,12 @@ test('TC.Report.30.006 - Positive (BVA): Post report accepted with exactly 1000 
     $this->browse(function (Browser $browser) {
         $buyer  = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post   = Post::where('users_id', $seller->id)->firstOrFail();
+        $post   = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 5',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId = $post->post_id;
 
         Report::where('reportable_type', Post::class)
@@ -315,6 +347,7 @@ test('TC.Report.30.006 - Positive (BVA): Post report accepted with exactly 1000 
             ->pause(400)
             ->type('textarea[name="reason"]', str_repeat('a', 1000))
             ->press('Submit Report')
+            ->pause(1000)
             ->assertSee('Report submitted');
     });
 });
@@ -323,7 +356,12 @@ test('TC.Report.30.007 - Negative (BVA): Post report rejected with 1001 characte
     $this->browse(function (Browser $browser) {
         $buyer  = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post   = Post::where('users_id', $seller->id)->firstOrFail();
+        $post   = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 6',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId = $post->post_id;
 
         $browser->loginAs($buyer)
@@ -343,7 +381,12 @@ test('TC.Report.30.008 - Negative (EP): User cannot submit duplicate pending rep
     $this->browse(function (Browser $browser) {
         $buyer  = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post   = Post::where('users_id', $seller->id)->firstOrFail();
+        $post   = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 7',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId = $post->post_id;
 
         // Ensure a prior pending report exists
@@ -366,6 +409,7 @@ test('TC.Report.30.008 - Negative (EP): User cannot submit duplicate pending rep
             ->pause(400)
             ->type('textarea[name="reason"]', 'Trying to report the same post again.')
             ->press('Submit Report')
+            ->pause(1000)
             ->assertSee('You have already reported this content.');
     });
 });
@@ -375,7 +419,12 @@ test('TC.Report.30.009 - Positive (UC): Reported post appears in admin moderatio
         $admin  = User::where('email', 'admin@rewear.com')->firstOrFail();
         $buyer  = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post   = Post::where('users_id', $seller->id)->firstOrFail();
+        $post   = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 8',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId = $post->post_id;
 
         Report::firstOrCreate(
@@ -400,7 +449,12 @@ test('TC.Report.30.010 - Positive (UC): Admin can hide a reported post; it disap
         $admin     = User::where('email', 'admin@rewear.com')->firstOrFail();
         $buyer     = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $seller    = User::where('email', 'seller@rewear.com')->firstOrFail();
-        $post      = Post::where('users_id', $seller->id)->firstOrFail();
+        $post      = Post::where('users_id', $seller->id)->first() ?? Post::create([
+            'title' => 'Test Post By Seller 9',
+            'content' => 'Content of test post',
+            'users_id' => $seller->id,
+            'upvote_count' => 0,
+        ]);
         $postId    = $post->post_id;
         $postTitle = $post->title;
 
@@ -567,6 +621,10 @@ test('TC.Voucher.31.008 - Positive (UC): User successfully redeems a voucher wit
         // Reset buyer CO2 to 11.50 in case previous tests changed it
         $buyer->update(['total_co2_saved' => 11.50]);
 
+        // Clean vouchers and redemptions tables to avoid selecting the wrong voucher
+        \App\Models\VoucherRedemption::query()->delete();
+        CarbonVoucher::query()->delete();
+
         $code = 'REWEAR10' . time();
         CarbonVoucher::create([
             'code'               => $code,
@@ -580,6 +638,7 @@ test('TC.Voucher.31.008 - Positive (UC): User successfully redeems a voucher wit
             ->visit('/profile')
             ->assertSee($code)
             ->press('Redeem')
+            ->pause(1000)
             ->assertSee($code . ' redeemed');
     });
 });
@@ -589,6 +648,10 @@ test('TC.Voucher.31.009 - Positive (UC): CO2 balance decrements by co2_cost afte
         // Buyer starts at 11.50 kg, redeems 10 kg cost → remaining 1.5 kg
         $buyer = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $buyer->update(['total_co2_saved' => 11.50]);
+
+        // Clean vouchers and redemptions tables to avoid selecting the wrong voucher
+        \App\Models\VoucherRedemption::query()->delete();
+        CarbonVoucher::query()->delete();
 
         $code = 'DEDUCT10' . time();
         CarbonVoucher::create([
@@ -603,6 +666,7 @@ test('TC.Voucher.31.009 - Positive (UC): CO2 balance decrements by co2_cost afte
             ->visit('/profile')
             ->assertSee('11.5 kg CO')
             ->press('Redeem')
+            ->pause(1000)
             ->assertSee('1.5 kg CO');
     });
 });
@@ -611,6 +675,10 @@ test('TC.Voucher.31.010 - Positive (UC): Redeemed voucher code appears in redemp
     $this->browse(function (Browser $browser) {
         $buyer = User::where('email', 'buyer@rewear.com')->firstOrFail();
         $buyer->update(['total_co2_saved' => 11.50]);
+
+        // Clean vouchers and redemptions tables to avoid selecting the wrong voucher
+        \App\Models\VoucherRedemption::query()->delete();
+        CarbonVoucher::query()->delete();
 
         $code = 'HISTTEST' . time();
         CarbonVoucher::create([
@@ -625,7 +693,7 @@ test('TC.Voucher.31.010 - Positive (UC): Redeemed voucher code appears in redemp
         $browser->loginAs($buyer)
             ->visit('/profile')
             ->press('Redeem')
-            ->pause(500);
+            ->pause(1000);
 
         // Open redemption history and verify the code appears
         $browser->loginAs($buyer)
@@ -681,6 +749,7 @@ test('TC.Voucher.31.013 - Positive (EP): Admin creates a new voucher with all va
             ->type('quantity_available', '10')
             // is_active checkbox is checked by default
             ->press('Create Voucher')
+            ->pause(1000)
             ->assertSee($code);
     });
 });
@@ -708,6 +777,7 @@ test('TC.Voucher.31.014 - Negative (EP): Admin cannot create a voucher with a du
             ->type('co2_cost', '20')
             ->type('quantity_available', '5')
             ->press('Create Voucher')
+            ->pause(1000)
             ->assertSee('has already been taken');
     });
 });
@@ -744,6 +814,7 @@ test('TC.Voucher.31.016 - Positive (BVA): Admin creates voucher with co2_cost = 
             ->type('co2_cost', '1')
             ->type('quantity_available', '5')
             ->press('Create Voucher')
+            ->pause(1000)
             ->assertSee($code);
     });
 });

@@ -7,7 +7,7 @@ class Post extends Model {
     protected $primaryKey = 'post_id';
 
     protected $fillable = [
-        'status ',
+        'status',
         'title',
         'content',
         'users_id',
