@@ -59,13 +59,13 @@
 
                 {{-- Rewards --}}
                 <div>
-                    <label for="reward_points" class="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2">Reward (CO₂ Points)</label>
+                    <label for="reward_points" class="block text-[11px] font-bold text-stone-500 uppercase tracking-widest mb-2">Reward (CO₂ Saved)</label>
                     <div class="relative">
                         <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 text-[18px]">eco</span>
                         <input type="number" id="reward_points" name="reward_points" value="{{ old('reward_points', $challenge->reward_points ?? 0) }}" min="0" required
                                class="w-full pl-11 pr-4 py-3 bg-emerald-50/50 border border-emerald-200 rounded-xl text-sm text-emerald-900 font-mono font-bold focus:bg-white focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition shadow-sm">
                     </div>
-                    <p class="text-xs text-stone-400 mt-2">These CO₂ points will be added to the winner's total impact score.</p>
+                    <p class="text-xs text-stone-400 mt-2">These CO₂ saved values will be added to the winner's total impact score.</p>
                     @error('reward_points')
                         <p class="text-red-500 text-xs mt-1 font-medium">{{ $message }}</p>
                     @enderror

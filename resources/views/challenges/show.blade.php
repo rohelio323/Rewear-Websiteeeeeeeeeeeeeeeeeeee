@@ -51,7 +51,7 @@
                 <div>
                     <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500/80 mb-0.5">Challenge Reward</p>
                     <p class="text-base font-extrabold text-amber-400 font-headline leading-none">
-                        +{{ $challenge->reward_points }} Points
+                        +{{ $challenge->reward_points }} CO₂ Saved
                         @if($challenge->reward_description)
                             <span class="text-xs font-medium text-amber-200/80 ml-1 font-body">({{ $challenge->reward_description }})</span>
                         @endif
