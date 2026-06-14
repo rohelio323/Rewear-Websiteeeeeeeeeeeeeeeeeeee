@@ -26,6 +26,10 @@
                     <a href="{{ route('admin.dashboard') }}" class="text-[10px] font-bold text-secondary uppercase border border-secondary/30 px-2 py-2 rounded tracking-widest hover:bg-secondary hover:text-white transition-all">Admin Dashboard</a>
                 @endif
 
+                @if(auth()->user()->role === 'admin' || auth()->user()->is_verified_seller)
+                    <a href="{{ route('reviews.index') }}" class="text-sm font-medium text-stone-600 hover:text-primary transition-colors">My Reviews</a>
+                @endif
+
                 {{-- Wishlist Icon --}}
                 <a href="{{ route('favorites.index') }}"
                    class="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-stone-100 transition-all {{ request()->is('favorites') ? 'text-red-500' : 'text-stone-500' }}"
