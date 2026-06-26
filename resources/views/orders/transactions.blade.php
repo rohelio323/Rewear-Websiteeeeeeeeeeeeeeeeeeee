@@ -28,9 +28,7 @@
         <a href="{{ route('orders.show', $order) }}"
            class="flex items-center gap-4 bg-white border border-stone-200 rounded-2xl p-4 mb-3 hover:border-emerald-300 hover:shadow-sm transition-all">
             <div class="w-16 h-16 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0">
-                @if($order->item->first_photo)
-                    <img src="{{ asset('storage/'.$order->item->first_photo) }}" class="w-full h-full object-cover">
-                @endif
+                <img src="{{ $order->item->photo_url }}" class="w-full h-full object-cover">
             </div>
             <div class="flex-1 min-w-0">
                 <p class="font-bold text-stone-900 truncate">{{ $order->item->item_name }}</p>
@@ -59,9 +57,7 @@
         <a href="{{ route('orders.show', $order) }}"
            class="flex items-center gap-4 bg-white border border-stone-200 rounded-2xl p-4 mb-3 hover:border-emerald-300 hover:shadow-sm transition-all">
             <div class="w-16 h-16 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0">
-                @if($order->item->first_photo)
-                    <img src="{{ asset('storage/'.$order->item->first_photo) }}" class="w-full h-full object-cover">
-                @endif
+                <img src="{{ $order->item->photo_url }}" class="w-full h-full object-cover">
             </div>
             <div class="flex-1 min-w-0">
                 <p class="font-bold text-stone-900 truncate">{{ $order->item->item_name }}</p>

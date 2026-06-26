@@ -57,10 +57,7 @@
             </div>
             <div class="bg-stone-50 p-4 rounded-xl flex gap-6 items-center border border-stone-100">
                 <div class="w-24 h-32 rounded-lg overflow-hidden bg-stone-200 flex-shrink-0">
-                    @if($order->item->first_photo)
-                        <img src="{{ asset('storage/'.$order->item->first_photo) }}" alt="{{ $order->item->item_name }}" class="w-full h-full object-cover">
-                    @else
-                        <img src="/placeholder.jpg" alt="{{ $order->item->item_name }}" class="w-full h-full object-cover">
+                    <img src="{{ $order->item->photo_url }}" alt="{{ $order->item->item_name }}" class="w-full h-full object-cover">
                     @endif
                 </div>
                 <div class="flex-grow">

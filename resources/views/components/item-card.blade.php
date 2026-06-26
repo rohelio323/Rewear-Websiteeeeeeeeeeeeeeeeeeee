@@ -1,15 +1,7 @@
 <div class="group relative rounded-2xl overflow-hidden bg-white border border-stone-200 hover:-translate-y-0.5 transition-transform duration-200 cursor-pointer flex flex-col">  
     {{-- Image --}}
     <div class="relative" style="aspect-ratio:3/4;">
-        @if($item->first_photo)
-            @if(str_starts_with($item->first_photo, 'http'))
-                <img src="{{ $item->first_photo }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
-            @else
-                <img src="{{ asset('storage/'.$item->first_photo) }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
-            @endif
-        @else
-            <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&h=533&fit=crop&q=80" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
-        @endif
+        <img src="{{ $item->photo_url }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
 
         {{-- CO2 badge --}}
         <div class="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 bg-emerald-950 text-emerald-300 text-[11px] font-medium px-3 py-1 rounded-full tracking-wide">

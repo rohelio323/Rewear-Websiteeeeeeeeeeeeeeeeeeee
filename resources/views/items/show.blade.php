@@ -44,14 +44,7 @@
                     @endif
                 @endauth
 
-                @if($item->first_photo)
-                    @php $mainSrc = str_starts_with($item->first_photo, 'http') ? $item->first_photo : asset('storage/'.$item->first_photo); @endphp
-                    <img id="main-image" src="{{ $mainSrc }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                @else
-                    <div class="w-full h-full flex items-center justify-center bg-stone-200">
-                        <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&h=667&fit=crop&q=80" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
-                    </div>
-                @endif
+                <img id="main-image" src="{{ $item->photo_url }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
             </div>
 
             @if(count($item->photo_path ?? []) > 1)

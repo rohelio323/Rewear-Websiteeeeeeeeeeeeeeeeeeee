@@ -46,6 +46,15 @@ class Item extends Model
         return $photos && count($photos) > 0 ? $photos[0] : null;
     }
 
+    public function getPhotoUrlAttribute(): string
+    {
+        $photo = $this->first_photo;
+        if (!$photo) {
+            return 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&h=667&fit=crop&q=80';
+        }
+        return str_starts_with($photo, 'http') ? $photo : asset('storage/' . $photo);
+    }
+
     public function reports()
     {
         return $this->morphMany(Report::class, 'reportable');

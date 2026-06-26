@@ -57,10 +57,7 @@
 
         {{-- Item Row --}}
         <div class="flex items-center gap-4 pb-5 mb-5 border-b border-stone-100">
-            @if($order->item->first_photo)
-                <img src="{{ asset('storage/'.$order->item->first_photo) }}"
-                     class="w-16 h-16 object-cover rounded-xl flex-shrink-0">
-            @endif
+            <img src="{{ $order->item->photo_url }}" class="w-16 h-16 object-cover rounded-xl flex-shrink-0">
             <div class="flex-1">
                 <p class="text-sm font-semibold text-stone-900 mb-1">{{ $order->item->item_name }}</p>
                 <p class="text-xs text-stone-400 mb-2">{{ $order->item->category?->category_name ?? '—' }} · Size {{ $order->item->size ?? '—' }}</p>
