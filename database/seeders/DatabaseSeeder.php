@@ -10,30 +10,24 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin user
-        User::create([
+        User::firstOrCreate(['email' => 'admin@rewear.com'], [
             'name'               => 'Admin ReWear',
-            'email'              => 'admin@rewear.com',
             'password'           => Hash::make('password'),
             'role'               => 'admin',
             'is_verified_seller' => true,
             'total_co2_saved'    => 0.00,
         ]);
 
-        // Test seller (verified)
-        User::create([
+        User::firstOrCreate(['email' => 'seller@rewear.com'], [
             'name'               => 'Seller Test',
-            'email'              => 'seller@rewear.com',
             'password'           => Hash::make('password'),
             'role'               => 'user',
             'is_verified_seller' => true,
             'total_co2_saved'    => 35.50,
         ]);
 
-        // Test buyer
-        User::create([
+        User::firstOrCreate(['email' => 'buyer@rewear.com'], [
             'name'               => 'Buyer Test',
-            'email'              => 'buyer@rewear.com',
             'password'           => Hash::make('password'),
             'role'               => 'user',
             'is_verified_seller' => false,

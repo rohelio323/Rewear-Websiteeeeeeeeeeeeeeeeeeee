@@ -2,9 +2,13 @@
     {{-- Image --}}
     <div class="relative" style="aspect-ratio:3/4;">
         @if($item->first_photo)
-            <img src="{{ asset('storage/'.$item->first_photo) }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
+            @if(str_starts_with($item->first_photo, 'http'))
+                <img src="{{ $item->first_photo }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
+            @else
+                <img src="{{ asset('storage/'.$item->first_photo) }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
+            @endif
         @else
-            <img src="/placeholder.jpg" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
+            <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400&h=533&fit=crop&q=80" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
         @endif
 
         {{-- CO2 badge --}}
