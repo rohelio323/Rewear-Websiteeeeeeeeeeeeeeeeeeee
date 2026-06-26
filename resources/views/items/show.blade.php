@@ -45,10 +45,11 @@
                 @endauth
 
                 @if($item->first_photo)
-                    <img id="main-image" src="{{ asset('storage/'.$item->first_photo) }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    @php $mainSrc = str_starts_with($item->first_photo, 'http') ? $item->first_photo : asset('storage/'.$item->first_photo); @endphp
+                    <img id="main-image" src="{{ $mainSrc }}" alt="{{ $item->item_name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                 @else
                     <div class="w-full h-full flex items-center justify-center bg-stone-200">
-                        <img src="/placeholder.jpg" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
+                        <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=500&h=667&fit=crop&q=80" alt="{{ $item->item_name }}" class="w-full h-full object-cover">
                     </div>
                 @endif
             </div>
@@ -56,9 +57,10 @@
             @if(count($item->photo_path ?? []) > 1)
                 <div class="grid grid-cols-5 gap-3 max-w-2xl mx-auto">
                     @foreach($item->photo_path as $index => $photo)
-                        <div onclick="switchImage(this, '{{ asset('storage/' . $photo) }}')"
+                        @php $thumbSrc = str_starts_with($photo, 'http') ? $photo : asset('storage/' . $photo); @endphp
+                        <div onclick="switchImage(this, '{{ $thumbSrc }}')"
                             class="thumbnail rounded-lg overflow-hidden bg-surface-container-low aspect-square cursor-pointer hover:opacity-80 transition-opacity {{ $index === 0 ? 'border-2 border-primary' : '' }}">
-                            <img src="{{ asset('storage/' . $photo) }}" class="w-full h-full object-cover" alt="Detail {{ $index + 1 }}">
+                            <img src="{{ $thumbSrc }}" class="w-full h-full object-cover" alt="Detail {{ $index + 1 }}">
                         </div>
                     @endforeach
                 </div>
